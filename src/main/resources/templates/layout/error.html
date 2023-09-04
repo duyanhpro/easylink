@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="layout/head"></th:block>  
+
+<body>
+	
+	<th:block th:replace="layout/topbar"></th:block>
+	
+	<th:block th:replace="layout/menu"></th:block>
+	
+	
+
+	<div class="page-wrapper">
+            <!-- Page Content-->
+            <div class="page-content">
+
+                <div class="container-fluid">
+                	<p></p>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+								<section class="content">
+									<div class="box box-default">
+										<div class="box-header with-border">
+											<div class="form-group row">
+												<h4>ERROR!</h4>
+												<h3 class="text-danger">
+													<p>[[${pageError}]]</p>
+												</h3>
+											</div>
+										</div>
+									</div>
+								</section>
+							</div>
+							</div>
+                        </div> <!-- end col -->
+                    </div> <!-- end row --> 
+                    
+                </div><!-- container -->
+                
+	
+        
+		         <th:block th:replace="layout/footer"></th:block>
+		         
+            </div>
+            <!-- end page content -->
+        </div>
+        <!-- end page-wrapper -->
+        
+        <!-- App js -->
+        <script th:src="@{/assets/js/app.js}"></script>
+  </body>
+</html>

@@ -1,0 +1,336 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+	  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+	  crossorigin=""/>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+		integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+		crossorigin=""></script>
+
+<style>
+	#mapid {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 100%;
+	}
+	@keyframes fade {
+		from { opacity: 0.5; }
+	}
+	.blinking {
+		animation: fade 1s infinite alternate;
+	}
+
+	/* The sidebar menu */
+	.sidebar {
+		height: 100%; /* 100% Full-height */
+		width: 0; /* 0 width - change this with JavaScript */
+		position: fixed; /* Stay in place */
+		z-index: 1; /* Stay on top */
+		top: 0;
+		left: 0;
+		background-color: #111; /* Black*/
+		overflow-x: hidden; /* Disable horizontal scroll */
+		padding-top: 60px; /* Place content 60px from the top */
+		transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+	}
+
+	/* The sidebar links */
+	.sidebar a {
+		padding: 8px 8px 8px 32px;
+		text-decoration: none;
+		font-size: 25px;
+		color: #818181;
+		display: block;
+		transition: 0.3s;
+	}
+
+	/* When you mouse over the navigation links, change their color */
+	.sidebar a:hover {
+		color: #f1f1f1;
+	}
+
+	/* Position and style the close button (top right corner) */
+	.sidebar .closebtn {
+		position: absolute;
+		top: 0;
+		right: 25px;
+		font-size: 36px;
+		margin-left: 50px;
+	}
+	/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+	#main {
+		transition: margin-left .5s; /* If you want a transition effect */
+		padding: 20px;
+	}
+
+	/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+	@media screen and (max-height: 450px) {
+		.sidebar {padding-top: 15px;}
+		.sidebar a {font-size: 18px;}
+	}
+
+	.modal.left .modal-dialog {
+		position:fixed;
+		right: 0;
+		margin: auto;
+		width: 320px;
+		height: 100%;
+		-webkit-transform: translate3d(0%, 0, 0);
+		-ms-transform: translate3d(0%, 0, 0);
+		-o-transform: translate3d(0%, 0, 0);
+		transform: translate3d(0%, 0, 0);
+	}
+
+	.modal.left .modal-content {
+		height: 100%;
+		overflow-y: auto;
+	}
+
+	.modal.right .modal-body {
+		padding: 15px 15px 80px;
+	}
+
+	.modal.right.fade .modal-dialog {
+		left: -320px;
+		-webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+		-moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+		-o-transition: opacity 0.3s linear, left 0.3s ease-out;
+		transition: opacity 0.3s linear, left 0.3s ease-out;
+	}
+
+	.modal.right.fade.show .modal-dialog {
+		right: 0;
+	}
+
+	/* ----- MODAL STYLE ----- */
+	.modal-content {
+		border-radius: 0;
+		border: none;
+	}
+
+	.modal-header {
+		border-bottom-color: #eeeeee;
+		background-color: #fafafa;
+	}
+
+	.li:hover{
+		cursor: pointer;
+		background-color: burlywood;
+	}
+
+</style>
+<script th:inline="javascript">
+
+	var markerMap;
+	var map;
+
+	$(document).ready(function() {
+
+		$("body").toggleClass("enlarge-menu");  // Collapse menu, fill the map, then show menu back!  (to avoid gray part in map)
+
+		map = L.map('mapid').setView([21.0278, 105.8342], 13);  // focus view on hanoi location
+
+		// add the OpenStreetMap tiles
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+		}).addTo(map);
+
+		// show the scale bar on the lower left corner
+		L.control.scale().addTo(map);
+
+//        // handle marker popup
+//        marker.bindPopup("<b>Hello world!</b><br>I am a popup."); //.openPopup();
+		var greenIcon = L.icon({
+			//iconUrl: '/img/cam_glossy_50x50.png',
+			iconUrl: [[@{'/img/charging-device-green.png'}]],
+			iconSize:     [32, 32], // size of the icon
+			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
+		});
+		var redIcon = L.icon({
+			iconUrl: [[@{'/img/charging-device-red.png'}]],
+			iconSize:     [32, 32], // size of the icon
+			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
+			className: 'blinking'   // to make icon blinking
+		});
+		var grayIcon = L.icon({
+			iconUrl: [[@{'/img/charging-device-gray.png'}]],
+			iconSize:     [32, 32], // size of the icon
+			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
+			className: 'blinking'   // to make icon blinking
+		});
+		//var markerList = [];
+		markerMap = new Map();
+		$.getJSON([[@{/api/devices}]], function(devices){
+			console.log(devices);
+			$.each(devices, function(i, cam){
+				console.log("Add marker for " + cam.name + " at " + cam.lat + ":" + cam.lon);
+				var mypopup = '<a href="' + [[@{/device/edit/}]] + cam.id + '/">' + "<b>" + cam.name + "</b></a><br>"
+				+ cam.location
+				+ "<br>Trạng thái chung: " + (cam.status == 0? "OK":"NOK")
+				+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
+				+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
+				+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">' + "Xem cảnh báo</a><br>"
+				;
+
+				var marker;
+				//if (cam.status == 0) // 0 is OK
+				marker = L.marker([cam.lat, cam.lon], {icon: grayIcon, title:cam.name}).bindPopup(mypopup).addTo(map);
+				//else marker = L.marker([cam.lat, cam.lon], {icon: redIcon,  title:cam.name}).bindPopup(mypopup).addTo(map);
+				//markerList.push(marker);
+				markerMap.set(cam.deviceId, marker);
+
+			});
+			});
+
+			// update device status
+			$.getJSON([[@{/api/devices/status}]], function(sstatus){
+				console.log(sstatus);
+				for (const s of sstatus) {
+					console.log("Device " + s.deviceId + ", status: " + s.status);
+					var marker = markerMap.get(s.deviceId);
+					if (marker != null)
+						marker.setIcon(s.status==0? greenIcon: redIcon);
+				}
+			});
+
+			var b = true;
+			setInterval(function() {
+				$.getJSON([[@{/api/devices/status}]], function(sstatus){
+					console.log(sstatus);
+					for (const s of sstatus) {
+						console.log("Device " + s.deviceId + ", status: " + s.status);
+						var marker = markerMap.get(s.deviceId);
+						if (marker != null)
+							marker.setIcon(s.status==0? greenIcon: redIcon);
+					}
+				});
+			}, 5000);     // Update every 5 seconds
+
+
+			$('#my_modal').on('show.bs.modal', function(e) {
+				var deviceId = $(e.relatedTarget).data('device-id');
+				var deviceName = $(e.relatedTarget).data('device-name');
+				$("#myModalLabel").html(deviceName);
+				$("#telemetry-table tbody").empty();    // remove body except header
+				$.getJSON([[@{/api/devices/}]] + deviceId + '/status', function(st) {
+					console.log("Status: " + st);
+					//$('#telemetry-table').append('<tr><td>Thời điểm cập nhật</td><td>' + st.eventTime + '</td></tr>');
+					$("#eventTime").html('Thời điểm cập nhật: ' + st.eventTime);
+					$.each( st.telemetryMap, function( key, val ) {
+						console.log(key + ' : ' + val);
+						$('#telemetry-table').append('<tr><td>' + key + '</td><td>' + val + '</td></tr>');
+					});
+
+				});
+			});
+
+			$("body").toggleClass("enlarge-menu");
+
+		});
+
+		function focusDevice(deviceId) {
+			console.log("click " + deviceId);
+			var marker = markerMap.get(deviceId);
+			console.log("markerMap: " + markerMap);
+			console.log("marker: " + marker);
+			var markerLat = marker.getLatLng().lat;
+			var markerLng = marker.getLatLng().lng;
+			// Center the map on the marker's position and zoom to the specified zoom level
+			//map.setView([markerLat, markerLng], map.getZoom(), {animation: true}); // not good, animation, mess up with openPopup()
+			map.flyTo([markerLat, markerLng], map.getZoom());	// effect beaufiful!
+			marker.openPopup();
+		};
+
+</script>
+
+<!--                 <div class="container-fluid"> -->
+
+<!-- Page-Title -->
+<div class="row">
+	<div class="col-sm-8">
+		<div class="page-title-box">
+			<h4 id="page-title" class="page-title">[[${pageTitle}]]</h4>
+		</div><!--end page-title-box-->
+	</div><!--end col-->
+	<div id="view-list" class="col-sm-2 col-lg-4">
+		<div class="pull-right">
+			<i class="mdi mdi-view-list" style="font-size: 40px;" onclick="openNav()"
+					data-toggle="modal" data-target="#sideModal"></i>
+		</div>
+	</div>
+</div>
+<!-- end page title end breadcrumb -->
+
+<div class="card w-100 h-100 p-0">
+	<!--                                 <div class="card-body"> -->
+
+	<div id="mapid"></div>
+
+<!--	 								</div>-->
+</div>
+
+<!--                 </div>container -->
+
+<!-- Modal -->
+<div class="modal fade" id="my_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="myModalLabel">Chi tiết trạng thái trạm</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<h5 class="modal-title" id="eventTime" style="margin-bottom:10px">Thời điểm cập nhật</h5>
+				<table id="telemetry-table" class="table table-bordered">
+					<thead>
+					<tr>
+						<th style="width: 80px" align="center">Thông số</th>
+						<th style="width: 80px" align="center">Giá trị</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>    <td>Thời điểm cập nhật</td> <td>17:10:07 09/10/2021</td>                </tr>
+					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
+					<tr>    <td>Temp</td>   <td>123</td>                </tr>
+					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
+					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
+					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
+					</tbody>
+				</table>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal left fade" id="sideModal" tabindex="" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="nav flex-sm-column flex-row">
+
+					<ul  class="list-group">
+						<li class="list-group-item"><h3>Danh sách Trạm</h3></li>
+						<li th:each="device,iterationStatus  : ${devices}"
+							class="list-group-item" th:id="${device.deviceId}"
+							th:text="${iterationStatus.count +'.  ' + device.name}"
+							th:attr="onclick=${'focusDevice(&quot;'+device.deviceId+'&quot;)'}"
+							style="cursor:pointer">Device item</li>
+					</ul>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,86 @@
+
+<script type="text/javascript">
+	function validateForm() {
+		let x = document.forms["myForm"]["resource"].value;
+		let y = document.forms["myForm"]["action"].value;
+		let z = document.forms["myForm"]["condition"].value;
+		if (x == "" || y == "" ) {
+			$('#validate').text("Resource & Action must not be empty");
+			$('#validate').show();
+			return false;
+		}
+		$('#validate').hide();
+	};
+
+</script>
+
+<section class="content">
+	<div class="box box-default">
+		<div class="box-body">
+		<form name="myForm" class="form-horizontal" th:action="@{'/role/addPermission?roleId=' + ${role.id}}"  action="/role/addPermission" method="post" onsubmit="return validateForm()">
+			<div class="table-responsive">		<!-- Wrapp this div around normal bootstrap table to make it responsive -->
+			<table id="permission-table" class="table table-bordered dt-responsive nowrap" style="width: 100%;" >
+			<thead>
+				<tr>
+					<th style="width: 20px" align="center">STT</th>
+					<th style="width: 80px" align="center">Resource</th>
+					<th style="width: 80px" align="center">Action</th>
+					<th style="width: 120px" align="center">Condition</th>
+					<th style="width: 200px" align="center">Description</th>
+<!--					<th style="width: 20px" align="center">Allow</th>-->
+					<th style="width: 30px" align="center">Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="p,iterationStatus  : ${permissions}">
+					<td th:text="${iterationStatus.count}">1</td>
+					<td th:text="${p.resource}">Permssion 1</td>
+					<td th:text="${p.action}">Permssion 1</td>
+					<td th:text="${p.condition}">Permssion 1</td>
+					<td th:text="${p.description}">Permssion 1</td>
+<!--					<td th:text="${p.allow? 'Allow': 'Reject'}"></td>-->
+					<td>
+						<a th:if="${role.editable == true}" th:href="@{'/role/removePermission?roleId=' + ${role.id} + '&permissionId=' + ${p.id}}"
+						class="btn btn-gradient-danger">[[#{delete}]]</a>
+					</td>
+				</tr>
+				<tr th:if="${role.editable == true}">
+					<td></td>
+					<td><input type="text" class="form-control" id="resource" name="resource"></td>
+					<td><input type="text" class="form-control" id="action" name="action"></td>
+					<td><input type="text" class="form-control" id="condition" name="condition"></td>
+					<td><input type="text" class="form-control" id="description" name="description"></td>
+					<input type="hidden" value="1" name="allow">
+<!--					<td>-->
+<!--							<input value="1" type="checkbox" name="allow" checked>-->
+<!--							<label for="allow">Allow</label>-->
+<!--					</td>-->
+
+					<td><button type="submit" style="width:96px;" class="btn btn-gradient-primary">[[#{add}]]</button>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+				<label id="validate" style="color: red; display: none">Loi </label>
+			</div>
+		</form>			
+		
+		</div>
+
+		<!-- /.box-body -->
+		<div class="row">
+			<div class="col-sm-0"></div>
+			<div class="col-sm-5 text-right">
+				<button type="button" class="btn btn-gradient-info pull-left" onclick="history.back()">
+					<i class="fa fa-close"></i> [[#{cancel}]]
+				</button>
+			</div>
+		</div>
+		
+	</div>
+<!-- 								<div class="custom-control custom-switch switch-primary"> -->
+<!-- 									<input value="1" type="checkbox" name="status" class="custom-control-input" id="status" > -->
+<!-- 									<label id="statusLabel" class="custom-control-label" for="status">asfasdf</label> -->
+<!-- 								</div> -->
+
+</section>

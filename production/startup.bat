@@ -1,0 +1,1 @@
+java -Dspring.config.location=./conf/ -jar ./libs/bi-wrapper.jar

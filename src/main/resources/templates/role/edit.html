@@ -1,0 +1,102 @@
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('#lstParentRoles').select2({
+		});
+
+        var isFormChanged = false;
+        var isConfirmed = false;
+        $("form :input").change(function() {
+            console.log($(this).attr('name') + " has changed");
+            isFormChanged = true;
+            $("#isFormChanged").val(true);
+        });
+        
+        $("#lstParentRoles").change(function() {
+        	console.log("Parent Roles list has changed");
+        	$("#isParentRolesChanged").val(true);
+        })
+        
+        if($('#status').prop("checked")) {
+            $('#statusLabel').text("Kích hoạt");
+        } else {
+        	$('#statusLabel').text("Khóa");
+        }
+    
+	    $('#status').change(function() {
+	        if(this.checked) {
+	            $('#statusLabel').text("Kích hoạt");
+	        } else {
+	        	$('#statusLabel').text("Khóa");
+	        }
+	        
+    });
+	});
+</script>
+
+<section class="content">
+
+            <div class="col-xs-12">
+			<div class="box box-info">
+			
+				<!-- form start -->
+				<form class="form-horizontal" th:action="@{/role/save}" method="post">
+				
+					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
+					<input type="hidden" id="isParentRolesChanged" name="isParentRolesChanged" value="false">
+					<input type="hidden" id="id" name="id" th:value="${role.id}">
+					
+					<div class="box-body">
+						<div class="form-group row">
+							<label for="username" class="col-sm-4 control-label col-form-label">Tên quyền</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="name" name="name" th:value="${role.name}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="description" class="col-sm-4 control-label col-form-label">Mô tả</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="description" name="description" th:value="${role.description}">
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label for="status" class="col-sm-4 control-label text-right">Trạng thái</label>
+							<div class="col-sm-5">
+								<div class="custom-control custom-switch switch-primary">
+									<input value="1" type="checkbox" name="status" class="custom-control-input" 
+												id="status" th:checked="${role.status==1}">
+									<label id="statusLabel" class="custom-control-label" for="status"></label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="groupName" class="col-sm-4 control-label col-form-label">Quyền cha (parent role)</label>
+							<div class="col-sm-5">
+							  <select id="lstParentRoles" class="form-control select2" style="width: 100%;" data-placeholder="Chọn quyền" name="parentRoleIds" multiple>
+		                        <option th:if="${r.id != role.id}" th:value="${r.id}" th:each="r : ${allRoles}" th:selected="${parentRoles.contains(r.name)}">[[${r.name}]]</option>
+		                      </select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="groupName" class="col-sm-4 control-label col-form-label">Thao tác được phép (Permission)</label>
+							<div class="col-sm-5">
+							  	<a th:if="${action!='create'}" th:href="@{/role/permission?roleId=} + ${role.id}" class="btn btn-gradient-info">Xem chi tiết quyền</a>
+							</div>
+						</div>
+			</div>
+		
+					<!-- /.box-body -->
+					<div class="row">
+						<div class="col-sm-4"></div>
+						<div class="col-sm-5 text-right">
+								<a th:href="@{/role}" class="btn btn-gradient-warning pull-left">[[#{cancel}]]</a>
+								<a th:if="${role.editable == true}"  class="btn btn-gradient-danger " onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/role/delete/' + ${role.id}}">[[#{delete}]]</a>
+								<button th:if="${role.editable == true}" type="submit" class="btn btn-gradient-primary " th:text="#{${action=='create'? 'save' : 'update'}}">Save</button>					
+								<button th:if="${role.editable == false}" type="submit" class="btn btn-gradient-primary " disabled th:text="#{${action=='create'? 'save' : 'update'}}">Save</button>					
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+</section>

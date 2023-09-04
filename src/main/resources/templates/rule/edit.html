@@ -1,0 +1,157 @@
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('#lstDevice').select2({
+		});
+
+		if ($("#allDevice").is(":checked")) {
+ 	        $('#lstDevice').prop('disabled', 'disabled');
+ 	    }
+ 	    else {
+ 	        $('#lstDevice').prop('disabled', false);
+ 	    }
+		 
+        var isFormChanged = false;
+        var isConfirmed = false;
+        $("form :input").change(function() {
+            console.log($(this).attr('name') + " has changed");
+            isFormChanged = true;
+            $("#isFormChanged").val(true);
+        });
+        
+        $("#lstDevice").change(function() {
+        	console.log("Device list has changed");
+        	$("#isDeviceChanged").val(true);
+        	$("#isFormChanged").val(true);
+        });
+        
+        $("#allDevice").change(function() {
+        	console.log("allDevice checkbox change");
+        	 if ($("#allDevice").is(":checked")) {
+        	        $('#lstDevice').prop('disabled', 'disabled');
+        	    }
+        	    else {
+        	        $('#lstDevice').prop('disabled', false);
+        	    }
+        });
+        
+        if($('#status').prop("checked")) {
+            $('#statusLabel').text("Kích hoạt");
+        } else {
+        	$('#statusLabel').text("Khóa");
+        }
+    
+	    $('#status').change(function() {
+	        if(this.checked) {
+	            $('#statusLabel').text("Kích hoạt");
+	        } else {
+	        	$('#statusLabel').text("Khóa");
+	        }
+	        
+	    });
+        
+	});
+</script>
+
+<section class="content">
+
+            <div class="col-xs-12">
+			<div class="box box-info">
+
+				<!-- form start -->
+				<form class="form-horizontal" th:action="@{/rule/save}" method="post">
+				
+					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
+<!-- 					<input type="hidden" id="isUserGroupChanged" name="isUserGroupChanged" value="false"> -->
+					<input type="hidden" id="isDeviceChanged" name="isDeviceChanged" value="false">
+					<input type="hidden" id="id" name="id" th:value="${rule.id}">
+					
+					<div class="box-body">
+						<div class="form-group row">
+							<label for="name" class="col-sm-3 col-form-label">Tên luật</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="name" name="name" th:value="${rule.name}">
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-sm-3 control-label text-right">Trạng thái</label>
+							<div class="col-sm-5">
+								<div class="custom-control custom-switch switch-primary">
+									<input value="1" type="checkbox" name="status" class="custom-control-input" id="status" th:checked="${rule.status==1}">
+									<label id="statusLabel" class="custom-control-label" for="status"></label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="condition" class="col-sm-3 col-form-label">Điều kiện</label>
+							<div class="col-sm-5">
+								<textarea class="form-control" id="condition" rows="3"	name="condition">[[${rule.condition}]]</textarea>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="actionType" class="col-sm-3 col-form-label">Hành động</label>
+							<div class="col-sm-5">
+								<select id="actionType" class="form-control" name="actionType">
+		                        	<option value="CreateAlarm">Tạo cảnh báo</option>
+		                      </select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="alarmContent" class="col-sm-3 col-form-label">Nội dung cảnh báo</label>
+							<div class="col-sm-3">
+								<input type="text" class="form-control" id="alarmContent" name="alarmContent" th:value="${alarm.alarmContent}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label">Mức độ</label>
+							<div class="col-sm-3">
+								<select class="form-control select2" style="width: 100%;" name="alarmLevel">
+								<option th:each="l : ${T(easylink.dto.AlarmLevel).values()}"
+                					th:selected="${alarm.alarmLevel == l.name()}" th:value="${l}" th:text="${l}"></option>
+                			
+						</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="alarmType" class="col-sm-3 col-form-label">Loại cảnh báo (Tag)</label>
+							<div class="col-sm-3">
+								<input type="text" class="form-control" id="alarmType" name="alarmType" th:value="${alarm.alarmType}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="lstDevice" class="col-sm-3 col-form-label">Trạm được áp dụng</label>
+							<div class="col-sm-5">
+							  <select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn trạm được áp dụng luật" 
+							  	name="deviceIds" multiple>
+		                          <option th:each="s : ${allDevices}" th:value="${s.id}" th:selected="${devices !=null && devices.contains(s.id)}">[[${s.name}]]</option>
+		                      </select>
+							</div>
+
+							<div class="col-sm-2 custom-control custom-checkbox">
+								<input type="checkbox" class="custom-control-input" id="allDevice" name="allDevice" th:checked="${rule.scope==1}">
+								<label class="custom-control-label" for="allDevice">Tất cả</label>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="interval" class="col-sm-3 col-form-label">Thời gian tối thiểu giữa các lần kích hoạt (giây)</label>
+							<div class="col-sm-5">
+								<input type="number" class="form-control" id="interval" name="interval" th:value="${rule.minInterval}" min="0">
+							</div>
+						</div>
+
+					</div>
+
+					<div class="row">
+						<div class="col-sm-3"></div>
+						<div class="col-sm-5 text-right">
+							<a th:href="@{/rule/}" class="btn btn-gradient-warning pull-left">[[#{cancel}]]</a>
+							<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?');" th:href="@{'/rule/delete/' + ${rule.id}}">[[#{delete}]]</a>
+							<button type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
+						</div>
+					</div>
+					
+				</form>
+			</div>
+		</div>
+</section>

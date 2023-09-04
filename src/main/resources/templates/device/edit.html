@@ -1,0 +1,250 @@
+
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+ 
+ <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+   
+<style>
+#mapid {
+	position: relative;
+	height: 400px;
+}
+</style>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+	    
+		$('#lstStreet').select2({
+			allowClear: true,
+		    placeholder: "-",
+			tags: true
+		});
+		$('#lstDistrict').select2({
+			allowClear: true,
+		    placeholder: "-",
+			tags: true
+		});
+		$('#lstCity').select2({
+			allowClear: true,
+		    placeholder: "-",
+			tags: true
+		});
+		$('#lstGroup').select2({
+			allowClear: true,
+		    placeholder: "-",
+			tags: true
+		});
+		
+		$("#page-title").html("Quản lý Trạm");
+	});
+</script>
+
+<section class="content">
+
+            <div class="col-xs-12">
+			<div class="box box-info">
+
+				<!-- form start -->
+				<form class="form-horizontal" th:action="@{/device/save}" method="post">
+				
+					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
+					<input type="hidden" id="id" name="id" th:value="${device.id}">
+					<input type="hidden" id="status" name="status" th:value="${device.status}">
+					<div class="box-body">
+						<div class="form-group row">
+							<label class="col-sm-2 control-label col-form-label">Tên trạm</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="name"	name="name" th:value="${device.name}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">IoT Device Token</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="deviceToken"	name="deviceToken" th:value="${device.deviceToken}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Thông tin trạm</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="description"	name="description" th:value="${device.description}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Thành phố</label>
+							<div class="col-sm-5">
+								<select id="lstCity" class="form-control select2" style="width: 100%;" data-placeholder="" name="city">
+									<option value="" th:selected="${device.city == null}"></option>
+									<option th:each="u : ${cities}" th:value="${u}" th:selected="${u == device.city}">[[${u}]]</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Quận/Huyện</label>
+							<div class="col-sm-5">
+								<select id="lstDistrict" class="form-control select2" style="width: 100%;" data-placeholder="" name="district">
+									<option value="" th:selected="${device.district == null}"></option>
+									<option th:each="u : ${districts}" th:value="${u}" th:selected="${u == device.district}">[[${u}]]</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Đường/Phố</label>
+							<div class="col-sm-5">
+								<select id="lstStreet" class="form-control select2" style="width: 100%;" data-placeholder="" name="street">
+									<option value="" th:selected="${device.street == null}"></option>
+									<option th:each="u : ${streets}" th:value="${u}" th:selected="${u == device.street}">[[${u}]]</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Địa điểm</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="location"	name="location" th:value="${device.location}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Vĩ độ</label>
+							<div class="col-sm-2">
+								<input type="text" class="form-control" id="lat"	name="lat" th:value="${device.lat}">
+							</div>
+							<label class="col-sm-1 col-form-label">Kinh độ</label>
+							<div class="col-sm-2">
+								<input type="text" class="form-control" id="lon"	name="lon" th:value="${device.lon}">
+							</div>
+							<button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#myModal">
+								<i class="fa fa-close"></i> Thiết lập trên bản đồ
+							</button>
+						</div>
+
+
+
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Nhóm trạm</label>
+							<div class="col-sm-5">
+								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="" name="group">
+								  <option value="" th:selected="${device.group == null}"></option>
+		                          <option th:each="u : ${groups}" th:value="${u}" th:selected="${u == device.group}">[[${u}]]</option>
+		                      	</select>
+							</div>
+						</div>
+					</div>
+
+					<!-- /.box-body -->
+					<div class="row">
+						<div class="col-sm-2"></div>
+						<div class="col-sm-5 text-right">
+							<button type="button" class="btn btn-gradient-info pull-left" onclick="history.back()">
+									<i class="fa fa-close"></i> [[#{cancel}]]
+							</button>
+							<a th:if="${action!='create'}" th:href="@{'/device/delete/' + ${device.id}}" class="btn btn-gradient-danger"
+								onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
+							<button type="submit" class="btn btn-gradient-primary">Lưu</button>
+						</div>
+					</div>
+					
+				</form>
+			</div>
+		</div>
+</section>
+
+<div id="myModal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chọn vị trí trạm trên bản đồ</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        	<div id="mapid"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-gradient-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+	
+	$(document).ready(function() {
+		var map = L.map('mapid').setView([21.0278, 105.8342], 13);	// focus view on hanoi location
+		
+		 // add the OpenStreetMap tiles
+	      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	        maxZoom: 19,
+	        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+	      }).addTo(map);
+
+	      // show the scale bar on the lower left corner
+	      L.control.scale().addTo(map);
+
+	     var greenIcon = L.icon({
+	    	 iconUrl: [[@{'/img/charging-device-green.png'}]],
+		    iconSize:     [32, 32], // size of the icon
+		    iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+		    popupAnchor:  [0,-16] // point from which the popup should open relative to the iconAnchor
+		});
+	    
+	     
+          	console.log("Add marker for " + [[${device.name}]]);
+          	var mypopup = '<a href="/device/edit/' + [[${device.id}]] + '/">' + "<b>" + [[${device.name}]] + "</b></a><br>" + [[${device.location}]];
+          	var lat = [[${device.lat}]];
+          	var lon = [[${device.lon}]];
+          	var marker = null;
+          	console.log(lat, lon);
+
+          	if (lat == null || lon == null) {
+          		console.log("Setting event for new device");
+	          	map.on('click', function(e) {
+	          		console.log("click on map at ", e.latlng.lat, e.latlng.lng);
+	          		if (marker == null) {	// check to not re-add cam
+	          			marker = L.marker([ e.latlng.lat, e.latlng.lng ], {icon: greenIcon, draggable: 'true'}).bindPopup(mypopup).addTo(map);
+	          			marker.on('dragend', function(event) {
+	                 		var latlng = event.target.getLatLng();
+	                 		console.log("Device moved to ", latlng.lat, latlng.lng);
+	                 		var newloc = {lat: latlng.lat, lon: latlng.lng}; 
+	        				console.log(JSON.stringify(newloc));
+
+	        				// update the input
+	        	         	$("#lat").val(latlng.lat);
+	        	         	$("#lon").val(latlng.lng);
+	              		});
+	          			
+	          			// update the input
+			         	$("#lat").val(latlng.lat);
+			         	$("#lon").val(latlng.lng);
+	          		}
+	          	});
+          	} else {
+	          	marker = L.marker([ [[${device.lat}]], [[${device.lon}]] ], {icon: greenIcon, draggable: 'true'}).bindPopup(mypopup).addTo(map);
+	         	map.setView([ [[${device.lat}]], [[${device.lon}]] ], 13);
+	         	
+	         	marker.on('dragend', function(event) {
+	         		var latlng = event.target.getLatLng();
+	         		console.log("Device moved to ", latlng.lat, latlng.lng);
+	         		var newloc = {lat: latlng.lat, lon: latlng.lng}; 
+					console.log(JSON.stringify(newloc));
+
+					// update the input
+		         	$("#lat").val(latlng.lat);
+		         	$("#lon").val(latlng.lng);
+	      		});
+          	}
+          	
+         	
+         	$('#myModal').on('shown.bs.modal', function(){
+        		console.log("Modal event");
+        	    //resize the map - this is the important part for you
+        	   map.invalidateSize(true);
+        	});
+	});
+	
+	
+/*]]>*/
+</script>

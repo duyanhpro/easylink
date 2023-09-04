@@ -1,0 +1,111 @@
+<script src="../static/js/quickj/vpager.js"  th:src="@{/js/quickj/vpager.js}"></script>
+
+<script type="text/javascript">
+$(document).ready(function () {
+   $("#page-title").html("Quản lý cảnh báo");
+});
+
+</script>
+
+<section class="content">
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<form th:action="@{/alarm}" method="get" id="searchForm">
+			
+			<!-- Hidden input to support paging -->
+			<input type="hidden" name="page" id="page" th:value="${page}">
+			<input type="hidden" name="pageSize" id="pageSize" th:value="${pageSize}">
+
+				<div class="form-group row">
+					<label for="lstDevice" class="col-sm-2 col-form-label text-left">Trạm</label>
+					<div class="col-sm-3">
+						<select id="lstDevice" class="form-control select2"
+							style="width: 100%;" data-placeholder="Chọn Trạm" name="selectedDevice">
+							<option value="0" th:selected="${0==selectedDevice}">Tất cả</option>
+							<option th:value="${c.id}" th:each="c : ${devices}"
+								th:selected="${c.id==selectedDevice}">[[${c.name}]]</option>
+						</select>
+					</div>
+					<label class="col-sm-2 col-form-label text-left">Mức độ</label>
+					<div class="col-sm-3">
+						<select class="form-control select2" style="width: 100%;"
+							name="level">
+							<option value="" th:selected="${level == null or level==''}">Tất cả</option>
+<!-- 							<option value="0" th:selected="${level==0}">Info</option> -->
+<!-- 							<option value="1" th:selected="${level==1}">Warning</option> -->
+<!-- 							<option value="2" th:selected="${level==2}">Error</option> -->
+<!-- 							<option value="3" th:selected="${level==3}">Critical</option> -->
+							<option th:each="l : ${T(easylink.dto.AlarmLevel).values()}"
+                				th:selected="${level == l.name()}" th:value="${l}" th:text="${l}"></option>
+                			
+						</select>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label text-left">Từ ngày</label>
+					<div class="col-sm-3">
+						<input class="form-control" type="date" name="startDate" id="startDate" th:value="${startDate}" autocomplete="off">
+					</div>
+					<label class="col-sm-2 col-form-label text-left">Đến ngày</label>
+					<div class="col-sm-3">
+						<input class="form-control" type="date" name="endDate" id="endDate" th:value="${endDate}" autocomplete="off">
+					</div>
+					<div class="col-lg-2 cold-md-3 col-sm-3 col-xs-3">
+						<div class="">
+							<button type="submit" name="fsearch" value="search" class="btn btn-primary btn-rounded">Tìm kiếm</button>
+<!-- 							<button type="submit" name="fexport" value="export" class="btn btn-success">Xuất excel</button> -->
+						</div>
+					</div>
+					
+				</div>
+			</form>
+			
+		</div>
+		<div class="box-body">
+			<div class="table-responsive">	
+			<table class="table table-bordered" id="mainTable">
+			<thead>
+				<tr>
+					<th style="width: 20px" align="center">STT</th>
+					<th>Thời gian</th>
+					<th>Nội dung cảnh báo</th>
+					<th>Mức độ</th>
+					<th>Loại</th>
+					<th>Thiết bị</th>
+<!-- 					<th>Thao tác</th> -->
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="v,iterationStatus  : ${mypage.content}">
+					<td th:text="${iterationStatus.count + mypage.number * mypage.size}">1</td>
+					<td th:text="${#dates.format(v.eventTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+					<td th:text="${v.content}"></td>
+					<div th:switch="${v.level}">
+						<td th:case="'1'">Đã xác nhận</td>
+						<td th:case="'0'">Info</td>
+						<td th:case="2">Hủy vi phạm</td>
+						<td th:case="*">[[${v.level}]]</td>
+					</div>
+					<td th:text="${v.type}"></td>
+					<td th:text="${v.deviceToken}"></td>
+<!-- 					<td><a class="btn btn-default" th:href="@{'/alarm/edit/' + ${v.id}}">Chi tiết</a></td> -->
+				</tr>
+			</tbody>
+			</table>
+			</div>
+		</div>
+		
+		<div class="pull-right">
+		    <ul class="pagination">
+		    	<li th:class="${mypage.first} ? 'page-item disabled'"><a class="page-link" th:href="'javascript:jumpPage(\'searchForm\',\'' + 1 + '\');'">Trang đầu</a></li>
+		        <li th:class="${mypage.first} ? 'page-item disabled'" >
+		        	<a class="page-link" th:href="'javascript:jumpPage(\'searchForm\',\'' + ${mypage.number} + '\');'">&larr; </a></li>
+		        <li class="page-link disabled" th:text="${'Trang ' + (mypage.number+1) + '/' + mypage.totalPages + ' - Tổng số: ' + mypage.totalElements}"></li>
+		        <li th:class="${mypage.last} ? 'page-item disabled'"><a class="page-link"  th:href="'javascript:jumpPage(\'searchForm\',\'' + ${mypage.number+2} + '\');'">&rarr;</a></li>
+		        <li th:class="${mypage.last} ? 'page-item disabled'"><a class="page-link"  th:href="'javascript:jumpPage(\'searchForm\',\'' +  ${mypage.totalPages} + '\');'">Trang cuối</a></li>
+		       	
+		    </ul>
+		</div>
+		
+	</div>
+</section>

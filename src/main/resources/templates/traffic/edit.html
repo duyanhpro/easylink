@@ -1,0 +1,144 @@
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+	    $('#birthday').datepicker({
+	    	 format: "dd/mm/yyyy",
+	    	 language: "vi",
+	    	 todayHighlight: true,
+	    	 todayBtn: true,
+	    	 autoclose: true
+	    });
+		$('#lstUserGroup').select2({
+		});
+		$('#lstUserRole').select2({
+		});
+	});
+	function saveAndSubmit() {
+		console.log("Lưu và xác nhận vi phạm");
+		if (!$("#plate").val()) {
+			alert("Biển số không được phép rỗng");
+			return;
+		}
+		$("#status").val(1);
+		$("#frmTraffic").submit();
+	}
+</script>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>[[${violation.eventType!='alpr' ? 'Thông tin vi phạm' : 'Thông tin biển số'}]]</h1>
+	<th:block th:replace="layouts/fragments/breadcrum"></th:block>
+</section>
+
+<section class="content">
+
+          <div class="row">
+            <div class="col-xs-12">
+			<div class="box box-info">
+				<div class="box-header with-border">
+				</div>
+				<!-- /.box-header -->
+
+				<!-- form start -->
+				<form id="frmTraffic" class="form-horizontal" action="/traffic/save" method="post">
+				
+					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
+					<input type="hidden" id="id" name="id" th:value="${violation.id}">
+					<input type="hidden" id="status" name="status" th:value="${violation.status}">
+					<div class="col-sm-2">
+						<img class="img-responsive" th:if="${violation.plateCapture != ''}" th:src="${violation.plateCapture}" alt="Photo">
+					</div>
+					<div class="col-sm-10">
+						<img class="img-responsive" th:src="${violation.imgCapture}" alt="Photo">
+						<div style="padding-top: 10px"></div>
+						<a class="btn btn-warning" th:href="${violation.videoCapture}" th:if="${violation.videoCapture != ''}">Xem video sự kiện</a>
+					</div>
+					<div class="box-body">
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Địa điểm</label>
+							<div class="col-sm-5">
+								<p class="form-control-static">[[${camera.location + ", " + camera.street + ", " + camera.district + ", " + camera.city}]]</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Camera</label>
+							<div class="col-sm-5">
+								<a th:href="@{'/camera/edit/' + ${camera.id}}">
+									<p class="form-control-static">[[${camera.name}]]</p>
+								</a>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Biển số</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="plate"	name="plate" th:value="${violation.vehiclePlate}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="fullName" class="col-sm-2 control-label">Thời gian</label>
+							<div class="col-sm-5">
+								<p class="form-control-static">[[${#dates.format(violation.eventTime, 'dd/MM/yyyy HH:mm:ss')}]]</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="fullName" class="col-sm-2 control-label">
+								[[${violation.eventType=='alpr'? 'Sự kiện': 'Lỗi vi phạm'}]]</label>
+							<div class="col-sm-5">
+								<p th:if="${violation.eventType=='alpr'}" class="form-control-static">Nhận diện biển số</p>
+								<p th:if="${violation.eventType=='parking'}" class="form-control-static">Lỗi dừng đỗ</p>
+								<p th:if="${violation.eventType=='direction'}" class="form-control-static">Đi ngược chiều</p>
+								<p th:if="${violation.eventType=='lane'}" class="form-control-static">Đi sai làn</p>
+								<p th:if="${violation.eventType=='traffic_light'}" class="form-control-static">Vượt đèn đỏ</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="status" class="col-sm-2 control-label">Trạng thái</label>
+							<div class="col-sm-5">
+								<p th:if="${violation.status==0}" class="form-control-static">Chờ xử lý</p>
+								<p th:if="${violation.status==1}" class="form-control-static">Đã xác nhận</p>
+								<p th:if="${violation.status==2}" class="form-control-static">Đã hủy</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Tên chủ phương tiện</label>
+							<div class="col-sm-5">
+								<input type="text" name="ownerName" class="form-control" th:value="${owner.name}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Số CMTND</label>
+							<div class="col-sm-5">
+								<input type="text" name="ownerIdNumber" class="form-control" th:value="${owner.idNumber}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Hộ khẩu thường trú</label>
+							<div class="col-sm-5">
+								<input type="text" name="ownerAddress" class="form-control" th:value="${owner.address}">
+							</div>
+						</div>
+					</div>
+					
+					<!-- /.box-body -->
+					<div class="box-footer">
+						<div class="col-xs-4">
+							<a th:if="${violation.eventType!='alpr'}" th:href="${'/traffic/update/' + violation.id +'?status=2'}" class="btn btn-danger">Hủy vi phạm</a>
+							<button th:if="${violation.eventType!='alpr'}" type="button" class="btn btn-success" onclick="saveAndSubmit()"><i class="fa fa-close"></i>Lưu và Xác nhận vi phạm </button>
+						</div>
+						<div class="col-xs-8">
+<!-- 							<a th:if="${violation.eventType!='alpr'}" th:href="${'/traffic/print/' + violation.id}" class="btn btn-success"><i class="fa fa-fw fa-print"></i>In thông báo</a> -->
+							<button type="submit" class="btn btn-info" ><i class="fa fa-save"></i> Lưu thay đổi</button>
+<!-- 							<button type="button" class="btn btn-default" onclick="history.back()"><i class="fa fa-close"></i> Thoát</button> -->
+							<a th:if="${violation.eventType=='alpr'}" th:href="${'/traffic/alpr?r=1'}" class="btn btn-danger">Thoát</a>
+							<a th:if="${violation.eventType!='alpr'}" th:href="${'/traffic/violation?r=1'}" class="btn btn-danger">Thoát</a>
+						</div>
+						
+						
+					</div>
+					<!-- /.box-footer -->
+				</form>
+			</div>
+		</div>
+		</div>
+</section>

@@ -1,0 +1,34 @@
+        <!-- Left Sidenav -->
+        <div class="left-sidenav">
+            <ul class="metismenu left-sidenav-menu">
+                <li>
+                    <a th:href="@{/dashboard}"><i class="ti-home"></i><span>Dashboard</span></a>
+                </li>
+
+                <li>
+                    <a th:href="@{/deviceDashboard}"><i class="ti-signal"></i><span>Giám sát trạm</span></a>
+                </li>
+                <li>
+                    <a th:href="@{/map}"><i class="ti-map-alt"></i><span>Bản đồ trạm</span></a>
+                </li>
+                <li>
+                    <a th:href="@{/alarm}"><i class="dripicons-warning"></i><span>Cảnh báo</span></a>
+                </li>
+                <li>
+                    <a th:href="@{/device}"><i class="dripicons-stack"></i><span>Quản lý trạm</span></a>
+                </li>
+                <li>
+                    <a th:href="@{/rule}"><i class="ti-wand"></i><span>Rule cảnh báo</span></a>
+                </li>
+                
+                <li>
+                    <a href="javascript: void(0);"><i class="ti-panel"></i><span>Quản trị hệ thống</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li class="nav-item"><a class="nav-link" th:if="${session.principal.hasPermission('user:list')}" th:href="@{/user}"><i class="ti-user"></i>QL Người dùng</a></li>
+                        <li class="nav-item"><a class="nav-link" th:if="${session.principal.hasPermission('group:list')}" th:href="@{/group}"><i class="fas fa-users"></i>QL Nhóm</a></li>
+                        <li class="nav-item"><a class="nav-linrk" th:if="${session.principal.hasPermission('role:list')}" th:href="@{/role}"><i class="ti-lock"></i>QL Quyền</a></li>
+                    </ul>
+                </li>                   
+             </ul>
+        </div>
+        <!-- end left-sidenav-->

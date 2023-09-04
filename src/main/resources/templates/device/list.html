@@ -1,0 +1,103 @@
+<style>
+	.dataTables_filter {
+	   display: none;		// hide datatable default search box to use our search input
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready(
+			function() {
+				var dataTable = $('#mainTable').DataTable({
+					"scrollX" : true,
+					"pageLength" : 30,
+					"bFilter" : false,
+					"bInfo" : false,
+					"bLengthChange" : false,
+					"searching" : true,
+					"columnDefs" : [ {
+						"targets" : [ 6 ], // Column Action can not be ordered
+						"orderable" : false
+					}, {
+						"targets" : [ 6 ], // Column Action, Status can not be searched
+						"searchable" : false
+					} ],
+					"language" : {
+						"oPaginate" : {
+							"sFirst" : "Đầu",
+							"sPrevious" : "Trước",
+							"sNext" : "Sau",
+							"sLast" : "Cuối"
+						}
+					}
+				});
+
+				$("#search").click(function() {
+					console.log("test");
+					dataTable.search($("#searchbox").val()).draw();
+				});
+
+				document.querySelector("#searchbox").addEventListener("keyup", function(event) {
+				    if(event.key !== "Enter") return; 
+				    document.querySelector("#search").click(); // Search when press Enter in search input
+				    event.preventDefault(); // No need to `return false;`.
+				});
+				
+				$("#page-title").html("Quản lý Trạm");
+			});
+</script>
+
+<section class="content">
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+					<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Tên/Mô tả/Địa điểm">
+				</div>
+				<div class="col-lg-6 cold-md-6 col-sm-8 col-xs-8">
+					<div class="">
+						<button id="search" type="submit" class="btn btn-gradient-primary">[[#{search}]]</button>
+						<a th:href="@{/device/edit/0}" class="btn btn-gradient-success">[[#{new}]]</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div >
+<!-- 			<table id="mainTable"  -->
+<!-- 			class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;" > -->
+<!-- 				<thead> -->
+			<div class="table-responsive">	
+			<table id="mainTable" class="table table-bordered dt-responsive" style="width: 100%;">
+				<thead>
+					<tr>
+						<th>STT</th>
+						<!-- 						<th style="width: 20px">ID</th> -->
+						<th>Tên</th>
+						<th>Mô tả</th>
+<!-- 						<th>Địa điểm</th> -->
+						<th>Thành phố</th>
+						<th>Quận/Huyện</th>
+						<th>Đường/Phố</th>
+						<th >Thao tác</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="device,iterationStatus  : ${devices}">
+						<td th:text="${iterationStatus.count}">1</td>
+						<!-- 						<td th:text="${device.id}"></td> -->
+						<td><a th:href="@{'/device/edit/' + ${device.id}}">[[${device.name}]]</a></td>
+						<td th:text="${device.description}">1</td>
+						<td th:text="${device.city}">1</td>
+						<td th:text="${device.district}">1</td>
+						<td th:text="${device.street}">1</td>
+						<td><a class="btn btn-gradient-primary"
+							th:href="@{'/device/edit/' + ${device.id}}">Chi tiết</a> <a
+							class="btn btn-gradient-danger"
+							th:href="@{'/device/delete/' + ${device.id}}"
+							onclick="return confirm('Bạn có chắc chắn muốn xóa?')">[[#{delete}]]</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,92 @@
+
+<style>
+	.dataTables_filter {
+	   display: none;		// hide datatable default search box to use our search input
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var dataTable = $('#mainTable').DataTable({
+			"pageLength" : 30,
+			"bFilter" : false,
+			"bInfo" : false,
+			"bLengthChange" : false,
+			"searching": true,
+			"columnDefs" : [ {
+				"targets" : [4],	// Column Action can not be ordered
+				"orderable" : false
+			}, 
+				{"targets" : [ 3, 4],	// Column Action, Status can not be searched
+				"searchable" : false }
+			],
+			"language" : {
+				"oPaginate" : {
+					"sFirst" : "Đầu",
+					"sPrevious" : "Trước",
+					"sNext" : "Sau",
+					"sLast" : "Cuối"
+				}
+			}
+		});
+		
+		$("#search").click(function() {
+				console.log("search clicked");
+			   dataTable.search($("#searchbox").val()).draw();
+		});
+		
+		document.querySelector("#searchbox").addEventListener("keyup", function(event) {
+		    if(event.key !== "Enter") return; 
+		    document.querySelector("#search").click(); // Search when press Enter in search input
+		    event.preventDefault(); // No need to `return false;`.
+		});
+	});
+</script>
+
+<section class="content">
+	<div class="box box-default">
+		<div class="box-header with-border">
+				<div class="row">
+					<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+						<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Username">
+					</div>
+					<div class="col-lg-6 cold-md-6 col-sm-12 col-xs-12" >
+						<div class="">
+							<button id="search" type="submit" class="btn btn-gradient-primary">[[#{search}]]</button>
+							<a th:href="@{/user/create}" class="btn btn-gradient-success">[[#{new}]]</a>
+						</div>
+					</div>
+				</div>
+		</div>
+		<div class="table-responsive">	
+			<table id="mainTable" class="table table-bordered dt-responsive nowrap" style="width: 100%;" >
+				<thead>
+					<tr>
+						<th style="width: 20px" align="center">STT</th>
+<!-- 						<th style="width: 20px">ID</th> -->
+						<th>Username</th>
+						<th>Email</th>
+						<th>Trạng thái</th>
+						<th>Thao tác</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="user,iterationStatus  : ${users}">
+						<td th:text="${iterationStatus.count}">1</td>
+<!-- 						<td th:text="${user.id}"></td> -->
+						<td><a th:href="@{'/user/view/' + ${user.id}}">[[${user.username}]]</a></td>
+						<td>[[${user.email}]]</td>
+						<div th:switch="${user.status}">
+							<td th:case="'1'">Kích hoạt</td>
+							<td th:case="'0'">Khóa</td>
+							<td th:case="*">Unknown status</td>
+						</div>
+						<td>
+							<a class="btn btn-gradient-primary" th:href="@{'/user/view/' + ${user.id}}">Chi tiết</a>
+							<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/user/delete/' + ${user.id}}">[[#{delete}]]</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>

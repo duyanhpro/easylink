@@ -1,0 +1,147 @@
+<!-- <script src="../static/js/vpager.js"  th:src="@{/js/vpager.js}"></script> -->
+
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css"
+	th:href="@{/css/dataTables.bootstrap.min.css}">
+
+<script
+	src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"
+	th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script
+	src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"
+	th:src="@{/js/dataTables.bootstrap.min.js}"></script>
+
+<style>
+	.dataTables_filter {
+	   display: none;		// hide datatable default search box to use our search input
+	}
+</style>
+<script src="../static/js/quickj/vpager.js"  th:src="@{/js/quickj/vpager.js}"></script>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#startDate').datepicker({
+    	 format: "dd/mm/yyyy",
+    	 language: "vi",
+    	 todayHighlight: true,
+    	 todayBtn: true,
+    	 autoclose: true
+    });
+    $('#endDate').datepicker({
+   	 format: "dd/mm/yyyy",
+   	 language: "vi",
+   	 todayHighlight: true,
+   	 todayBtn: true,
+   	 autoclose: true
+   });
+	$('#lstUserGroup').select2({
+	});
+	$('#lstUserRole').select2({
+	});
+});
+
+</script>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>Quản lý cảnh báo</h1>
+	<th:block th:replace="layouts/fragments/breadcrum"></th:block>
+</section>
+<section class="content">
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<form action="/traffic/violation" method="get" id="searchForm">
+			
+			<!-- Hidden input to support paging -->
+			<input type="hidden" name="page" id="page" th:value="${page}">
+			<input type="hidden" name="pageSize" id="pageSize" th:value="${pageSize}">
+
+				<div class="row">
+					<label for="lstDevice" class="col-sm-2 control-label">Trạm</label>
+					<div class="col-sm-2">
+						<select id="lstDevice" class="form-control select2"
+							style="width: 100%;" data-placeholder="Chọn Trạm"
+							name="selectedDevice">
+							<option value="0" th:selected="${0==selectedDevice}">Tất cả</option>
+							<option th:value="${c.id}" th:each="c : ${devices}"
+								th:selected="${c.id==selectedDevice}">[[${c.name}]]</option>
+						</select>
+					</div>
+					<label class="col-sm-2 control-label">Từ ngày</label>
+					<div class="col-sm-2">
+						<input class="form-control input" name="startDate" id="startDate" th:value="${startDate}" autocomplete="off">
+					</div>
+					<label class="col-sm-2 control-label">Đến ngày</label>
+					<div class="col-sm-2">
+						<input class="form-control input" name="endDate" id="endDate" th:value="${endDate}" autocomplete="off">
+					</div>
+				</div>
+				<div class="row">
+
+					<label class="col-sm-2 control-label">Mức độ cảnh báo</label>
+					<div class="col-sm-2">
+						<select class="form-control select2" style="width: 100%;"
+							name="level">
+							<option value="0" th:selected="${status==-1}">Info</option>
+							<option value="1" th:selected="${status==0}">Warning</option>
+							<option value="2" th:selected="${status==1}">Error</option>
+							<option value="3" th:selected="${status==2}">Critical</option>
+						</select>
+					</div>
+					
+				</div>
+				<div class="row">
+					<div class="col-lg-3 cold-md-3 col-sm-3 col-xs-3">
+						<div class="">
+							<button type="submit" name="fsearch" value="search" class="btn btn-primary">Tìm kiếm</button>
+<!-- 							<button type="submit" name="fexport" value="export" class="btn btn-success">Xuất excel</button> -->
+						</div>
+					</div>
+					
+				</div>
+			</form>
+			
+		</div>
+		<div class="box-body">
+			<table class="table table-bordered" id="mainTable">
+			<thead>
+				<tr>
+					<th style="width: 20px" align="center">STT</th>
+					<th>Thời gian</th>
+					<th>Nội dung cảnh báo</th>
+					<th>Mức độ</th>
+					<th>Loại</th>
+					<th>Thao tác</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="v,iterationStatus  : ${vc.content}">
+					<td th:text="${iterationStatus.count + vc.number * vc.size}">1</td>
+					<td th:text="${#dates.format(v.eventTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+					<td th:text="${v.content}"></td>
+					<div th:switch="${v.level}">
+						<td th:case="'1'">Đã xác nhận</td>
+						<td th:case="'0'">Info</td>
+						<td th:case="2">Hủy vi phạm</td>
+						<td th:case="*">[[${v.level}]]</td>
+					</div>
+					<td th:text="${v.type}"></td>
+					<td><a class="btn btn-default" th:href="@{'/alarm/edit/' + ${v.id}}">Chi tiết</a></td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+		
+		<div class="row">
+		    <ul class="pager">
+		    	<li ><a th:href="'javascript:jumpPage(\'searchForm\',\'' + 1 + '\');'">Trang đầu</a></li>
+		        <li th:class="${vc.first} ? disabled" ><a th:href="'javascript:jumpPage(\'searchForm\',\'' + ${vc.number} + '\');'">&larr; Trang trước</a></li>
+		        <li th:text="${'Trang ' + (vc.number+1) + '/' + vc.totalPages + ' - Tổng số: ' + vc.totalElements}"></li>
+		        <li th:class="${vc.last} ? disabled"><a th:href="'javascript:jumpPage(\'searchForm\',\'' + ${vc.number+2} + '\');'">Trang sau &rarr;</a></li>
+		        <li ><a th:href="'javascript:jumpPage(\'searchForm\',\'' +  ${vc.totalPages} + '\');'">Trang cuối</a></li>
+		       	
+		    </ul>
+		</div>
+		
+	</div>
+</section>

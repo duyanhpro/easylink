@@ -1,0 +1,9 @@
+{
+  "viewAttribute" : "RESULT_PAGE",
+  "defaultLayout" : "layout/default",
+  "layoutMap" : {
+    "login" : "layout/login",
+    "error" : "layout/error",
+    "map/device-map": "layout/map"
+    }
+}

@@ -1,0 +1,1 @@
+nohup /usr/bin/java -Dspring.config.location=./conf/ -jar ./libs/charging-station.jar &

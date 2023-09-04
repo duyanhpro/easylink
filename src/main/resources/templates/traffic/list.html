@@ -1,0 +1,190 @@
+<!-- <script src="../static/js/vpager.js"  th:src="@{/js/vpager.js}"></script> -->
+
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css"
+	th:href="@{/css/dataTables.bootstrap.min.css}">
+
+<script
+	src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"
+	th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script
+	src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"
+	th:src="@{/js/dataTables.bootstrap.min.js}"></script>
+
+<style>
+	.dataTables_filter {
+	   display: none;		// hide datatable default search box to use our search input
+	}
+</style>
+<script src="../static/js/quickj/vpager.js"  th:src="@{/js/quickj/vpager.js}"></script>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#startDate').datepicker({
+    	 format: "dd/mm/yyyy",
+    	 language: "vi",
+    	 todayHighlight: true,
+    	 todayBtn: true,
+    	 autoclose: true
+    });
+    $('#endDate').datepicker({
+   	 format: "dd/mm/yyyy",
+   	 language: "vi",
+   	 todayHighlight: true,
+   	 todayBtn: true,
+   	 autoclose: true
+   });
+	$('#lstUserGroup').select2({
+	});
+	$('#lstUserRole').select2({
+	});
+});
+
+</script>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>Quản lý vi phạm</h1>
+	<th:block th:replace="layouts/fragments/breadcrum"></th:block>
+</section>
+<section class="content">
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<form action="/traffic/violation" method="get" id="searchForm">
+			
+			<!-- Hidden input to support paging -->
+			<input type="hidden" name="page" id="page" th:value="${page}">
+			<input type="hidden" name="pageSize" id="pageSize" th:value="${pageSize}">
+
+				<div class="row">
+					<label for="lstCamera" class="col-sm-2 control-label">Chọn Camera</label>
+					<div class="col-sm-2">
+						<select id="lstCamera" class="form-control select2"
+							style="width: 100%;" data-placeholder="Chọn Camera"
+							name="selectedCam">
+							<option value="0" th:selected="${0==selectedCam}">Tất cả</option>
+							<option th:value="${c.id}" th:each="c : ${cameras}"
+								th:selected="${c.id==selectedCam}">[[${c.name}]]</option>
+						</select>
+					</div>
+					<label class="col-sm-2 control-label">Từ ngày</label>
+					<div class="col-sm-2">
+						<input class="form-control input" name="startDate" id="startDate" th:value="${startDate}" autocomplete="off">
+					</div>
+					<label class="col-sm-2 control-label">Đến ngày</label>
+					<div class="col-sm-2">
+						<input class="form-control input" name="endDate" id="endDate" th:value="${endDate}" autocomplete="off">
+					</div>
+				</div>
+				<div class="row">
+
+					<label class="col-sm-2 control-label">Loại vi phạm</label>
+					<div class="col-sm-2">
+						<select class="form-control select2" style="width: 100%;"
+							name="eventType">
+							<option value="all" th:selected="${eventType=='all'}">Tất cả</option>
+							<option value="parking" th:selected="${eventType=='parking'}">Lỗi dừng đỗ</option>
+<!-- 							<option value="alpr" th:selected="${eventType=='alpr'}">Nhận diện biển số</option> -->
+							<option value="direction" th:selected="${eventType=='direction'}">Đi ngược chiều</option>
+							<option value="lane" th:selected="${eventType=='lane'}">Đi sai làn</option>
+							<option value="traffic_light"
+								th:selected="${eventType=='traffic_light'}">Vượt đèn đỏ</option>
+						</select>
+					</div>
+					<label class="col-sm-2 control-label">Loại phương tiện</label>
+					<div class="col-sm-2">
+						<select class="form-control select2" style="width: 100%;"
+							name="vehicleType">
+							<option value="all" th:selected="${vehicleType=='all'}">Tất	cả</option>
+							<option value="motorbike" th:selected="${vehicleType=='motorbike'}">Xe máy</option>
+							<option value="car" th:selected="${vehicleType=='car'}">Xe	ô tô con</option>
+							<option value="truck" th:selected="${vehicleType=='truck'}">Xe	tải</option>
+							<option value="bus" th:selected="${vehicleType=='bus'}">Xe	buýt</option>
+							<option value="bicycle" th:selected="${vehicleType=='bicycle'}">Xe	đạp</option>
+						</select>
+					</div>
+					<label class="col-sm-2 control-label">Trạng thái xử lý</label>
+					<div class="col-sm-2">
+						<select class="form-control select2" style="width: 100%;"
+							name="status">
+							<option value="-1" th:selected="${status==-1}">Tất	cả</option>
+							<option value="0" th:selected="${status==0}">Chờ xử lý</option>
+							<option value="1" th:selected="${status==1}">Đã xác nhận</option>
+							<option value="2" th:selected="${status==2}">Đã hủy</option>
+						</select>
+					</div>
+					
+				</div>
+				<div class="row">
+					<div class="col-lg-3 cold-md-3 col-sm-3 col-xs-3">
+						<div class="">
+							<button type="submit" name="fsearch" value="search" class="btn btn-primary">Tìm kiếm</button>
+							<button type="submit" name="fexport" value="export" class="btn btn-success">Xuất excel</button>
+						</div>
+					</div>
+					
+				</div>
+			</form>
+			
+		</div>
+		<div class="box-body">
+			<table class="table table-bordered" id="mainTable">
+			<thead>
+				<tr>
+					<th style="width: 20px" align="center">STT</th>
+					<th>Thời gian vi phạm</th>
+					<th>Tên Camera</th>
+					<th>Biển số</th>
+					<th>Loại xe</th>
+					<th>Lỗi vi phạm</th>
+					<th>Trạng thái</th>
+					<th>Thao tác</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="v,iterationStatus  : ${vc.content}">
+					<td th:text="${iterationStatus.count + vc.number * vc.size}">1</td>
+					<td th:text="${#dates.format(v.traffic.eventTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+					<td th:text="${v.camera.name}"></td>
+					<td th:text="${v.traffic.vehiclePlate}"></td>
+					<div th:switch="${v.traffic.vehicleType}">
+						<td th:case="'motorbike'">Xe máy</td>
+						<td th:case="'bicycle'">Xe đạp</td>
+						<td th:case="car">Xe ô tô con</td>
+						<td th:case="truck">Xe tải</td>
+						<td th:case="bus">Xe buýt</td>
+						<td th:case="*">[[${v.traffic.eventType}]]</td>
+					</div>
+					<div th:switch="${v.traffic.eventType}">
+						<td th:case="'alpr'">Nhận diện biển số</td>
+						<td th:case="'parking'">Lỗi dừng đỗ</td>
+						<td th:case="direction">Đi ngược chiều</td>
+						<td th:case="lane">Đi sai làn</td>
+						<td th:case="traffic_light">Vượt đèn đỏ</td>
+						<td th:case="*">[[${v.traffic.eventType}]]</td>
+					</div>
+					<div th:switch="${v.traffic.status}">
+						<td th:case="'1'">Đã xác nhận</td>
+						<td th:case="'0'">Chờ xử lý</td>
+						<td th:case="2">Hủy vi phạm</td>
+						<td th:case="*">[[${v.traffic.status}]]</td>
+					</div>
+					<td><a class="btn btn-default" th:href="@{'/traffic/edit/' + ${v.traffic.id}}">Chi tiết</a></td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+		
+		<div class="row">
+		    <ul class="pager">
+		    	<li ><a th:href="'javascript:jumpPage(\'searchForm\',\'' + 1 + '\');'">Trang đầu</a></li>
+		        <li th:class="${vc.first} ? disabled" ><a th:href="'javascript:jumpPage(\'searchForm\',\'' + ${vc.number} + '\');'">&larr; Trang trước</a></li>
+		        <li th:text="${'Trang ' + (vc.number+1) + '/' + vc.totalPages + ' - Tổng số: ' + vc.totalElements}"></li>
+		        <li th:class="${vc.last} ? disabled"><a th:href="'javascript:jumpPage(\'searchForm\',\'' + ${vc.number+2} + '\');'">Trang sau &rarr;</a></li>
+		        <li ><a th:href="'javascript:jumpPage(\'searchForm\',\'' +  ${vc.totalPages} + '\');'">Trang cuối</a></li>
+		       	
+		    </ul>
+		</div>
+		
+	</div>
+</section>

@@ -1,0 +1,79 @@
+<style>
+	.no-margin-top {
+		margin-top: 0px;
+	}
+</style>
+<script type="text/javascript">
+
+</script>
+
+<script>
+	function goBack() {
+	  window.history.back();
+	}
+	
+	function toggleFullScreen() {
+		console.log("Go full-screen");
+		$('.topbar').toggle();			// toggle hide/show
+		$('.left-sidenav').toggle();
+		//$('.page-wrapper').css("margin-top","0");
+		$('.page-wrapper').toggleClass("no-margin-top");
+	}
+	
+	$(document).ready(function() {
+		$("#full-screen").show();
+		$("#full-screen").click(function() {
+			toggleFullScreen();
+		});
+	});
+	
+</script>
+<style>
+.float{
+	position:fixed;
+	width:54px;
+	height:54px;
+	bottom:40px;
+	right:40px;
+	background-color:#022a9cd9;
+	color:#FFF;
+	border-radius:50px;
+	text-align:center;
+	box-shadow: 2px 2px 3px #999;
+}
+
+.my-float{
+	margin-top:10px;
+	font-size: 34px;
+}
+
+.content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding-bottom: 0;
+}
+
+</style>
+
+
+
+
+<!-- Content Header (Page header) -->
+<section class="content">
+      
+      <div class="embed-responsive embed-responsive-16by9">
+  			<iframe th:src="${homeDashboard}" ></iframe>
+		</div>
+      <!-- /.row -->
+      
+    
+      <!-- /.row -->
+        
+        <!-- Floating button  -->
+<!-- 			<button id="floatbutton" onclick="toggleFullScreen();" class="float"> -->
+<!-- 				<i class="fa fa-home my-float"></i> -->
+<!-- 			</button> -->
+			
+			
+</section>

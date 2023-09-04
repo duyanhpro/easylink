@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="layout/head"></th:block>  
+
+<body>
+	
+	<th:block th:replace="layout/topbar"></th:block>
+	
+	<th:block th:replace="layout/menu"></th:block>
+	
+	
+	<div class="page-wrapper">
+            <!-- Page Content-->
+            <div class="page-content" style="min-height: 90vh;">
+
+                <div class="container-fluid">
+                
+                    <!-- Page-Title -->
+                    <div class="row">
+                        <div class="col-sm-10 col-lg-8">
+                            <div class="page-title-box">
+                                <h4 id="page-title" class="page-title">[[${pageTitle}]]</h4>
+                            </div>
+
+                        </div><!--end col-->
+                        <div id="full-screen" class="col-sm-2 col-lg-4" style="display:none;">
+                        	<div class="pull-right">
+                        		<i class="mdi mdi-fullscreen page-title" style="font-size: 40px;"></i>
+                        	</div>
+                        </div>
+                        
+                    </div>
+                    <!-- end page title end breadcrumb -->
+                   
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+									<div th:replace="${RESULT_PAGE}">
+										PAGE CONTENT GOES HERE !!!
+									</div>
+								</div>
+							</div>
+                        </div> <!-- end col -->
+                    </div> <!-- end row --> 
+                    
+                </div><!-- container -->
+        
+				<th:block th:replace="layout/footer"></th:block>
+
+              </div>
+            <!-- end page content -->
+        </div>
+        <!-- end page-wrapper -->
+        
+        <!-- App js -->
+        <script th:src="@{/assets/js/app.js}"></script>
+  </body>
+</html>
