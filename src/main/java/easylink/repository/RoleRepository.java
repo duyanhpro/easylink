@@ -20,10 +20,7 @@ public interface RoleRepository extends JpaRepository<Role, Integer> {
 
 	@Query("select r.name from Role r, RoleTree t where r.id = t.parentId and t.childId = ?1")
 	public List<String> findParentRoleNames(int roleId);
-	
-	@Query("select r from Role r, GroupRole gr where gr.roleId = r.id and gr.groupId = ?1")
-	public List<Role> findRolesOfGroup(int groupId);
-	
+
 	@Query("select r from Role r, UserRole gr where gr.roleId = r.id and gr.userId = ?1")
 	public List<Role> findRolesOfUser(int userId);
 

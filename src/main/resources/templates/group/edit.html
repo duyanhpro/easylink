@@ -3,8 +3,6 @@
 	$(document).ready(function () {
 		$('#lstUserGroup').select2({
 		});
-		$('#lstGroupRole').select2({
-		});
 
         var isFormChanged = false;
         var isConfirmed = false;
@@ -18,12 +16,7 @@
         	console.log("UserGroup has changed");
         	$("#isUserGroupChanged").val(true);
         })
-        
-         $("#lstGroupRole").change(function() {
-        	console.log("GroupRole has changed");
-        	$("#isGroupRoleChanged").val(true);
-        })
-        
+
         //console.log($('#status').prop("checked"));
         if($('#status').prop("checked")) {
                 $('#statusLabel').text("Kích hoạt");
@@ -51,7 +44,6 @@
 				
 					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
 					<input type="hidden" id="isUserGroupChanged" name="isUserGroupChanged" value="false">
-					<input type="hidden" id="isGroupRoleChanged" name="isGroupRoleChanged" value="false">
 					<input type="hidden" id="id" name="id" th:value="${group.id}">
 					
 					<div class="box-body">
@@ -71,15 +63,16 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="roleName" class="col-sm-3 control-label col-form-label">Quyền</label>
+							<label for="parentId" class="col-sm-3 control-label col-form-label">Nhóm cha</label>
 							<div class="col-sm-5">
-							  <select id="lstGroupRole" class="form-control select2" style="width: 100%;" data-placeholder="Chọn quyền" name="roleIds" multiple>
-		                          <option th:each="r : ${allRoles}" th:value="${r.id}" th:selected="${roles!=null && roles.contains(r.name)}">[[${r.name}]]</option>
-							  </select>
+								<select id="parentId" class="form-control" placeholder="Nhóm cha" name="parentId">
+									<option value="0"></option>
+									<option th:each="g : ${allGroups}" th:value="${g.id}" th:selected="${group.parentId!=null && group.parentId==g.id}" th:if="${g.id != group.id}">[[${g.name}]]</option>
+								</select>
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="groupName" class="col-sm-3 control-label col-form-label">Người dùng trong nhóm</label>
+							<label for="lstUserGroup" class="col-sm-3 control-label col-form-label">Người dùng trong nhóm</label>
 							<div class="col-sm-5">
 							  <select id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Select users" name="userIds" multiple>
 		                          <option th:each="user : ${allUsers}" th:value="${user.id}" th:selected="${usernames!=null && usernames.contains(user.username)}">[[${user.username}]]</option>

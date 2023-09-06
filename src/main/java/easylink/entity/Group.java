@@ -25,6 +25,7 @@ public class Group extends BaseEntity {
 
 	private String name;
 	private Integer status = STATUS_INACTIVE;
+	private Integer parentId = 0;
 	
 	List<Role> roles;
 	List<User> users;
@@ -52,17 +53,19 @@ public class Group extends BaseEntity {
 	}
 
 	/** minimal constructor */
-	public Group(String name, Integer status, Integer createdUser) {
+	public Group(String name, Integer parentId, Integer status, Integer createdUser) {
 		this.name = name;
 		this.status = status;
 		this.createdUser = createdUser;
+		this.parentId = parentId;
 	}
 
 	/** full constructor */
-	public Group(String name, Integer status, Integer createdUser,
+	public Group(String name, Integer status, Integer createdUser,Integer parentId,
 			Date createdDate, Date modifiedDate, Integer modifiedUser) {
 		this.name = name;
 		this.status = status;
+		this.parentId = parentId;
 		this.createdUser = createdUser;
 		this.createdDate = createdDate;
 		this.modifiedDate = modifiedDate;
@@ -87,25 +90,22 @@ public class Group extends BaseEntity {
 		this.status = status;
 	}
 
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		this.parentId = parentId;
+	}
+
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Group [");
-		if (name != null)
-			builder.append("name=").append(name).append(", ");
-		if (status != null)
-			builder.append("status=").append(status).append(", ");
-		if (id != null)
-			builder.append("id=").append(id).append(", ");
-		if (createdUser != null)
-			builder.append("createdUser=").append(createdUser).append(", ");
-		if (createdDate != null)
-			builder.append("createdDate=").append(createdDate).append(", ");
-		if (modifiedUser != null)
-			builder.append("modifiedUser=").append(modifiedUser).append(", ");
-		if (modifiedDate != null)
-			builder.append("modifiedDate=").append(modifiedDate);
-		builder.append("]");
-		return builder.toString();
+		return "Group{" +
+				"name='" + name + '\'' +
+				", status=" + status +
+				", parentId=" + parentId +
+				", roles=" + roles +
+				", users=" + users +
+				'}';
 	}
 }

@@ -102,31 +102,31 @@ public class UserService {
 		//			return dao.findAll(page);
 	}
 
-	public Page<UserWithGroupRole> findUserWithGroupAndRole(int page, int pageSize) {
-
-		Page<User> pu = repo.findAll(PageRequest.of(page-1, pageSize));
-		List<UserWithGroupRole> lud = new ArrayList<>();
-
-		for (User u: pu.getContent()) {
-			UserWithGroupRole ud = new UserWithGroupRole();			
-			ud.setId(u.getId());
-			ud.setUsername(u.getUsername());
-			ud.setStatus(u.getStatus());
-
-			List<Group> groups = ugRepo.findAllGroupByUserId(u.getId());
-			for (Group g: groups) {
-				ud.getGroupNames().add(g.getName());
-				List<Role> roleSet = rpService.findRoleOfGroup(g);
-				for (Role r: roleSet)
-					ud.getRoleNames().add(r.getName());
-			}
-			lud.add(ud);
-		}
-
-		Page<UserWithGroupRole> pud = new PageImpl<UserWithGroupRole>(lud, PageRequest.of(page-1, pageSize), pu.getTotalElements());
-
-		return pud;
-	}
+//	public Page<UserWithGroupRole> findUserWithGroupAndRole(int page, int pageSize) {
+//
+//		Page<User> pu = repo.findAll(PageRequest.of(page-1, pageSize));
+//		List<UserWithGroupRole> lud = new ArrayList<>();
+//
+//		for (User u: pu.getContent()) {
+//			UserWithGroupRole ud = new UserWithGroupRole();
+//			ud.setId(u.getId());
+//			ud.setUsername(u.getUsername());
+//			ud.setStatus(u.getStatus());
+//
+//			List<Group> groups = ugRepo.findAllGroupByUserId(u.getId());
+//			for (Group g: groups) {
+//				ud.getGroupNames().add(g.getName());
+////				List<Role> roleSet = rpService.findRoleOfGroup(g);
+////				for (Role r: roleSet)
+////					ud.getRoleNames().add(r.getName());
+//			}
+//			lud.add(ud);
+//		}
+//
+//		Page<UserWithGroupRole> pud = new PageImpl<UserWithGroupRole>(lud, PageRequest.of(page-1, pageSize), pu.getTotalElements());
+//
+//		return pud;
+//	}
 
 	/** Authenticate user 
 	 *  Throw exception if authenticate fail

@@ -19,4 +19,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer>, GroupRep
 	List<Group> findAllByUserIdSortbyName(@Param("userid") int userid);
 
 	List<Group> findAllByOrderByNameAsc();
+
+	@Query("select g from Group g where g.parentId = :groupId")
+	List<Group> findChildren(int groupId);
 }

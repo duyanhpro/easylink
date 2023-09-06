@@ -24,7 +24,16 @@ public class GroupController extends BaseController {
 		model.addAttribute("groups", groupService.findAll());
 		return "group/list";
 	}
-	
+
+	// List & Search Group
+	@NeedPermission("group:tree")
+	@GetMapping("/tree")
+	public String listTree(Model model) {
+		model.addAttribute("pageTitle", "Danh sách nhóm");
+		model.addAttribute("groups", groupService.findAll());
+		return "group/tree";
+	}
+
 	// create new group page
 	@NeedPermission("group:create")
 	@GetMapping("/create")
@@ -32,8 +41,8 @@ public class GroupController extends BaseController {
 		model.addAttribute("pageTitle", "Tạo mới nhóm");
 		model.addAttribute("action", "create");
 		model.addAttribute("group", new Group());
-		model.addAttribute("allRoles", rpService.listAllRole());
-		model.addAttribute("allUsers", userService.findAll());						// list all users (used to add user into group)
+		model.addAttribute("allUsers", userService.findAll());	// list all users (used to add user into group)
+		model.addAttribute("allGroups", groupService.findAll());	// list all groups (used to select parent)
 		return "group/edit";
 	}
 	
@@ -49,18 +58,17 @@ public class GroupController extends BaseController {
 		
 		model.addAttribute("action", "view");
 		model.addAttribute("group", g);
-		model.addAttribute("roles", rpService.findRoleNameOfGroup(id));
-		model.addAttribute("allRoles", rpService.listAllRole());
 		model.addAttribute("usernames", ugService.findUserNameByGroupId(id));	// list usernames in group
 		model.addAttribute("allUsers", userService.findAll());						// list all users (used to add user into group)
+		model.addAttribute("allGroups", groupService.findAll());	// list all groups (used to select parent)
 		return "group/edit";
 	}
 
 	// Create new if id != null, else update
 	@PostMapping("/save")
 	@NeedPermission("group:update")
-	public String save(Model model, @ModelAttribute Group group, Integer[] userIds, Integer[] roleIds,
-			boolean isFormChanged, boolean isUserGroupChanged, boolean isGroupRoleChanged,
+	public String save(Model model, @ModelAttribute Group group, Integer[] userIds,
+			boolean isFormChanged, boolean isUserGroupChanged, 
 			RedirectAttributes redirectAttrs) {
 		log.info("Creating/Updating groupr {}", group.getName());
 		log.debug("Group {}", group);
@@ -78,10 +86,7 @@ public class GroupController extends BaseController {
 			// Update users in group
 			if (isUserGroupChanged)
 				ugService.updateUserForGroup(group, userIds);
-			
-			if (isGroupRoleChanged)
-				rpService.updateRolesForGroup(group.getId(), roleIds);
-			
+
 		} else {
 			log.info("No change was made");
 		}

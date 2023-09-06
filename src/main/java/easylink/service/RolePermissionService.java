@@ -11,13 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import easylink.entity.Group;
-import easylink.entity.GroupRole;
 import easylink.entity.Permission;
 import easylink.entity.Role;
 import easylink.entity.RolePermission;
 import easylink.entity.RoleTree;
 import easylink.entity.UserRole;
-import easylink.repository.GroupRoleRepository;
 import easylink.repository.PermissionRepository;
 import easylink.repository.RoleRepository;
 import easylink.repository.RoleTreeRepository;
@@ -44,10 +42,7 @@ public class RolePermissionService {
 	
 	@Autowired
 	UserGroupRepository ugRepo;
-	
-	@Autowired
-	GroupRoleRepository grRepo;
-	
+
 	@Autowired
 	UserRoleRepository urRepo;
 	
@@ -91,10 +86,10 @@ public class RolePermissionService {
 //		log.debug("Find all roles of user (from every source)");
 		List<Role> ur = findDirectRoleOfUser(userId);
 //		System.out.println("Direct role: " + ur);
-		Set<Role> sr = findUserRoleInheritFromGroup(userId);
+		Set<Role> sr = new HashSet<>();
 //		System.out.println("Group role: " + sr);
 		sr.addAll(ur);
-		
+
 		Set<Role> inheritedRoles = new HashSet<>();
 		for (Role r: sr) {
 			// Now add role and all parent roles (recursively) into _sr
@@ -106,30 +101,6 @@ public class RolePermissionService {
 		return sr;
 	}
 
-	/**
-	 * Find all roles that user inherits from groups that user belongs to 
-	 * @param userId
-	 * @return
-	 */
-	public Set<Role> findUserRoleInheritFromGroup(int userId) {
-		List<Group> lg =  ugRepo.findByUserId(userId);
-		Set<Role> sr = new HashSet<>();
-		for (Group g: lg) {
-			sr.addAll(findRoleOfGroup(g));
-		}
-		return sr;
-	}
-	
-	/**
-	 * Find assigned role of a group (direct roles only) 
-	 * @param g
-	 * @return
-	 */
-	public List<Role> findRoleOfGroup(Group g) {
-		List<Role> lrg = findRoleOfGroup(g.getId());
-		return lrg;
-	}
-	
 	/**
 	 * Find all parent roles of Role r and add all to Role Set sr
 	 //* Return immediately if r already in role set sr (to avoid endless loop)
@@ -298,10 +269,6 @@ public class RolePermissionService {
 		}
 	}
 
-	public List<Role> findRoleOfGroup(int groupId) {
-		return roleRepo.findRolesOfGroup(groupId);
-	}
-	
 	public List<Role> findDirectRoleOfUser(int userId) {
 		return roleRepo.findRolesOfUser(userId);
 	}
@@ -310,29 +277,20 @@ public class RolePermissionService {
 		return roleRepo.findDirectRoleNameOfUser(userId);
 	}
 
-	public List<String> findRoleNameOfGroup(int groupId) {
-		List<String> ls = new ArrayList<>();
-		List<Role> lr = findRoleOfGroup(groupId);
-		for (Role r: lr) {
-			ls.add(r.getName());
-		}
-		return ls;
-	}
-	
-	@Transactional
-	public void updateRolesForGroup(Integer groupId, Integer[] roleIds) {
-		
-		log.debug("Setting roles " + Arrays.toString(roleIds) + " for group " + groupId);
-		// remove existing roles
-		grRepo.deleteByGroupId(groupId);
-		grRepo.flush();
-
-		if (roleIds == null) return;
-		// Re-add parent roles
-		for (int i: roleIds) {
-			grRepo.save(new GroupRole(groupId, i));
-		}
-	}
+//	@Transactional
+//	public void updateRolesForGroup(Integer groupId, Integer[] roleIds) {
+//
+//		log.debug("Setting roles " + Arrays.toString(roleIds) + " for group " + groupId);
+//		// remove existing roles
+//		grRepo.deleteByGroupId(groupId);
+//		grRepo.flush();
+//
+//		if (roleIds == null) return;
+//		// Re-add parent roles
+//		for (int i: roleIds) {
+//			grRepo.save(new GroupRole(groupId, i));
+//		}
+//	}
 	
 	@Transactional
 	public void updateRolesForUser(Integer userId, Integer[] roleIds) {

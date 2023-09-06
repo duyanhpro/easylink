@@ -63,7 +63,6 @@ public class UserController extends BaseController {
 		model.addAttribute("userGroups", ugService.findGroupNameByUserId(id));
 		model.addAttribute("allRoles", rpService.findAllRole());
 		model.addAttribute("userRoleNames", rpService.findDirectRoleNameOfUser(id));
-		model.addAttribute("groupRoles", rpService.findUserRoleInheritFromGroup(id));
 			
 		return "user/edit";
 	}
