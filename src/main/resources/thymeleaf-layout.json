@@ -4,6 +4,7 @@
   "layoutMap" : {
     "login" : "layout/login",
     "error" : "layout/error",
-    "map/device-map": "layout/map"
+    "map/device-map": "layout/map",
+    "tree":  "layout/groupTree"
     }
 }

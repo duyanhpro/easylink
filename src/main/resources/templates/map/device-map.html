@@ -121,7 +121,7 @@
 </style>
 <script th:inline="javascript">
 
-	var markerMap;
+	var markerMap = new Map();;
 	var map;
 
 	$(document).ready(function() {
@@ -143,55 +143,62 @@
 //        marker.bindPopup("<b>Hello world!</b><br>I am a popup."); //.openPopup();
 		var greenIcon = L.icon({
 			//iconUrl: '/img/cam_glossy_50x50.png',
-			iconUrl: [[@{'/img/charging-device-green.png'}]],
+			iconUrl: [[@{'/img/charging-station-green.png'}]],
 			iconSize:     [32, 32], // size of the icon
 			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
 			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
 		});
 		var redIcon = L.icon({
-			iconUrl: [[@{'/img/charging-device-red.png'}]],
+			iconUrl: [[@{'/img/charging-station-red.png'}]],
 			iconSize:     [32, 32], // size of the icon
 			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
 			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
 			className: 'blinking'   // to make icon blinking
 		});
 		var grayIcon = L.icon({
-			iconUrl: [[@{'/img/charging-device-gray.png'}]],
+			iconUrl: [[@{'/img/charging-station-gray.png'}]],
 			iconSize:     [32, 32], // size of the icon
 			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
 			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
 			className: 'blinking'   // to make icon blinking
 		});
 		//var markerList = [];
-		markerMap = new Map();
+
 		$.getJSON([[@{/api/devices}]], function(devices){
 			console.log(devices);
 			$.each(devices, function(i, cam){
-				console.log("Add marker for " + cam.name + " at " + cam.lat + ":" + cam.lon);
-				var mypopup = '<a href="' + [[@{/device/edit/}]] + cam.id + '/">' + "<b>" + cam.name + "</b></a><br>"
-				+ cam.location
-				+ "<br>Trạng thái chung: " + (cam.status == 0? "OK":"NOK")
-				+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
-				+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
-				+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">' + "Xem cảnh báo</a><br>"
-				;
+				console.log("Device ID " + cam.id + ", name: " + cam.name + " at " + cam.lat + ":" + cam.lon);
+				if (typeof cam.lat === 'undefined' || typeof cam.lon === 'undefined') {
 
-				var marker;
-				//if (cam.status == 0) // 0 is OK
-				marker = L.marker([cam.lat, cam.lon], {icon: grayIcon, title:cam.name}).bindPopup(mypopup).addTo(map);
-				//else marker = L.marker([cam.lat, cam.lon], {icon: redIcon,  title:cam.name}).bindPopup(mypopup).addTo(map);
-				//markerList.push(marker);
-				markerMap.set(cam.deviceId, marker);
+				} else {
+					console.log("Add marker: for " + cam.name + " at " + cam.lat + ":" + cam.lon);
+					var mypopup = '<a href="' + [[@{/device/edit/}]] + cam.id + '/">' + "<b>" + cam.name + "</b></a><br>"
+					+ cam.location
+					+ "<br>Trạng thái chung: " + (cam.status == 0? "OK":"NOK")
+					+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
+					+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
+					+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'
+						;
 
+					var marker;
+					//if (cam.status == 0) // 0 is OK
+					marker = L.marker([cam.lat, cam.lon], {
+						icon: grayIcon,
+						title: cam.name
+					}).bindPopup(mypopup).addTo(map);
+					//else marker = L.marker([cam.lat, cam.lon], {icon: redIcon,  title:cam.name}).bindPopup(mypopup).addTo(map);
+					//markerList.push(marker);
+					markerMap.set(cam.deviceToken, marker);
+				}
 			});
 			});
 
 			// update device status
 			$.getJSON([[@{/api/devices/status}]], function(sstatus){
-				console.log(sstatus);
+				console.log("Updating device status: " + sstatus);
 				for (const s of sstatus) {
-					console.log("Device " + s.deviceId + ", status: " + s.status);
-					var marker = markerMap.get(s.deviceId);
+					console.log("Device " + s.deviceToken + ", status: " + s.status);
+					var marker = markerMap.get(s.deviceToken);
 					if (marker != null)
 						marker.setIcon(s.status==0? greenIcon: redIcon);
 				}
@@ -200,10 +207,10 @@
 			var b = true;
 			setInterval(function() {
 				$.getJSON([[@{/api/devices/status}]], function(sstatus){
-					console.log(sstatus);
+					console.log("Worker get updated status: " + sstatus);
 					for (const s of sstatus) {
-						console.log("Device " + s.deviceId + ", status: " + s.status);
-						var marker = markerMap.get(s.deviceId);
+						console.log("Device " + s.deviceToken + ", status: " + s.status);
+						var marker = markerMap.get(s.deviceToken);
 						if (marker != null)
 							marker.setIcon(s.status==0? greenIcon: redIcon);
 					}
@@ -212,11 +219,11 @@
 
 
 			$('#my_modal').on('show.bs.modal', function(e) {
-				var deviceId = $(e.relatedTarget).data('device-id');
+				var deviceToken = $(e.relatedTarget).data('device-token');
 				var deviceName = $(e.relatedTarget).data('device-name');
 				$("#myModalLabel").html(deviceName);
 				$("#telemetry-table tbody").empty();    // remove body except header
-				$.getJSON([[@{/api/devices/}]] + deviceId + '/status', function(st) {
+				$.getJSON([[@{/api/devices/}]] + deviceToken + '/status', function(st) {
 					console.log("Status: " + st);
 					//$('#telemetry-table').append('<tr><td>Thời điểm cập nhật</td><td>' + st.eventTime + '</td></tr>');
 					$("#eventTime").html('Thời điểm cập nhật: ' + st.eventTime);
@@ -232,11 +239,12 @@
 
 		});
 
-		function focusDevice(deviceId) {
-			console.log("click " + deviceId);
-			var marker = markerMap.get(deviceId);
-			console.log("markerMap: " + markerMap);
-			console.log("marker: " + marker);
+		function focusDevice(deviceToken) {
+			console.log("click " + deviceToken);
+			var marker = markerMap.get(deviceToken);
+			// console.log("markerMap: " + JSON.stringify(markerMap));
+			// console.log("marker: " + JSON.stringify(marker));
+			console.log("MarkerMap: " + markerMap + ", marker: " + marker);
 			var markerLat = marker.getLatLng().lat;
 			var markerLng = marker.getLatLng().lng;
 			// Center the map on the marker's position and zoom to the specified zoom level
@@ -321,9 +329,9 @@
 					<ul  class="list-group">
 						<li class="list-group-item"><h3>Danh sách Trạm</h3></li>
 						<li th:each="device,iterationStatus  : ${devices}"
-							class="list-group-item" th:id="${device.deviceId}"
+							class="list-group-item" th:id="${device.id}"
 							th:text="${iterationStatus.count +'.  ' + device.name}"
-							th:attr="onclick=${'focusDevice(&quot;'+device.deviceId+'&quot;)'}"
+							th:attr="onclick=${'focusDevice(&quot;'+device.deviceToken+'&quot;)'}"
 							style="cursor:pointer">Device item</li>
 					</ul>
 				</div>

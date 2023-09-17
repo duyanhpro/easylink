@@ -40,7 +40,7 @@ public class AjaxApi {
 	@GetMapping("/api/devices")
 	@ResponseBody
 	@NeedPermission("device:list")
-	public List<Device> getListCam() {
+	public List<Device> getListDevice() {
 		return deviceService.findAll();
 	}
 	
