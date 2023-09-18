@@ -30,7 +30,7 @@
 	<logger name="org.springframework" level="ERROR" />
 <!--	<logger name="org.springframework.security" level="ERROR" />-->
 
-	<logger name="vf.charging" level="debug" />
+	<logger name="easylink" level="trace" />
 <!--	<logger name="vf.charging.security" level="INFO" />-->
 
 	<root level="INFO">

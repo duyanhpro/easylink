@@ -110,6 +110,7 @@ public class MqttService {
 
 	public void subscribeTelemetry() {
 		try {
+			log.info("Subscribe to MQTT topic: " + telemetryTopic);
 			client.subscribe(telemetryTopic, (topic, msg) -> {
 				String body = new String(msg.getPayload());
 				processTelemetryEvent(topic, body);
@@ -131,6 +132,7 @@ public class MqttService {
 	}
 
 	public void processTelemetryEvent(String topic, String msg) {
+		log.trace("Receive mqtt message: " + msg);
 		// convert JSON string to Map
 		ObjectMapper mapper = new ObjectMapper();
 		try {

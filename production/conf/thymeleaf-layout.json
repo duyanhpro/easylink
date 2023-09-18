@@ -1,9 +1,0 @@
-{
-  "viewAttribute" : "RESULT_PAGE",
-  "defaultLayout" : "layout/default",
-  "layoutMap" : {
-    "login" : "layout/login",
-    "error" : "layout/error",
-    "map/station-map": "layout/map"
-    }
-}

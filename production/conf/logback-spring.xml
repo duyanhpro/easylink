@@ -34,7 +34,7 @@
 
 	<logger name="org.springframework" level="INFO" />
 
-	<logger name="vf.charging" level="DEBUG" />
-	<logger name="vf.charging.security" level="INFO" />
+	<logger name="easylink" level="DEBUG" />
+	<logger name="easylink.security" level="INFO" />
 	
 </configuration>

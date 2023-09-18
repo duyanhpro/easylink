@@ -86,7 +86,7 @@ public class DeviceService {
 	 */
 	public DeviceStatus findStatus(String deviceToken)  {
 		DeviceStatus ss = repo.findStatus(deviceToken);
-		System.out.println(ss);
+		//System.out.println(ss);
 		if (ss == null) {
 			return new DeviceStatus(deviceToken);
 		}
@@ -124,12 +124,17 @@ public class DeviceService {
 		// TODO: handle it in batch, in a queue 
 		// TODO 2: use Redis to store it
 		try {
+			log.debug("Saving device status: " + map);
 			DeviceStatus st = new DeviceStatus();
 			st.setDeviceToken(deviceToken);
 			st.setEventTime(new Date());
 			st.setTelemetry(msg);
 			//st.setStatus((Integer)map.get("status")==1?1:0);		// status:  connection status from gateway to monitoring device
-			st.setStatus((Integer)map.get("status"));
+			if (map.containsKey("status"))
+				//if (map.get("status"))
+				st.setStatus((Integer)map.get("status"));
+			else
+				st.setStatus(0); 	// TODO: error string
 			statusRepo.save(st);
 		} catch (Exception e) {
 			log.error("Exception when updateDeviceStatus: {}", e.getMessage());

@@ -1,1 +1,1 @@
-ps -ef | grep traffic-server
+ps -ef | grep easylink
