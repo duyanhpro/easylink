@@ -1,0 +1,245 @@
+
+<style>
+	.dataTables_filter {
+	   display: none;		// hide datatable default search box to use our search input
+	}
+</style>
+<script th:src="@{/plugins/treeview/jstree.min.js}"></script>
+<script th:src="@{/plugins/sweet-alert2/sweetalert2.min.js}"></script>
+<link rel="stylesheet" th:href="@{/plugins/treeview/themes/default/style.css}" />
+<link rel="stylesheet" th:href="@{/plugins/sweet-alert2/sweetalert2.min.css}" />
+
+<script th:inline="javascript">
+
+	$(document).ready(function() {
+
+		// Fetch data from the API
+		$.getJSON([[@{/api/group/tree}]], function(jsonData){
+		//$.getJSON('/portal/api/group/tree', function(jsonData){
+			console.log("Get group tree from API: " + JSON.stringify(jsonData));
+
+		// var jsonData = {
+		// 	"id": "root",
+		// 	"text": "Tất cả",
+		// 	"children": [
+		// 	{
+		// 		"id": "node1",
+		// 		"text": "Node 1",
+		//
+		// 		"children": [
+		// 			{ "id": "node1.1", "text": "Node 1.1" },
+		// 			{ "id": "node1.2", "text": "Node 1.2" }
+		// 		]
+		// 	},
+		//        {
+		// 		"id": "node2",
+		// 		"text": "Node 2",
+		// 		"children": [
+		// 			{ "id": "node2.1", "text": "Node 2.1" },
+		// 			{ "id": "node2.2", "text": "Node 2.2" }
+		// 		]
+		// 	}
+		// ]};
+
+		var tree = $('#jstree_demo_div').jstree({
+			'types': {
+				"root": {
+					"enable": true
+				}
+			},
+			'core': {
+				'data': jsonData,
+				'themes': {
+					"variant" : "large",
+					'icons': true // Hide default icons
+				},
+			},
+			'plugins': ["contextmenu", "wholerow"],
+			// Context menu options
+			"contextmenu": {
+				"items": function (node) {
+					// Disable the right-click context menu on the root node
+					if (node.id === 'root') {
+						return {};
+					}
+					// Create an object with the context menu items
+					var items = {
+						"Edit": {
+							"label": "Sửa",
+							"action": function (data) {
+								if (node.id === 'root')
+									return;
+								// Edit the node
+								console.log("Edit: " + JSON.stringify(node) + ", " + JSON.stringify(data.node));
+								window.location.href = [[@{/group/view/}]] + node.id;
+							}
+						},
+						"Delete": {
+							"label": "Xóa",
+							"action": function (data) {
+								// Delete the node
+								// console.log("Delete: " + node.id);
+								//Swal.fire("Chac chan xoa nhom " + node.id + "?");
+								if (node.id === 'root')
+									return;
+								Swal.fire({
+									title: 'Xác nhận xóa',
+									text: 'Bạn có chắc chắn muốn xóa nhóm này?',
+									icon: 'warning',
+									showCancelButton: true,
+									confirmButtonText: 'Xóa',
+									cancelButtonText: 'Hủy',
+									reverseButtons: true
+								}).then((result) => {
+									// console.log("Result: " + JSON.stringify(result));
+									if (result.value) {
+										// Put your function here
+										console.log("Delete confirmed: " + node.id);
+										window.location.href = [[@{/group/delete/}]] + node.id;
+									}
+								})
+							}
+						}
+					};
+
+					// Return the context menu items
+					return items;
+				}
+			}
+		});
+			// Expand all nodes after the tree is loaded
+			tree.on('ready.jstree', function () {
+				tree.jstree('open_all');
+			});
+
+			// Handle ready event to expand all nodes after the tree is loaded
+			$('#tree').on('ready.jstree', function () {
+				$('#tree').jstree('open_all');
+			});
+
+			// Handle node click event
+			$('#jstree_demo_div').on('select_node.jstree', function (e, data) {
+				console.log('Node clicked: ' + JSON.stringify(data.node));	// data.node.text = label
+			});
+
+		});		// getJSON
+
+
+		var dataTable = $('#mainTable').DataTable({
+			"pageLength" : 30,
+			"bFilter" : false,
+			"bInfo" : false,
+			"bLengthChange" : false,
+			"searching": true,
+			"columnDefs" : [ {
+				"targets" : [4],	// Column Action can not be ordered
+				"orderable" : false
+			}, 
+				{"targets" : [ 3, 4],	// Column Action, Status can not be searched
+				"searchable" : false }
+			],
+			"language" : {
+				"oPaginate" : {
+					"sFirst" : "Đầu",
+					"sPrevious" : "Trước",
+					"sNext" : "Sau",
+					"sLast" : "Cuối"
+				}
+			}
+		});
+		
+		$("#search").click(function() {
+				console.log("test");
+			   dataTable.search($("#searchbox").val()).draw();
+		});
+		
+		document.querySelector("#searchbox").addEventListener("keyup", function(event) {
+		    if(event.key !== "Enter") return; 
+		    document.querySelector("#search").click(); // Search when press Enter in search input
+		    event.preventDefault(); // No need to `return false;`.
+		});
+
+
+	});
+</script>
+
+<div class="row">
+
+	<div class="col-2">
+		<div class="card">
+			<div class="card-body">
+				<section class="content">
+					<div class="box box-default">
+
+						<div class="box-body">
+							<h3> Cây tổ chức </h3>
+							<div id="jstree_demo_div"></div>
+
+						</div>
+
+					</div>
+				</section>
+
+			</div>
+		</div>
+	</div> <!-- end col -->
+
+	<div class="col-10">
+		<div class="card">
+			<div class="card-body">
+				<section class="content">
+					<div class="box box-default">
+						<div class="box-header with-border">
+							<div class="row">
+								<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+									<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Nhập tên nhóm để tìm">
+								</div>
+								<div class="col-lg-6 cold-md-6 col-sm-12 col-xs-12" >
+									<div class="">
+										<button id="search" type="submit" class="btn btn-gradient-primary">[[#{search}]]</button>
+										<a th:href="@{/group/create}" class="btn btn-gradient-success">[[#{new}]]</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="table-responsive">
+								<table id="mainTable" class="table table-bordered dt-responsive nowrap" style="width: 100%;" >
+									<thead>
+									<tr>
+										<th style="width: 20px" align="center">STT</th>
+										<th style="width: 20px">ID</th>
+										<th>Tên nhóm</th>
+										<th>Trạng thái</th>
+										<th>Thao tác</th>
+									</tr>
+									</thead>
+									<tbody>
+									<tr th:each="group,iterationStatus  : ${groups}">
+										<td th:text="${iterationStatus.count}">1</td>
+										<td th:text="${group.id}"></td>
+										<td><a th:href="@{'/group/view/' + ${group.id}}">[[${group.name}]]</a></td>
+										<div th:switch="${group.status}">
+											<td th:case="'1'">Kích hoạt</td>
+											<td th:case="'0'">Khóa</td>
+											<td th:case="*">Unknown status</td>
+										</div>
+										<td>
+											<a class="btn btn-gradient-primary" th:href="@{'/group/view/' + ${group.id}}">Chi tiết</a>
+											<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/group/delete/' + ${group.id}}">[[#{delete}]]</a>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+					</div>
+				</section>
+
+			</div>
+		</div>
+	</div> <!-- end col -->
+</div> <!-- end row -->
+
+
