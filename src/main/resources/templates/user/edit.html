@@ -125,7 +125,7 @@
 		<div class="col-sm-2"></div>
 		<div class="col-sm-5 text-right">
 			<a th:href="@{/user/}" class="btn btn-warning pull-left">[[#{back}]]</a>
-			<a th:if="${action=='update'}" class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/user/delete/' + ${user.id}}">[[#{delete}]]</a>
+			<a th:if="${action=='update'}" class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${user.id}','@{/user/delete/}')|" href="#">[[#{delete}]]</a>
 			<a th:if="${action!='create'}" th:href="@{'/user/resetPassword/' + ${user.id}}" class="btn btn-gradient-success">[[#{user.resetPassword}]]</a>
 			<button type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 		</div>

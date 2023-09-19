@@ -101,7 +101,8 @@ public class UserController extends BaseController {
 		} else {
 			log.info("No change was made");
 		}
-		return "redirect:/user/view/" + user.getId();
+		//return "redirect:/user/view/" + user.getId();
+		return "redirect:/user";
 	}
 
 	// Delete user

@@ -81,7 +81,7 @@
 					</div>
 					<td>
 						<a class="btn btn-gradient-primary" th:href="@{'/rule/view/' + ${r.id}}">Chi tiết</a>
-						<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/rule/delete/' + ${r.id}}">[[#{delete}]]</a>
+						<a class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${r.id}','@{/rule/delete/}')|" href="#" >[[#{delete}]]</a>
 					</td>
 				</tr>
 				</tbody>

@@ -145,8 +145,8 @@
 					<div class="row">
 						<div class="col-sm-3"></div>
 						<div class="col-sm-5 text-right">
-							<a th:href="@{/rule/}" class="btn btn-gradient-warning pull-left">[[#{cancel}]]</a>
-							<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?');" th:href="@{'/rule/delete/' + ${rule.id}}">[[#{delete}]]</a>
+							<a th:href="@{/rule/}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
+							<a class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${rule.id}','@{/rule/delete/}')|" href="#">[[#{delete}]]</a>
 							<button type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 						</div>
 					</div>

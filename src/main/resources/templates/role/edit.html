@@ -90,8 +90,8 @@
 					<div class="row">
 						<div class="col-sm-4"></div>
 						<div class="col-sm-5 text-right">
-								<a th:href="@{/role}" class="btn btn-gradient-warning pull-left">[[#{cancel}]]</a>
-								<a th:if="${role.editable == true}"  class="btn btn-gradient-danger " onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/role/delete/' + ${role.id}}">[[#{delete}]]</a>
+								<a th:href="@{/role}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
+								<a th:if="${role.editable == true}"  class="btn btn-gradient-danger " th:attr="onclick=|confirmDelete('${role.id}','@{/role/delete/}')|" href="#" >[[#{delete}]]</a>
 								<button th:if="${role.editable == true}" type="submit" class="btn btn-gradient-primary " th:text="#{${action=='create'? 'save' : 'update'}}">Save</button>					
 								<button th:if="${role.editable == false}" type="submit" class="btn btn-gradient-primary " disabled th:text="#{${action=='create'? 'save' : 'update'}}">Save</button>					
 						</div>

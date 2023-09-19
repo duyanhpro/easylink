@@ -85,8 +85,8 @@
 					<div class="row">
 						<div class="col-sm-3"></div>
 						<div class="col-sm-5 text-right">
-							<a th:href="@{/group/}" class="btn btn-gradient-warning pull-left">[[#{cancel}]]</a>
-							<a th:if="${action!='create'}" class="btn btn-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/group/delete/' + ${group.id}}">[[#{delete}]]</a>
+							<a th:href="@{/group/}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
+							<a th:if="${action!='create'}" class="btn btn-danger" th:attr="onclick=|confirmDelete('${group.id}','@{/group/delete/}')|" href="#">[[#{delete}]]</a>
 							<button type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 						</div>
 					</div>

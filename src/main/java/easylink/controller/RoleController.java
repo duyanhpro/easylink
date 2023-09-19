@@ -85,7 +85,8 @@ public class RoleController extends BaseController {
 		} else {
 			log.info("No change was made");
 		}
-		return "redirect:/role/view/" + role.getId();
+		//return "redirect:/role/view/" + role.getId();
+		return "redirect:/role";
 	}
 	
 	@GetMapping("/permission")

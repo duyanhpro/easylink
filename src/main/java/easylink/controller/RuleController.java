@@ -110,7 +110,8 @@ public class RuleController extends BaseController {
 		} else {
 			log.info("No change was made");
 		}
-		return "redirect:/rule/view/" + id;
+		//return "redirect:/rule/view/" + id;
+		return "redirect:/rule";
 	}
 	
 	@GetMapping("/delete/{id}")

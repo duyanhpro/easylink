@@ -75,7 +75,8 @@ public class DeviceController extends BaseController {
 			log.error("Save exception: " + e.getMessage());
 			redirectAttrs.addFlashAttribute("errorMsg", e.getMessage());
 		}			
-		return "redirect:/device/edit/" + device.getId();
+		//return "redirect:/device/edit/" + device.getId();
+		return "redirect:/device";
 	}
 	
 	// Delete user

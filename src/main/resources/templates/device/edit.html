@@ -38,7 +38,7 @@
 			tags: true
 		});
 		
-		$("#page-title").html("Quản lý Trạm");
+		$("#page-title").html("Quản lý Thiết bị");
 	});
 </script>
 
@@ -55,7 +55,7 @@
 					<input type="hidden" id="status" name="status" th:value="${device.status}">
 					<div class="box-body">
 						<div class="form-group row">
-							<label class="col-sm-2 control-label col-form-label">Tên trạm</label>
+							<label class="col-sm-2 control-label col-form-label">Tên thiết bị</label>
 							<div class="col-sm-5">
 								<input type="text" class="form-control" id="name"	name="name" th:value="${device.name}">
 							</div>
@@ -67,7 +67,7 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Thông tin trạm</label>
+							<label class="col-sm-2 col-form-label">Mô tả</label>
 							<div class="col-sm-5">
 								<input type="text" class="form-control" id="description"	name="description" th:value="${device.description}">
 							</div>
@@ -122,7 +122,7 @@
 
 
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Nhóm trạm</label>
+							<label class="col-sm-2 col-form-label">Nhóm</label>
 							<div class="col-sm-5">
 								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="" name="group">
 								  <option value="" th:selected="${device.group == null}"></option>
@@ -137,10 +137,10 @@
 						<div class="col-sm-2"></div>
 						<div class="col-sm-5 text-right">
 							<button type="button" class="btn btn-gradient-info pull-left" onclick="history.back()">
-									<i class="fa fa-close"></i> [[#{cancel}]]
+									<i class="fa fa-close"></i> [[#{back}]]
 							</button>
-							<a th:if="${action!='create'}" th:href="@{'/device/delete/' + ${device.id}}" class="btn btn-gradient-danger"
-								onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
+							<a th:if="${action!='create'}" href="#" class="btn btn-gradient-danger"
+							   th:attr="onclick=|confirmDelete('${device.id}', '@{/device/delete/}')|">Xóa</a>
 							<button type="submit" class="btn btn-gradient-primary">Lưu</button>
 						</div>
 					</div>
