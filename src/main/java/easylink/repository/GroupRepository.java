@@ -22,4 +22,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer>, GroupRep
 
 	@Query("select g from Group g where g.parentId = :groupId")
 	List<Group> findChildren(int groupId);
+
+	@Query("select g from Group g where g.parentId is null or g.parentId = 0")
+	List<Group> findRootNode();
 }

@@ -17,17 +17,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class GroupController extends BaseController {
 
 	// List & Search Group
-	@NeedPermission("group:list")
-	@GetMapping("")
-	public String list(Model model) {
-		model.addAttribute("pageTitle", "Danh sách nhóm");
-		model.addAttribute("groups", groupService.findAll());
-		return "group/list";
-	}
+//	@NeedPermission("group:list")
+//	@GetMapping("")
+//	public String list(Model model) {
+//		model.addAttribute("pageTitle", "Danh sách nhóm");
+//		model.addAttribute("groups", groupService.findAll());
+//		return "group/list";
+//	}
 
 	// List & Search Group
-	@NeedPermission("group:tree")
-	@GetMapping("/tree")
+	@NeedPermission("group:list")
+	@GetMapping("")
 	public String listTree(Model model) {
 		model.addAttribute("pageTitle", "Danh sách nhóm");
 		model.addAttribute("groups", groupService.findAll());
@@ -90,7 +90,8 @@ public class GroupController extends BaseController {
 		} else {
 			log.info("No change was made");
 		}
-		return "redirect:/group/view/" + group.getId();
+		//return "redirect:/group/view/" + group.getId();
+		return "redirect:/group";
 	}
 	
 	// Delete user
@@ -99,7 +100,7 @@ public class GroupController extends BaseController {
 	public String deleteGroup(Model model, @PathVariable int id, RedirectAttributes redirectAttrs) {
 		log.debug("Delete group id {}", id);
 		SecurityUtil.authorize("group", "delete", groupService.findById(id));
-		groupService.deleteById(id);
+		groupService.deleteAndUpdateTree(id);
 		redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("group.delete.success"));
 		return "redirect:/group";
 	}

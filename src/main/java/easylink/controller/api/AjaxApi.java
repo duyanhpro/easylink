@@ -2,11 +2,13 @@ package easylink.controller.api;
 
 import java.util.List;
 
+import easylink.dto.GroupNode;
 import easylink.dto.Location;
 import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
 import easylink.exception.AccessDeniedException;
 import easylink.security.NeedPermission;
+import easylink.service.GroupService;
 import easylink.service.MqttService;
 import easylink.service.DeviceService;
 import org.slf4j.Logger;
@@ -36,6 +38,9 @@ public class AjaxApi {
 
 	@Autowired
     MqttService mqttService;
+
+	@Autowired
+	GroupService groupService;
 
 	@GetMapping("/api/devices")
 	@ResponseBody
@@ -85,5 +90,11 @@ public class AjaxApi {
 			Exception ex) {
 		return new ResponseEntity<Object>(
 				"Access Denied", new HttpHeaders(), HttpStatus.FORBIDDEN);
+	}
+
+	@GetMapping("/api/group/tree")
+	@ResponseBody
+	public GroupNode getGroupTree() {
+		return groupService.getGroupNodeTree();
 	}
 }
