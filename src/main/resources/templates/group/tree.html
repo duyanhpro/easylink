@@ -82,22 +82,8 @@
 								//Swal.fire("Chac chan xoa nhom " + node.id + "?");
 								if (node.id === 'root')
 									return;
-								Swal.fire({
-									title: 'Xác nhận xóa',
-									text: 'Bạn có chắc chắn muốn xóa nhóm này?',
-									icon: 'warning',
-									showCancelButton: true,
-									confirmButtonText: 'Xóa',
-									cancelButtonText: 'Hủy',
-									reverseButtons: true
-								}).then((result) => {
-									// console.log("Result: " + JSON.stringify(result));
-									if (result.value) {
-										// Put your function here
-										console.log("Delete confirmed: " + node.id);
-										window.location.href = [[@{/group/delete/}]] + node.id;
-									}
-								})
+								confirmDelete(node.id);
+
 							}
 						}
 					};
@@ -159,8 +145,31 @@
 		    event.preventDefault(); // No need to `return false;`.
 		});
 
-
 	});
+
+	function confirmDelete(id) {
+		console.log("Confirm delete " + id);
+		Swal.fire({
+			title: 'Xác nhận xóa',
+			text: 'Bạn có chắc chắn muốn xóa nhóm này?',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Xóa',
+			cancelButtonText: 'Hủy',
+			reverseButtons: true,
+			confirmButtonColor: '#d33',
+			// Background color of the "Cancel"-button. The default color is #aaa
+			cancelButtonColor: '#3085d6',
+		}).then((result) => {
+			// console.log("Result: " + JSON.stringify(result));
+			if (result.value) {
+				// Put your function here
+				console.log("Delete confirmed: " + id);
+				window.location.href = [[@{/group/delete/}]] + id;
+			}
+		})
+	}
+
 </script>
 
 <div class="row">
@@ -226,7 +235,8 @@
 										</div>
 										<td>
 											<a class="btn btn-gradient-primary" th:href="@{'/group/view/' + ${group.id}}">Chi tiết</a>
-											<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/group/delete/' + ${group.id}}">[[#{delete}]]</a>
+<!--											<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/group/delete/' + ${group.id}}">[[#{delete}]]</a>-->
+											<a class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${group.id}')|" href="#">[[#{delete}]]</a>
 										</td>
 									</tr>
 									</tbody>
