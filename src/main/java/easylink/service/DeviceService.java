@@ -13,6 +13,8 @@ import easylink.util.BeanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,11 @@ public class DeviceService {
 		return repo.findById(id).orElse(null);
 	}
 
+	@Cacheable("device")
+	public Device findByToken(String token) {
+		return repo.findByDeviceToken(token);
+	}
+
 	public List<String> findAllStreet() {
 		log.debug(repo.findAllStreet().toString());
 		return repo.findAllStreet();
@@ -60,7 +67,8 @@ public class DeviceService {
 	public List<String> findAllGroup() {
 		return repo.findAllGroup();
 	}
-	
+
+	@CacheEvict(cacheNames = "device",key = "#device.deviceToken")
 	public Device createOrUpdate(Device device) {
 		log.debug("Saving device: {}", device);
 		try {

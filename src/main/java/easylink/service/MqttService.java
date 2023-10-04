@@ -1,6 +1,7 @@
 package easylink.service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -54,6 +55,12 @@ public class MqttService {
 
 	@Autowired
 	RuleExecutionServie ruleExecutionService;
+
+	@Autowired
+	RawDataService rawService;
+
+	@Autowired
+	IngestDataService ingestService;
 
 	private BlockingQueue<String> rpcResponseQueue = new LinkedBlockingQueue<>();
 	
@@ -135,16 +142,35 @@ public class MqttService {
 		log.trace("Receive mqtt message: " + msg);
 		// convert JSON string to Map
 		ObjectMapper mapper = new ObjectMapper();
+
+		int lastSlashIndex = topic.lastIndexOf('/');
+		String deviceToken =  topic.substring(lastSlashIndex + 1);
+
 		try {
 			Map<String, Object> map = mapper.readValue(msg, Map.class);
-			String deviceToken =  (String) map.get("deviceToken");
-			
+
+			normalizedData(deviceToken, map);
+
 			deviceService.updateDeviceStatus(deviceToken, map, msg);
-			
+
+			ingestService.insertData(map);
+
 			ruleExecutionService.executeRule(deviceToken, map);
 			
 		} catch (Exception e) {
 			log.error("Exception when processing event: {}", e);
+		}
+	}
+
+	public void normalizedData(String deviceToken, Map<String, Object> data) {
+		// TODO: read timestamp from message, reject if message too old (for example 1 hour late)
+		data.put("event_time", new Date());
+		String token = (String) data.get("deviceToken");	// TODO: sau se doi ten tu device
+		if (token != null) {
+			data.put("device_token", data.get("deviceToken"));	// uu tien token trong message truoc
+			data.remove("deviceToken");
+		} else {
+			data.put("device_token", data.get("deviceToken"));	// neu khong co thi lay token tu topic
 		}
 	}
 

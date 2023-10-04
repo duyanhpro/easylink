@@ -38,6 +38,8 @@ public class UserAuthorizationService {
 		if (user == null) {
 			throw new AccessDeniedException("Username " + username + " not found");
 		}
+		if (user.getStatus() == User.STATUS_INACTIVE)
+			throw new AccessDeniedException("User is disabled");
 
 		UserAuthorizationDetail ud = new UserAuthorizationDetail();		// Collection of user's authorities (role, permissions)
 

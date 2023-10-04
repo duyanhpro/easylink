@@ -4,7 +4,7 @@ plugins {
 	id 'java'
 }
 
-sourceCompatibility = '1.8'
+sourceCompatibility = "1.9"
 
 configurations {
 	developmentOnly
@@ -52,6 +52,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.mindrot:jbcrypt:0.4'
 	
 	//implementation 'org.thingsboard:rest-client:3.3.1'
@@ -76,4 +77,6 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	sourceCompatibility = '1.10'
+	targetCompatibility = '1.10'
 }

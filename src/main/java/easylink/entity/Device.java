@@ -11,9 +11,9 @@ import javax.persistence.Table;
 public class Device extends BaseEntity {
 
 	// Fields
-	public static final int STATUS_ACTIVE = 1;
 	public static final int STATUS_INACTIVE = 0;
-	
+	public static final int STATUS_ACTIVE = 1;
+
 	private String name;
 	String description;
 	String location;
@@ -27,6 +27,7 @@ public class Device extends BaseEntity {
 	Float lat;
 	
 	private Integer status = STATUS_INACTIVE;
+	Integer deviceTypeId = 1;
 	
 	// Constructors
 
@@ -122,17 +123,31 @@ public class Device extends BaseEntity {
 		this.lat = lat;
 	}
 
+	public Integer getDeviceTypeId() {
+		return deviceTypeId;
+	}
+
+	public void setDeviceTypeId(Integer deviceTypeId) {
+		this.deviceTypeId = deviceTypeId;
+	}
+
 	@Override
 	public String toString() {
-		return "Device [" + (name != null ? "name=" + name + ", " : "")
-				+ (description != null ? "description=" + description + ", " : "")
-				+ (location != null ? "location=" + location + ", " : "")
-				+ (street != null ? "street=" + street + ", " : "")
-				+ (district != null ? "district=" + district + ", " : "") + (city != null ? "city=" + city + ", " : "")
-				+ (deviceToken != null ? "deviceToken=" + deviceToken + ", " : "")
-				+ (group != null ? "group=" + group + ", " : "") + (lon != null ? "lon=" + lon + ", " : "")
-				+ (lat != null ? "lat=" + lat + ", " : "") + (status != null ? "status=" + status + ", " : "")
-				+ (id != null ? "id=" + id : "") + "]";
+		return "Device{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", description='" + description + '\'' +
+				", location='" + location + '\'' +
+				", street='" + street + '\'' +
+				", district='" + district + '\'' +
+				", city='" + city + '\'' +
+				", deviceToken='" + deviceToken + '\'' +
+				", group='" + group + '\'' +
+				", lon=" + lon +
+				", lat=" + lat +
+				", status=" + status +
+				", deviceTypeId=" + deviceTypeId +
+				'}';
 	}
 
 }
