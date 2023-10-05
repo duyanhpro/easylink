@@ -44,7 +44,8 @@ public class RuleService {
 	public List<Rule> findAll() {
 		return repo.findAll(Sort.by(Direction.ASC, "modifiedDate"));
 	}
-	
+
+	// TODO: cache this
 	public List<Rule> findAllActive() {
 		return repo.findByStatus(Rule.STATUS_ACTIVE);
 	}

@@ -1,6 +1,7 @@
 package easylink.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import easylink.common.Constant;
 import easylink.entity.DeviceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +140,7 @@ public class StarrocksInsert implements IngestDataService {
 
         // Note: data already normalized
         // choose schema table from deviceToken
-        String token = data.get("device_token").toString();
+        String token = data.get(Constant.DEVICE_TOKEN).toString();
         DeviceType dt = deviceTypeService.findFromDeviceToken(token);
         if (dt==null) {
             log.error("Device Type not found");
@@ -237,7 +238,7 @@ public class StarrocksInsert implements IngestDataService {
 
         // Note: data already normalized
         // choose schema table from deviceToken
-        String token = _data.get("device_token").toString();
+        String token = _data.get(Constant.DEVICE_TOKEN).toString();
         DeviceType dt = deviceTypeService.findFromDeviceToken(token);
         if (dt==null) {
             log.error("Device Type not found");

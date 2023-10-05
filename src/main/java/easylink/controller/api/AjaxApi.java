@@ -4,10 +4,12 @@ import java.util.List;
 
 import easylink.dto.GroupNode;
 import easylink.dto.Location;
+import easylink.entity.Alarm;
 import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
 import easylink.exception.AccessDeniedException;
 import easylink.security.NeedPermission;
+import easylink.service.AlarmService;
 import easylink.service.GroupService;
 import easylink.service.MqttService;
 import easylink.service.DeviceService;
@@ -42,6 +44,9 @@ public class AjaxApi {
 	@Autowired
 	GroupService groupService;
 
+	@Autowired
+	AlarmService alarmService;
+
 	@GetMapping("/api/devices")
 	@ResponseBody
 	@NeedPermission("device:list")
@@ -63,7 +68,15 @@ public class AjaxApi {
 	public DeviceStatus getStatusDevice(@PathVariable("deviceToken") String deviceToken) {
 		return deviceService.findStatus(deviceToken);
 	}
-	
+
+	@GetMapping("/api/devices/{deviceToken}/alarm")
+	@ResponseBody
+	@NeedPermission("device:view")
+	public List<Alarm> getDeviceRecentAlarm(@PathVariable("deviceToken") String deviceToken, @RequestParam(defaultValue = "5000") int day, @RequestParam(defaultValue = "30") int limit) {
+		log.debug("Get alarm of {} in last {} days, limit {} records", deviceToken, day, limit);
+		return alarmService.getRecentAlarm(deviceToken, day, limit);
+	}
+
 	@GetMapping("/api/devices/status")
 	@ResponseBody
 	@NeedPermission("device:list")

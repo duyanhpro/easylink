@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
+import easylink.common.Constant;
 import easylink.dto.ActionCreateAlarm;
 import easylink.dto.AlarmLevel;
 import easylink.entity.Alarm;
@@ -18,6 +19,7 @@ import org.springframework.expression.ParseException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import org.springframework.web.context.request.RequestContextHolder;
 import vn.vivas.core.util.JsonUtil;
 
 public class RuleExecutionRunnable implements Runnable {
@@ -42,6 +44,7 @@ public class RuleExecutionRunnable implements Runnable {
 	@Override
 	public void run() {
 		log.info("Start new execution thread for rule {}", r.getName());
+
 		try {
 			while (true) {
 				Map<String, Object> map = msgQueue.poll();
@@ -63,13 +66,18 @@ public class RuleExecutionRunnable implements Runnable {
 				for (Map.Entry<String, Object> entry : map.entrySet()) {
 					context.setVariable(entry.getKey(),entry.getValue());
 				}
+				boolean b = false;
 				try {
-					boolean b = exp.getValue(context, Boolean.class);
+					 b = exp.getValue(context, Boolean.class);
+				} catch (Exception e) {
+					log.debug("Condition Expression Invalid " + e.getMessage());
+				}
+				try {
 					if (b) {
 						executeAction(r, map);
 					}
-				} catch (Exception e) {
-					log.debug("Condition Expression Invalid");
+				}	catch (Exception e) {
+					log.debug("Exeception when execute rule action " + e.getMessage());
 				}
 			}
 		} catch (ParseException e) {
@@ -78,7 +86,7 @@ public class RuleExecutionRunnable implements Runnable {
 	}
 	
 	public void executeAction(Rule rule, Map<String, Object> message) {
-		
+
 		//Check limit time between 2 consecutive actions 
 		String deviceToken = (String) message.get("deviceToken");
 		Long lastTime = actionTime.get(rule.getId()+"-"+deviceToken);
@@ -90,11 +98,12 @@ public class RuleExecutionRunnable implements Runnable {
 		//log.debug("Execute action {}", rule.getAction());
 		ActionCreateAlarm ac = JsonUtil.parse(rule.getAction(), ActionCreateAlarm.class);
 		if (rule.getActionType().equals("CreateAlarm")) {
-			Alarm a = new Alarm((String)message.get("deviceToken"),new Date(), ac.getAlarmContent(),ac.getAlarmType(),
+			Alarm a = new Alarm((String)message.get(Constant.DEVICE_TOKEN),new Date(), ac.getAlarmContent(),ac.getAlarmType(),
 					AlarmLevel.valueOf(ac.getAlarmLevel()), rule.getId());
 			log.info("Create alarm {}", a);	
 			
-			BeanUtil.getBean(AlarmService.class).saveAlarm(a);
+			AlarmService as = BeanUtil.getBean(AlarmService.class);
+			as.saveAlarm(a);
 			
 		} else {
 			log.error("Unknown action type!");

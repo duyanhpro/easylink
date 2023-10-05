@@ -10,6 +10,7 @@ import easylink.entity.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +22,8 @@ public class RuleExecutionServie {
 	
 	// map ruleId with message queue.  Each rule will have one queue to process messages
 	static Map<Integer, Queue<Map<String,Object>>> msgQueueMap = new HashMap<>();	
-	// Map thread with rule Id
+
+	// Map thread with rule Id. Each rule will have 1 thread to process messages (from its own queue)
 	static Map<Integer, Thread> ruleExecutionThreadMap = new HashMap<>();			 
 
 	/**

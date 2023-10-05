@@ -133,7 +133,7 @@
 		// add the OpenStreetMap tiles
 		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			maxZoom: 19,
-			attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+			//attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
 		}).addTo(map);
 
 		// show the scale bar on the lower left corner
@@ -177,7 +177,9 @@
 					+ "<br>Trạng thái chung: " + (cam.status == 0? "OK":"NOK")
 					+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
 					+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
-					+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'
+					//+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'
+					+ "<br><a data-target=\"#alarm_modal\" data-toggle=\"modal\" data-device-token=\""
+					+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Cảnh báo</a>"
 						;
 
 					var marker;
@@ -221,7 +223,7 @@
 			$('#my_modal').on('show.bs.modal', function(e) {
 				var deviceToken = $(e.relatedTarget).data('device-token');
 				var deviceName = $(e.relatedTarget).data('device-name');
-				$("#myModalLabel").html(deviceName);
+				$("#myModalLabel").html("Dữ liệu gần nhất của " + deviceName);
 				$("#telemetry-table tbody").empty();    // remove body except header
 				$.getJSON([[@{/api/devices/}]] + deviceToken + '/status', function(st) {
 					console.log("Status: " + st);
@@ -232,6 +234,25 @@
 						$('#telemetry-table').append('<tr><td>' + key + '</td><td>' + val + '</td></tr>');
 					});
 
+				});
+			});
+
+			$('#alarm_modal').on('show.bs.modal', function(e) {
+				var deviceToken = $(e.relatedTarget).data('device-token');
+				var deviceName = $(e.relatedTarget).data('device-name');
+				$("#alarmModalLabel").html("Cảnh báo gần nhất của " + deviceName);
+				$("#alarm-table tbody").empty();    // remove body except header
+				$.getJSON([[@{/api/devices/}]] + deviceToken + '/alarm', function(st) {
+					console.log("Alarm: " + JSON.stringify(st));
+					//$('#telemetry-table').append('<tr><td>Thời điểm cập nhật</td><td>' + st.eventTime + '</td></tr>');
+					for (let i = 0; i < st.length; i++ ) {
+						var row = '<tr><td> ' + (i+1) + '</td> ' +
+								'<td>' + st[i].eventTime + '</td>\n' +
+								'<td>' + st[i].content + '</td>\n' +
+								'<td>' + st[i].level + '</td>\n' +
+								'</tr>';
+						$('#alarm-table tbody').append(row);
+					}
 				});
 			});
 
@@ -283,7 +304,7 @@
 
 <!--                 </div>container -->
 
-<!-- Modal -->
+<!-- Modal for Device Status -->
 <div class="modal fade" id="my_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -303,12 +324,42 @@
 					</tr>
 					</thead>
 					<tbody>
-					<tr>    <td>Thời điểm cập nhật</td> <td>17:10:07 09/10/2021</td>                </tr>
-					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
-					<tr>    <td>Temp</td>   <td>123</td>                </tr>
-					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
-					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
-					<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
+						<tr>    <td>Thời điểm cập nhật</td> <td>17:10:07 09/10/2021</td></tr>
+						<tr>    <td>UPSLoad</td>    <td>1</td>              </tr>
+						<tr>    <td>Temp</td>   <td>123</td>                </tr>
+					</tbody>
+				</table>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="alarm_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="alarmModalLabel">Cảnh báo gần nhất</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<h5 class="modal-title" id="eventTime" style="margin-bottom:10px">Thời điểm cập nhật</h5>
+				<table id="alarm-table" class="table table-bordered">
+					<thead>
+						<tr>
+							<th style="width: 20px" align="center">STT</th>
+							<th>Thời gian</th>
+							<th>Nội dung cảnh báo</th>
+							<th>Mức độ</th>
+						</tr>
+					</thead>
+					<tbody>
+
 					</tbody>
 				</table>
 

@@ -1,6 +1,7 @@
 package easylink.repository;
 
 import java.util.Date;
+import java.util.List;
 
 import easylink.dto.AlarmLevel;
 import easylink.entity.Alarm;
@@ -32,4 +33,7 @@ public interface AlarmRepository extends JpaRepository<Alarm, Integer> {
 						+ "(:end is null or :end > v.eventTime)")
 	Page<Alarm> findAlarm(@Param("deviceToken") String deviceToken, @Param("type") String type, @Param("level") AlarmLevel level,
 			@Param("start") Date start, @Param("end") Date end, Pageable page);
+
+	@Query("select v from Alarm v where :deviceToken = v.deviceToken and (:start is null or :start <= v.eventTime) order by v.eventTime desc")
+	List<Alarm> findRecentAlarm(@Param("deviceToken") String deviceToken, @Param("start") Date start, Pageable pageable);
 }

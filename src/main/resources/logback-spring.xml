@@ -31,7 +31,7 @@
 <!--	<logger name="org.springframework.security" level="ERROR" />-->
 
 	<logger name="easylink" level="trace" />
-<!--	<logger name="vf.charging.security" level="INFO" />-->
+	<logger name="easylink.security" level="INFO" />
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />

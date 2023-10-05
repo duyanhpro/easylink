@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 
+import easylink.common.Constant;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -47,6 +48,13 @@ public class MqttService {
 
 	@Value("${mqtt.enable}")
 	Boolean mqttEnable;
+
+	@Value("${raw.insert.enable:true}")
+	Boolean enableInsert;
+	@Value("${raw.save-status.enable:true}")
+	Boolean enableSaveStatus;
+	@Value("${rule.enable:true}")
+	Boolean enableRule;
 
 	@Autowired
     DeviceService deviceService;
@@ -148,11 +156,12 @@ public class MqttService {
 
 			normalizedData(deviceToken, map);
 
-			deviceService.updateDeviceStatus(deviceToken, map, msg);
-
-			ingestService.insertData(map);
-
-			ruleExecutionService.executeRule(deviceToken, map);
+			if (enableSaveStatus)
+				deviceService.updateDeviceStatus(deviceToken, map, msg);
+			if (enableInsert)
+				ingestService.insertData(map);
+			if (enableRule)
+				ruleExecutionService.executeRule(deviceToken, map);
 			
 		} catch (Exception e) {
 			log.error("Exception when processing event: {}", e);
@@ -164,10 +173,10 @@ public class MqttService {
 		data.put("event_time", new Date());
 		String token = (String) data.get("deviceToken");	// TODO: sau se doi ten tu device
 		if (token != null) {
-			data.put("device_token", data.get("deviceToken"));	// uu tien token trong message truoc
+			data.put(Constant.DEVICE_TOKEN, data.get("deviceToken"));	// uu tien token trong message truoc
 			data.remove("deviceToken");
 		} else {
-			data.put("device_token", data.get("deviceToken"));	// neu khong co thi lay token tu topic
+			data.put(Constant.DEVICE_TOKEN, deviceToken);	// neu khong co thi lay token tu topic
 		}
 	}
 

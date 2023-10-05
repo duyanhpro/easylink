@@ -2,10 +2,7 @@ package easylink.entity;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import easylink.dto.AlarmLevel;
 
@@ -14,7 +11,9 @@ import easylink.dto.AlarmLevel;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "tbl_alarm")
-public class Alarm extends BaseEntity {
+public class Alarm {
+
+	Integer id;
 
 	// Fields
 	private String deviceToken;
@@ -41,6 +40,18 @@ public class Alarm extends BaseEntity {
 		this.type = type;
 		this.level = level;
 		this.ruleId = ruleId;
+	}
+
+	// Property accessors
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getDeviceToken() {

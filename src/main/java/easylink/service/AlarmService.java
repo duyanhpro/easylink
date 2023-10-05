@@ -1,9 +1,13 @@
 package easylink.service;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import easylink.dto.AlarmLevel;
 import easylink.entity.Alarm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import easylink.repository.AlarmRepository;
 import easylink.repository.DeviceRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class AlarmService {
 	
 	@Autowired
@@ -20,7 +26,9 @@ public class AlarmService {
 	
 	@Autowired
     DeviceRepository deviceRepo;
-	
+
+	Logger log = LoggerFactory.getLogger(this.getClass());
+
 	public Page<Alarm> findAlarm(Integer deviceId, String type, AlarmLevel level,
                                  Date startTime, Date endTime, int pageNumber, int pageSize) {
 		String deviceToken = null;
@@ -37,5 +45,25 @@ public class AlarmService {
 	// TODO:  create queue to save alarm in batch
 	public void saveAlarm(Alarm a) {
 		alarmRepo.save(a);
+	}
+
+	/**
+	 * get alarm from last numberOfDay, limit maximum number of record returned
+	 * @param deviceToken
+	 * @param numberOfDay
+	 * @param limit
+	 * @return
+	 */
+	public List<Alarm> getRecentAlarm(String deviceToken, int numberOfDay, int limit) {
+		log.debug("Get alarm in last {} days, limit {} records", numberOfDay, limit);
+		// Get the current time in milliseconds
+		long currentTimeMillis = System.currentTimeMillis();
+
+		// Calculate the time in milliseconds for the desired number of days ago
+		long daysInMillis = numberOfDay * 24 * 60 * 60 * 1000L; // 1 day = 24 hours * 60 minutes * 60 seconds * 1000 milliseconds
+		long timeInMillisAgo = currentTimeMillis - daysInMillis;
+log.debug("Loading data from " + new Date(timeInMillisAgo));
+		// Create a Date object with the calculated time and return it
+		return alarmRepo.findRecentAlarm(deviceToken, new Date(timeInMillisAgo), PageRequest.of(0, limit));
 	}
 }
