@@ -5,6 +5,7 @@ import easylink.entity.DeviceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -12,26 +13,36 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import javax.annotation.PreDestroy;
+
 @Service
 public class StarrocksInsert implements IngestDataService {
 
-    private static final int BATCH_SIZE = 2;
-    private static final long MAX_WAIT_TIME_MS = 10000; // 30 seconds
+    @Value("${raw.insert.batch.size}")
+    int batchSize;// = 30;
+    @Value("${raw.insert.batch.max-wait-time-second}")
+    long batchMaxWaitTime;// = 200000; // 30 seconds
     private static final long QUEUE_POLL_TIME_MS = 1000; // 1 seconds
 
     private final Queue<Map<String, Object>> messageQueue = new ConcurrentLinkedQueue<>();
     Logger log = LoggerFactory.getLogger(this.getClass());
+    HikariDataSource dataSource;
 
     // Provide the database connection URL, username, and password
-    String url = "jdbc:mysql://113.190.243.86:21930/easylink?useTimezone=true&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8";      // starrocks
-    String username = "root";
-    String password = "";
+    @Value("${raw.db.url}")
+    String url;// = "jdbc:mysql://113.190.243.86:21930/easylink?useTimezone=true&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8";      // starrocks
+    @Value("${raw.db.username}")
+    String username;// = "root";
+    @Value("${raw.db.password}")
+    String password;// = "";
 
     @Autowired
     DeviceTypeService deviceTypeService;
@@ -48,6 +59,15 @@ public class StarrocksInsert implements IngestDataService {
 
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        log.info("Create Starrocks connection pool");
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setMaximumPoolSize(10);        // Set the maximum pool size (number of connections)
+        config.setMinimumIdle(5);        // Set the minimum idle connections (optional)
+        dataSource = new HikariDataSource(config);
+
         log.info("Create thread to ingest data");
         new Thread(new Runnable() {
             @Override
@@ -72,7 +92,7 @@ public class StarrocksInsert implements IngestDataService {
                     batch.add(m);
 
                     // Check if it is time to insert
-                    if ((batch.size() >= BATCH_SIZE) || ((System.currentTimeMillis() - first) >= MAX_WAIT_TIME_MS)) {
+                    if ((batch.size() >= batchSize) || ((System.currentTimeMillis() - first) >= (batchMaxWaitTime *1000))) {
                         insertBatchIntoDatabase(batch);
                         // reset
                         batch.clear();
@@ -80,6 +100,14 @@ public class StarrocksInsert implements IngestDataService {
                 }
             }
         }).start();
+    }
+
+    @PreDestroy
+    public void closeDataSource() {
+        log.info("Clean up Starrocks connection pool");
+        if (dataSource instanceof HikariDataSource) {
+            ((HikariDataSource) dataSource).close();
+        }
     }
 
 //    Map<String, String> schema = Map.of(
@@ -123,7 +151,7 @@ public class StarrocksInsert implements IngestDataService {
             return;
         }
 
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        try (Connection connection = dataSource.getConnection()) {
             StringBuilder sqlBuilder = new StringBuilder("INSERT INTO " + dt.getTableName() + " (");
             StringBuilder valuesBuilder = new StringBuilder(") VALUES (");
 
@@ -183,7 +211,7 @@ public class StarrocksInsert implements IngestDataService {
                         }
 
                     } catch (Exception e) {
-                        log.error("Field with incorrect type. Received: {}, expected {}", typeReceived, typeInSchema);
+                        log.error("Field {}:{} have incorrect type. Received: {}, expected {}", entry.getKey(), value, typeReceived, typeInSchema);
                         preparedStatement.setObject(parameterIndex, null);
                     }
                     parameterIndex++;
@@ -200,7 +228,7 @@ public class StarrocksInsert implements IngestDataService {
 
     private void insertBatchIntoDatabase(LinkedList<Map<String, Object>> batch) {
         // TODO: assume this batch of same schema types!  (will separate queue for each device types
-        log.debug("Insert batch of " + batch.size());
+        log.info("Insert batch of " + batch.size());
         long start = System.currentTimeMillis();
         Map<String, Object> _data = batch.get(0);
 
@@ -211,7 +239,7 @@ public class StarrocksInsert implements IngestDataService {
         if (dt==null) {
             log.error("Device Type not found");
         }
-        log.debug("Get deviceType: " + dt);
+        log.debug("Get deviceType & schema " + dt.getName());
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> schema;
         try {
@@ -222,7 +250,8 @@ public class StarrocksInsert implements IngestDataService {
             return;
         }
 
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        //try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        try (Connection connection = dataSource.getConnection()) {
             StringBuilder sqlBuilder = new StringBuilder("INSERT INTO " + dt.getTableName() + " (");
             StringBuilder valuesBuilder = new StringBuilder(") VALUES (");
 
@@ -281,7 +310,7 @@ public class StarrocksInsert implements IngestDataService {
                             }
 
                         } catch (Exception e) {
-                            log.error("Field with incorrect type. Received: {}, expected {}, value {}", typeReceived, typeInSchema, value);
+                            log.debug("Field {}:{} have incorrect type. Received: {}, expected {}", entry.getKey(), value, typeReceived, typeInSchema);
                             preparedStatement.setObject(parameterIndex, null);
                         }
                         parameterIndex++;
@@ -290,22 +319,20 @@ public class StarrocksInsert implements IngestDataService {
                 }
 
                 // Execute the INSERT statement
-                //int rowsAffected = preparedStatement.executeUpdate();
                 int[] batchResult = preparedStatement.executeBatch();
                 // Handle batch results as needed
+                int success = 0, fail = 0;
                 for (int result : batchResult) {
                     if (result == PreparedStatement.EXECUTE_FAILED) {
-                        // Handle failed insertion
-                        System.err.println("Batch insertion failed.");
+                        fail++;
                     } else {
-                        // Handle successful insertion
-                        System.out.println("Batch insertion succeeded.");
+                        success++;
                     }
                 }
 
                 // Close the prepared statement
                 preparedStatement.close();
-                log.debug("Inserted into sensor_data table. in " + (System.currentTimeMillis()-start) +" ms");
+                log.info("Insert {} items, {} OK, {} NOK, time {} ms", batchResult.length, success, fail, (System.currentTimeMillis()-start));
             }
         } catch (SQLException e) {
             e.printStackTrace();
