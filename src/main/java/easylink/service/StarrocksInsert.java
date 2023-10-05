@@ -44,6 +44,9 @@ public class StarrocksInsert implements IngestDataService {
     @Value("${raw.db.password}")
     String password;// = "";
 
+    @Value("${raw.db.float.scale:2}")
+    int floatScale;
+
     @Autowired
     DeviceTypeService deviceTypeService;
 
@@ -189,7 +192,7 @@ public class StarrocksInsert implements IngestDataService {
 
                             //Double v = (Double)entry.getValue();
                             BigDecimal decimalValue = new BigDecimal(value.toString());
-                            decimalValue = decimalValue.setScale(2, RoundingMode.HALF_UP);
+                            decimalValue = decimalValue.setScale(floatScale, RoundingMode.HALF_UP);
                             //System.out.println(entry.getKey() + " is a float number: " + decimalValue);
                             preparedStatement.setObject(parameterIndex, decimalValue);
 
@@ -292,7 +295,7 @@ public class StarrocksInsert implements IngestDataService {
 
                                 //Double v = (Double)entry.getValue();
                                 BigDecimal decimalValue = new BigDecimal(value.toString());
-                                decimalValue = decimalValue.setScale(2, RoundingMode.HALF_UP);
+                                decimalValue = decimalValue.setScale(floatScale, RoundingMode.HALF_UP);
                                 //System.out.println(entry.getKey() + " is a float number: " + decimalValue);
                                 preparedStatement.setObject(parameterIndex, decimalValue);
 
