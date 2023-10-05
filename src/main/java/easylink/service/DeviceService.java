@@ -64,7 +64,7 @@ public class DeviceService {
 		return repo.findAllCity();
 	}
 
-	public List<String> findAllGroup() {
+	public List<String> findAllTags() {
 		return repo.findAllGroup();
 	}
 

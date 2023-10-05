@@ -21,15 +21,23 @@ public class Device extends BaseEntity {
 	String district;
 	String city;
 	String deviceToken;
-	String group;
+	String tags;
 
 	Float lon;
 	Float lat;
 	
 	private Integer status = STATUS_INACTIVE;
 	Integer deviceTypeId = 1;
-	
-	// Constructors
+	Integer groupId = 0;
+
+	public Integer getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
+	}
+// Constructors
 
 	/** default constructor */
 	public Device() {
@@ -99,12 +107,12 @@ public class Device extends BaseEntity {
 		this.status = status;
 	}
 
-	public String getGroup() {
-		return group;
+	public String getTags() {
+		return tags;
 	}
 
-	public void setGroup(String group) {
-		this.group = group;
+	public void setTags(String group) {
+		this.tags = group;
 	}
 
 	public Float getLon() {
@@ -142,11 +150,12 @@ public class Device extends BaseEntity {
 				", district='" + district + '\'' +
 				", city='" + city + '\'' +
 				", deviceToken='" + deviceToken + '\'' +
-				", group='" + group + '\'' +
+				", tags='" + tags + '\'' +
 				", lon=" + lon +
 				", lat=" + lat +
 				", status=" + status +
 				", deviceTypeId=" + deviceTypeId +
+				", groupId=" + groupId +
 				'}';
 	}
 

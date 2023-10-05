@@ -98,10 +98,10 @@
 <!-- 					</select> -->
 <!-- 				</div> -->
 <!-- 			</div> -->
-			<div style="display: none" class="form-group row">
-				<label for="lstUserGroup" class="col-sm-2 col-form-label">Nhóm</label>
+			<div class="form-group row">
+				<label for="lstUserGroup" class="col-sm-2 col-form-label">Nhóm / Tổ chức</label>
 				<div class="col-sm-5">
-					<select id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Select group" name="groupIds"
+					<select id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm" name="groupIds"
 						multiple>
 						<option th:value="${group.id}" th:each="group : ${allGroups}"
 							th:selected="${userGroups!=null && userGroups.contains(group.name)}">[[${group.name}]]</option>

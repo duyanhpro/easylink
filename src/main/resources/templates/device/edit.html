@@ -32,12 +32,16 @@
 		    placeholder: "-",
 			tags: true
 		});
-		$('#lstGroup').select2({
+		$('#lstTags').select2({
 			allowClear: true,
 		    placeholder: "-",
 			tags: true
 		});
-		
+		$('#lstGroup').select2({
+			allowClear: true,
+			placeholder: "-",
+			tags: true
+		});
 		$("#page-title").html("Quản lý Thiết bị");
 	});
 </script>
@@ -64,6 +68,16 @@
 							<label class="col-sm-2 col-form-label">IoT Device Token</label>
 							<div class="col-sm-5">
 								<input type="text" class="form-control" id="deviceToken"	name="deviceToken" th:value="${device.deviceToken}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="lstGroup" class="col-sm-2 col-form-label">Nhóm / Tổ chức</label>
+							<div class="col-sm-5">
+								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm" name="groupId">
+									<option value="0" th:selected="${device.groupId == null || device.groupId == 0}">""</option>
+									<option th:value="${group.id}" th:each="group : ${allGroups}"
+											th:selected="${device.groupId == group.id}">[[${group.name}]]</option>
+								</select>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -119,14 +133,12 @@
 							</button>
 						</div>
 
-
-
-						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Nhóm</label>
+						<div class="form-group row" hidden>
+							<label class="col-sm-2 col-form-label">Tags</label>
 							<div class="col-sm-5">
-								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="" name="group">
-								  <option value="" th:selected="${device.group == null}"></option>
-		                          <option th:each="u : ${groups}" th:value="${u}" th:selected="${u == device.group}">[[${u}]]</option>
+								<select id="lstTags" class="form-control select2" style="width: 100%;" data-placeholder="" name="tags">
+								  <option value="" th:selected="${device.tags == null}"></option>
+		                          <option th:each="u : ${tags}" th:value="${u}" th:selected="${u == device.tags}">[[${u}]]</option>
 		                      	</select>
 							</div>
 						</div>

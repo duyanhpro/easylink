@@ -51,7 +51,8 @@ public class DeviceController extends BaseController {
 		model.addAttribute("streets", deviceService.findAllStreet());
 		model.addAttribute("districts", deviceService.findAllDistrict());
 		model.addAttribute("cities", deviceService.findAllCity());
-		model.addAttribute("groups", deviceService.findAllGroup());
+		model.addAttribute("tags", deviceService.findAllTags());
+		model.addAttribute("allGroups", groupService.findAll());
 		
 		return "device/edit";
 	}
