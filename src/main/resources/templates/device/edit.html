@@ -217,20 +217,21 @@
 	          		console.log("click on map at ", e.latlng.lat, e.latlng.lng);
 	          		if (marker == null) {	// check to not re-add cam
 	          			marker = L.marker([ e.latlng.lat, e.latlng.lng ], {icon: greenIcon, draggable: 'true'}).bindPopup(mypopup).addTo(map);
+						console.log("Add new marker when clicked on map");
+						// update the input
+						$("#lat").val(e.latlng.lat);
+						$("#lon").val(e.latlng.lng);
+						// re-update if drag marker
 	          			marker.on('dragend', function(event) {
-	                 		var latlng = event.target.getLatLng();
-	                 		console.log("Device moved to ", latlng.lat, latlng.lng);
-	                 		var newloc = {lat: latlng.lat, lon: latlng.lng}; 
-	        				console.log(JSON.stringify(newloc));
+	                 		 var latlng = event.target.getLatLng();
+	                 		 console.log("Device moved to ", latlng.lat, latlng.lng);
+	                 		// var newloc = {lat: latlng.lat, lon: latlng.lng};
+	        				// console.log(JSON.stringify(newloc));
 
 	        				// update the input
 	        	         	$("#lat").val(latlng.lat);
 	        	         	$("#lon").val(latlng.lng);
 	              		});
-	          			
-	          			// update the input
-			         	$("#lat").val(latlng.lat);
-			         	$("#lon").val(latlng.lng);
 	          		}
 	          	});
           	} else {
@@ -240,8 +241,8 @@
 	         	marker.on('dragend', function(event) {
 	         		var latlng = event.target.getLatLng();
 	         		console.log("Device moved to ", latlng.lat, latlng.lng);
-	         		var newloc = {lat: latlng.lat, lon: latlng.lng}; 
-					console.log(JSON.stringify(newloc));
+	         		// var newloc = {lat: latlng.lat, lon: latlng.lng};
+					// console.log(JSON.stringify(newloc));
 
 					// update the input
 		         	$("#lat").val(latlng.lat);

@@ -57,9 +57,6 @@ public class MqttService {
 	RuleExecutionServie ruleExecutionService;
 
 	@Autowired
-	RawDataService rawService;
-
-	@Autowired
 	IngestDataService ingestService;
 
 	private BlockingQueue<String> rpcResponseQueue = new LinkedBlockingQueue<>();

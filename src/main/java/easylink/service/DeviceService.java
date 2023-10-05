@@ -132,7 +132,7 @@ public class DeviceService {
 		// TODO: handle it in batch, in a queue 
 		// TODO 2: use Redis to store it
 		try {
-			log.debug("Saving device status: " + map);
+			log.trace("Saving device status: " + map);
 			DeviceStatus st = new DeviceStatus();
 			st.setDeviceToken(deviceToken);
 			st.setEventTime(new Date());
@@ -158,6 +158,7 @@ public class DeviceService {
 	}
 
 	public Device updateLocation(int camId, Location location) {
+		log.debug("Update location device ID {}", camId);
 		Device cam = findById(camId);
 		cam.setLat(location.getLat());
 		cam.setLon(location.getLon());

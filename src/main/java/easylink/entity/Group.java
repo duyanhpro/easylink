@@ -24,7 +24,7 @@ public class Group extends BaseEntity {
 	// Fields
 
 	private String name;
-	private Integer status = STATUS_INACTIVE;
+	private Integer status = STATUS_ACTIVE;
 	private Integer parentId = 0;
 	
 	List<Role> roles;

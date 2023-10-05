@@ -8,7 +8,7 @@ import javax.persistence.Table;
 public class Role extends BaseEntity {
 	String name;
 	String description;
-	Integer status = STATUS_INACTIVE;
+	Integer status = STATUS_ACTIVE;
 	Boolean editable = true;
 	
 	public static final int STATUS_ACTIVE = 1;

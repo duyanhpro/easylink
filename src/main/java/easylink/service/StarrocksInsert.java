@@ -211,7 +211,7 @@ public class StarrocksInsert implements IngestDataService {
                         }
 
                     } catch (Exception e) {
-                        log.error("Field {}:{} have incorrect type. Received: {}, expected {}", entry.getKey(), value, typeReceived, typeInSchema);
+                        log.trace("Field {}:{} have incorrect type. Received: {}, expected {}", entry.getKey(), value, typeReceived, typeInSchema);
                         preparedStatement.setObject(parameterIndex, null);
                     }
                     parameterIndex++;
@@ -310,7 +310,7 @@ public class StarrocksInsert implements IngestDataService {
                             }
 
                         } catch (Exception e) {
-                            log.debug("Field {}:{} have incorrect type. Received: {}, expected {}", entry.getKey(), value, typeReceived, typeInSchema);
+                            log.trace("Field {}:{} have incorrect type. Received: {}, expected {}", entry.getKey(), value, typeReceived, typeInSchema);
                             preparedStatement.setObject(parameterIndex, null);
                         }
                         parameterIndex++;
