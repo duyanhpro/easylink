@@ -17,10 +17,10 @@ $(document).ready(function () {
 			<input type="hidden" name="pageSize" id="pageSize" th:value="${pageSize}">
 
 				<div class="form-group row">
-					<label for="lstDevice" class="col-sm-2 col-form-label text-left">Trạm</label>
+					<label for="lstDevice" class="col-sm-2 col-form-label text-left">Thiết bị</label>
 					<div class="col-sm-3">
 						<select id="lstDevice" class="form-control select2"
-							style="width: 100%;" data-placeholder="Chọn Trạm" name="selectedDevice">
+							style="width: 100%;" data-placeholder="Chọn thiết bị" name="selectedDevice">
 							<option value="0" th:selected="${0==selectedDevice}">Tất cả</option>
 							<option th:value="${c.id}" th:each="c : ${devices}"
 								th:selected="${c.id==selectedDevice}">[[${c.name}]]</option>

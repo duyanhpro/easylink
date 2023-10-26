@@ -135,13 +135,15 @@ public class UserService {
 
 		User userDb = repo.findByUsername(username);
 		if (userDb == null) {
-			throw new AccessDeniedException("User not found");
+			throw new AccessDeniedException("Tên đăng nhập hoặc mật khẩu không đúng!");
 		}
+		if (userDb.getStatus() == User.STATUS_INACTIVE)
+			throw new AccessDeniedException("Không thể đăng nhập do tài khoản đang bị khóa.");
 
 		if (passwordEncoder.matches(password, userDb.getPassword()))
 			return;
 
-		throw new AccessDeniedException("Invalid password");
+		throw new AccessDeniedException("Tên đăng nhập hoặc mật khẩu không đúng!");
 
 	}
 

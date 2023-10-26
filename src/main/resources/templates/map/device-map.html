@@ -179,7 +179,8 @@
 					+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
 					//+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'
 					+ "<br><a data-target=\"#alarm_modal\" data-toggle=\"modal\" data-device-token=\""
-					+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Cảnh báo</a>"
+					+ cam.deviceToken + "\" data-device-name=\"" + cam.name
+					+ "\" data-device-id=\"" + cam.id + "\" href=\"#my_modal\">Cảnh báo</a>"
 						;
 
 					var marker;
@@ -240,6 +241,7 @@
 			$('#alarm_modal').on('show.bs.modal', function(e) {
 				var deviceToken = $(e.relatedTarget).data('device-token');
 				var deviceName = $(e.relatedTarget).data('device-name');
+				var deviceId = $(e.relatedTarget).data('device-id');
 				$("#alarmModalLabel").html("Cảnh báo gần nhất của " + deviceName);
 				$("#alarm-table tbody").empty();    // remove body except header
 				$.getJSON([[@{/api/devices/}]] + deviceToken + '/alarm', function(st) {
@@ -254,6 +256,7 @@
 						$('#alarm-table tbody').append(row);
 					}
 				});
+				$("#moreAlarm").prop("href",[[@{/alarm?selectedDevice=}]] +  deviceId);
 			});
 
 			$("body").toggleClass("enlarge-menu");
@@ -362,10 +365,10 @@
 
 					</tbody>
 				</table>
-
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<h5><a class="btn btn-primary" id="moreAlarm" href="#">Xem tất cả cảnh báo</a></h5>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
 			</div>
 		</div>
 	</div>

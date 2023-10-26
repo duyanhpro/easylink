@@ -18,10 +18,10 @@
                     <a th:href="@{/device}"><i class="dripicons-stack"></i><span>Quản lý thiết bị</span></a>
                 </li>
                 <li>
-                    <a th:href="@{/rule}"><i class="ti-wand"></i><span>Rule cảnh báo</span></a>
+                    <a th:href="@{/rule}"><i class="ti-wand"></i><span>Luật cảnh báo</span></a>
                 </li>
                 
-                <li>
+                <li th:if="${session.principal.hasPermission('user:list') || session.principal.hasPermission('group:list') || session.principal.hasPermission('role:list')}" >
                     <a href="javascript: void(0);"><i class="ti-panel"></i><span>Quản trị hệ thống</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                     <ul class="nav-second-level" aria-expanded="false">
                         <li class="nav-item"><a class="nav-link" th:if="${session.principal.hasPermission('user:list')}" th:href="@{/user}"><i class="ti-user"></i>QL Người dùng</a></li>

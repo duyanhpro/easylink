@@ -119,7 +119,7 @@ public class UserController extends BaseController {
 	}
 	
 	// Delete user
-//	@NeedPermission("user:resetPassword")    
+	@NeedPermission("user:resetPassword")
 	@GetMapping("/resetPassword/{id}")
 	public String resetPasswordUser(Model model, @PathVariable int id, RedirectAttributes redirectAttrs) {
 		log.debug("Reset password for user id {}", id);
@@ -142,7 +142,7 @@ public class UserController extends BaseController {
 		log.debug("Change password for user id {}", SecurityUtil.getUserDetail().getUsername());
 		userService.changePassword(oldPassword, newPassword);
 		
-		redirectAttrs.addFlashAttribute("infoMsg", "Change password successfully");
+		redirectAttrs.addFlashAttribute("infoMsg", "Đổi mật khẩu thành công");
 		return "redirect:/user/changePassword";
 	}
 	

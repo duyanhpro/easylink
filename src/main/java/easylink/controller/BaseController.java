@@ -60,7 +60,7 @@ public class BaseController {
 	public ModelAndView handleAccesDenied(HttpServletRequest req, Exception ex) {
 		log.debug("User doesn't have permission. Show error ", ex);
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("pageError", ex.getClass().getSimpleName());
+		mav.addObject("pageError", "Tài khoản không có quyền truy cập hoặc thực hiện thao tác này");
 		mav.setViewName("layout/error");		// full path to html template because exception is not affected by ThymeleafInterceptor
 		return mav;
 	}
@@ -73,7 +73,7 @@ public class BaseController {
 		ModelAndView mav = new ModelAndView();
 
 		// TODO:  different message for each type of exception
-		mav.addObject("pageError", ex.getClass().getSimpleName());
+		mav.addObject("pageError", "Có lỗi xảy ra: " + ex.getClass().getSimpleName());
 
 		mav.setViewName("layout/error");		// full path to html template because exception is not affected by ThymeleafInterceptor
 		return mav;

@@ -32,4 +32,6 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
 	DeviceStatus findStatus(@Param("deviceToken") String deviceToken);
 
     Device findByDeviceToken(String deviceToken);
+
+    List<Device> findAllByStatus(int status);
 }

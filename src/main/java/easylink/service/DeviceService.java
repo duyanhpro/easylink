@@ -41,6 +41,10 @@ public class DeviceService {
 	public List<Device> findAll() {
 		return repo.findAll();
 	}
+
+	public List<Device> findAllActive() {
+		return repo.findAllByStatus(Device.STATUS_ACTIVE);
+	}
 	
 	public Device findById(int id) {
 		return repo.findById(id).orElse(null);
