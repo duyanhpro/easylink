@@ -59,7 +59,7 @@
 			<div class="box box-info">
 
 				<!-- form start -->
-				<form class="form-horizontal" th:action="@{/rule/save}" method="post">
+				<form class="form-horizontal form-parsley" th:action="@{/rule/save}" method="post">
 				
 					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
 <!-- 					<input type="hidden" id="isUserGroupChanged" name="isUserGroupChanged" value="false"> -->
@@ -68,9 +68,9 @@
 					
 					<div class="box-body">
 						<div class="form-group row">
-							<label for="name" class="col-sm-3 col-form-label">Tên luật</label>
+							<label for="name" class="col-sm-3 col-form-label">Tên luật *</label>
 							<div class="col-sm-5">
-								<input type="text" class="form-control" id="name" name="name" th:value="${rule.name}">
+								<input type="text" class="form-control" id="name" name="name" th:value="${rule.name}" required data-parsley-error-message="Tên luật không được bỏ trống">
 							</div>
 						</div>
 
@@ -84,10 +84,16 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="condition" class="col-sm-3 col-form-label">Điều kiện</label>
+							<label for="condition" class="col-sm-3 col-form-label">Điều kiện *</label>
 							<div class="col-sm-5">
-								<textarea class="form-control" id="condition" rows="3"	name="condition">[[${rule.condition}]]</textarea>
+								<textarea class="form-control" id="condition" rows="3"	name="condition" required data-parsley-error-message="Điều kiện thực thi không được bỏ trống">[[${rule.condition}]]</textarea>
 							</div>
+							<div class="col-sm-1">
+<!--								<button type="button" class="btn btn-info btn-round" data-toggle="modal" data-target="#helpModal">-->
+									<i class="dripicons-question" data-toggle="modal" data-target="#helpModal" style="font-size: 1.5em;"></i>
+<!--								</button>-->
+							</div>
+
 						</div>
 						<div class="form-group row">
 							<label for="actionType" class="col-sm-3 col-form-label">Hành động</label>
@@ -98,9 +104,9 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="alarmContent" class="col-sm-3 col-form-label">Nội dung cảnh báo</label>
+							<label for="alarmContent" class="col-sm-3 col-form-label">Nội dung cảnh báo *</label>
 							<div class="col-sm-3">
-								<input type="text" class="form-control" id="alarmContent" name="alarmContent" th:value="${alarm.alarmContent}">
+								<input type="text" class="form-control" id="alarmContent" name="alarmContent" th:value="${alarm.alarmContent}" required data-parsley-error-message="Nội dung cảnh báo không được bỏ trống">
 							</div>
 						</div>
 						<div class="form-group row">
@@ -120,9 +126,9 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="lstDevice" class="col-sm-3 col-form-label">Trạm được áp dụng</label>
+							<label for="lstDevice" class="col-sm-3 col-form-label">Thiết bị được áp dụng</label>
 							<div class="col-sm-5">
-							  <select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn trạm được áp dụng luật" 
+							  <select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn thiết bị được áp dụng luật"
 							  	name="deviceIds" multiple>
 		                          <option th:each="s : ${allDevices}" th:value="${s.id}" th:selected="${devices !=null && devices.contains(s.id)}">[[${s.name}]]</option>
 		                      </select>
@@ -155,3 +161,31 @@
 			</div>
 		</div>
 </section>
+
+<div class="modal fade " id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="helpModalLabel">Hướng dẫn tạo điều kiện cảnh báo</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+			</div>
+			<div class="modal-body">
+				<!-- Add your help content here -->
+				<p><strong>Điều kiện cảnh báo là một công thức để xác định trường hợp sẽ kích hoạt cảnh báo.</strong></p>
+				<p><strong>Cảnh báo sẽ được kích hoạt (theo cấu hình) khi biểu thức điều kiện đạt giá trị True.</strong></p>
+				<p>Trong công thức điều kiện này hỗ trợ các toán tử AND, OR và cho phép so sánh / tính toán trên các trường của dữ liệu đầu vào.</p>
+				<p>-&nbsp; C&aacute;c to&aacute;n tử so sánh:&nbsp; &nbsp;== (bằng nhau), != (khác), >=, <=</p>
+				<p>-&nbsp; C&aacute;c to&aacute;n tử hỗ trợ:&nbsp; &nbsp;AND, OR</p>
+				<p>- Phủ định:&nbsp; d&ugrave;ng dấu ! trước biểu thức cần phủ định</p>
+				<p>- Lấy trường từ dữ liệu của thiết bị gửi l&ecirc;n:&nbsp;&nbsp;d&ugrave;ng k&yacute; hiệu # trước t&ecirc;n trường cần lấy</p>
+				<p><strong>V&iacute; dụ 1 số biểu thức điều kiện:</strong></p>
+				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi điện &aacute;p vol1 &gt; 230 v&agrave; d&ograve;ng điện amp1 &lt;= 10:&nbsp; &nbsp; #vol1 &gt; 203 AND #amp1 &lt;= 10</p>
+				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi tổng điện &aacute;p 2 cảm biến &gt; 500V:&nbsp; &nbsp;(#vol1 + #vol2) &gt; 500</p>
+				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi cổng 1 hoặc cổng 2 bị mở:&nbsp; &nbsp;#door1==0 OR #door2==0</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>

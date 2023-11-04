@@ -23,7 +23,8 @@ public class DeviceController extends BaseController {
 	@GetMapping("")
 	public String list(Model model) {
 		model.addAttribute("pageTitle", "Danh sách trạm");
-		model.addAttribute("devices", deviceService.findAll());
+		//model.addAttribute("devices", deviceService.findAll());
+		model.addAttribute("devices", deviceService.getDeviceList());
 		return "device/list";
 	}
 	

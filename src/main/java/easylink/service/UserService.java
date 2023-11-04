@@ -81,6 +81,11 @@ public class UserService {
 		BeanUtil.merge(u, user);
 		return repo.save(u);
 	}
+
+	@Transactional
+	public User save(User user) {
+		return repo.save(user);
+	}
 	
 	@Transactional
 	public User update(String username, User user) {

@@ -73,10 +73,11 @@
 						<!-- 						<th style="width: 20px">ID</th> -->
 						<th>Tên</th>
 						<th>Mô tả</th>
-<!-- 						<th>Địa điểm</th> -->
 						<th>Thành phố</th>
-						<th>Quận/Huyện</th>
-						<th>Đường/Phố</th>
+<!-- 						<th>Địa điểm</th>-->
+						<th>Nhóm</th>
+<!--						<th>Quận/Huyện</th>-->
+<!--						<th>Đường/Phố</th>-->
 						<th >Thao tác</th>
 					</tr>
 				</thead>
@@ -87,8 +88,11 @@
 						<td><a th:href="@{'/device/edit/' + ${device.id}}">[[${device.name}]]</a></td>
 						<td th:text="${device.description}">1</td>
 						<td th:text="${device.city}">1</td>
-						<td th:text="${device.district}">1</td>
-						<td th:text="${device.street}">1</td>
+<!--						<td th:text="${device.location}">1</td>-->
+						<td th:text="${device.groupName}">1</td>
+<!--						<td th:text="${device.city}">1</td>-->
+<!--						<td th:text="${device.district}">1</td>-->
+<!--						<td th:text="${device.street}">1</td>-->
 						<td><a class="btn btn-gradient-primary"
 							th:href="@{'/device/edit/' + ${device.id}}">Chi tiết</a>
 							<a class="btn btn-gradient-danger"

@@ -3,6 +3,7 @@ package easylink.repository;
 
 import java.util.List;
 
+import easylink.dto.DeviceListDto;
 import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,4 +35,7 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
     Device findByDeviceToken(String deviceToken);
 
     List<Device> findAllByStatus(int status);
+
+	@Query("SELECT new easylink.dto.DeviceListDto(d.id, d.name, d.description, d.location, d.city, g.name, d.deviceToken, d.tags) FROM Device d, Group g WHERE d.groupId = g.id")
+	List<DeviceListDto> findDeviceListDto();
 }

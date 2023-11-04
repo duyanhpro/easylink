@@ -66,29 +66,55 @@ public class UserController extends BaseController {
 			
 		return "user/edit";
 	}
-	
+
+	@GetMapping("/profile")
+	public String getProfile(Model model) {
+		log.debug("Showing personal profile");
+
+		model.addAttribute("action", "profile");
+		User u = SecurityUtil.getUserDetail().getUser();
+
+		model.addAttribute("pageTitle", "Thông tin cá nhân");
+		model.addAttribute("user", u);
+		model.addAttribute("allGroups", groupService.findAll());
+		model.addAttribute("userGroups", ugService.findGroupNameByUserId(u.getId()));
+		model.addAttribute("allRoles", rpService.findAllRole());
+		model.addAttribute("userRoleNames", rpService.findDirectRoleNameOfUser(u.getId()));
+
+		return "user/edit";
+	}
+
 	// User Create/Update
-	// Create new if id != null, else update
+	// Create new if id != null, else update, else update profile
 //	@NeedPermission("user:create,update")  //--> don't need because we check inside for each object
 	@PostMapping("/save")
 	public String save(Model model, @ModelAttribute User user, Integer[] groupIds, Integer[] roleIds,
 			boolean isFormChanged, boolean isUserGroupChanged, boolean isUserRoleChanged, 
-			RedirectAttributes redirectAttrs) {
+			RedirectAttributes redirectAttrs, String action) {
 		log.info("Creating/Updating user {}", user.getUsername());
 		log.debug("User {}", user);
 		if (isFormChanged) {
-			if (user.getId()!=null) {
+			if (action.equals("update")) {
 				
 				SecurityUtil.authorize("user", "update", user);
 				
-				userService.update(user);
+				userService.update(user);	// merge updated fields
+				SecurityUtil.getUserDetail().setUser(user);	// refresh user in SecurityUtil session
 				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("user.update.success"));
 			}
-			else { 
+			else if (action.equals("create")){
 				SecurityUtil.authorize("user", "create", user);
 				
 				userService.createNewUser(user);
 				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("user.create.success"));
+			} else if (action.equals("profile")) {
+				User ori = SecurityUtil.getUserDetail().getUser();
+				ori.setFullName(user.getFullName());
+				ori.setPhone(user.getPhone());
+				ori.setEmail(user.getEmail());
+				userService.save(ori);
+				SecurityUtil.getUserDetail().setUser(ori);
+				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("user.update.success"));
 			}
 			
 			// Update groups for this user
@@ -102,7 +128,9 @@ public class UserController extends BaseController {
 			log.info("No change was made");
 		}
 		//return "redirect:/user/view/" + user.getId();
-		return "redirect:/user";
+		if (action.equals("profile"))
+			return "redirect:/user/profile";
+		else return "redirect:/user";
 	}
 
 	// Delete user
@@ -129,7 +157,7 @@ public class UserController extends BaseController {
 		userService.resetPassword(id);
 		
 		redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("user.reset.success"));
-		return "redirect:/user/edit/" + id;
+		return "redirect:/user/view/" + id;
 	}
 
 	@GetMapping("/changePassword")

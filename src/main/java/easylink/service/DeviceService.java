@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import easylink.dto.DeviceListDto;
 import easylink.dto.Location;
 import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
@@ -41,6 +42,8 @@ public class DeviceService {
 	public List<Device> findAll() {
 		return repo.findAll();
 	}
+
+	public List<DeviceListDto> getDeviceList() { return repo.findDeviceListDto(); }
 
 	public List<Device> findAllActive() {
 		return repo.findAllByStatus(Device.STATUS_ACTIVE);
@@ -85,7 +88,7 @@ public class DeviceService {
 				return c;
 			}
 		} catch (Exception e) {
-			throw new ServiceException("Cập nhật không thành công. Device ID đã tồn tại!", e);
+			throw new ServiceException("Cập nhật không thành công. Device đã tồn tại!", e);
 		}
 	}
 
@@ -142,11 +145,12 @@ public class DeviceService {
 			st.setEventTime(new Date());
 			st.setTelemetry(msg);
 			//st.setStatus((Integer)map.get("status")==1?1:0);		// status:  connection status from gateway to monitoring device
-			if (map.containsKey("status"))
-				//if (map.get("status"))
-				st.setStatus((Integer)map.get("status"));
-			else
-				st.setStatus(0); 	// TODO: error string
+//			if (map.containsKey("status"))
+//				//if (map.get("status"))
+//				st.setStatus((Integer)map.get("status"));
+//			else
+//				st.setStatus(0); 	// TODO: error string
+			st.setStatus(DeviceStatus.STATUS_OK);
 			statusRepo.save(st);
 		} catch (Exception e) {
 			log.error("Exception when updateDeviceStatus: {}", e.getMessage());
