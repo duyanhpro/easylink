@@ -25,9 +25,10 @@ public class TestSpringEL {
 		r2.setDescription("small role");
 		
 		Role [] roles = new Role[] {r, r2};
-		
+
+		String expression = "#r.description";
 		ExpressionParser parser = new SpelExpressionParser();
-		Expression exp = parser.parseExpression("description");		// will output r.description
+		Expression exp = parser.parseExpression(expression);		// will output r.description
 		EvaluationContext context = new StandardEvaluationContext(r);
 		
 		

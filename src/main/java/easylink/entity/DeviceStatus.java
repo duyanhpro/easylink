@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @Table(name = "tbl_device_status")
 public class DeviceStatus {
 
-	// Fields
-//	public static final int STATUS_ACTIVE = 1;
-//	public static final int STATUS_INACTIVE = 0;
+	// runtime status
+	public static final int STATUS_OK = 1;
+	public static final int STATUS_NOK = 0;	// lost connection
 	
 	@Id
 	String deviceToken;
@@ -30,7 +30,7 @@ public class DeviceStatus {
 	String telemetry;
 	
 	Date eventTime;
-	private Integer status = 0;
+	private Integer status = STATUS_NOK;
 
 	@Transient
 	@JsonInclude

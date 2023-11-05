@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import easylink.dto.AlarmLevel;
 
 /**
@@ -13,6 +14,7 @@ import easylink.dto.AlarmLevel;
 @Table(name = "tbl_alarm")
 public class Alarm {
 
+	@JsonIgnore
 	Integer id;
 
 	// Fields

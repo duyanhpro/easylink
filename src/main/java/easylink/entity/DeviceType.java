@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User entity. @author MyEclipse Persistence Tools
+ * Device Type entity. Include schema information.
  */
 @SuppressWarnings("serial")
 @Entity
@@ -25,7 +25,7 @@ public class DeviceType extends BaseEntity {
 	String topic;
 	String tableName;
 
-	private Integer status = STATUS_INACTIVE;
+	private Integer status = STATUS_ACTIVE;
 
 	public DeviceType() {
 	}

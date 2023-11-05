@@ -6,6 +6,7 @@ import easylink.exception.ServiceException;
 import easylink.security.NeedPermission;
 import easylink.security.SecurityUtil;
 import easylink.service.DeviceService;
+import easylink.service.DeviceStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +19,10 @@ public class DeviceController extends BaseController {
 
 	@Autowired
 	DeviceService deviceService;
+
+	@Autowired
+	DeviceStatusService deviceStatusService;
+
 	// List & Search device
 	@NeedPermission("device:list")
 	@GetMapping("")
@@ -97,7 +102,7 @@ public class DeviceController extends BaseController {
 	@NeedPermission("device:status")
 	public String getStatus(Model model, @PathVariable int id) {
 		Device device = deviceService.findById(id);
-		DeviceStatus ss = deviceService.findStatus(device.getDeviceToken());
+		DeviceStatus ss = deviceStatusService.findStatus(device.getDeviceToken());
 		
 		return "redirect:/device/edit/" + device.getId();
 	}

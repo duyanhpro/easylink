@@ -26,7 +26,7 @@ public class Device extends BaseEntity {
 	Float lon;
 	Float lat;
 	
-	private Integer status = STATUS_INACTIVE;
+	private Integer status = STATUS_ACTIVE;
 	Integer deviceTypeId = 1;
 	Integer groupId = 0;
 

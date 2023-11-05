@@ -18,8 +18,8 @@ public class User extends BaseEntity {
 	public static final int STATUS_ACTIVE = 1;
 	public static final int STATUS_INACTIVE = 0;
 	
-	public static final int TYPE_ADMIN = 0;
-	public static final int TYPE_CUSTOMER = 1;
+	public static final int TYPE_SYSTEM = 0;	// internal user
+	public static final int TYPE_CUSTOMER = 1;	// Customer
 	
 	private String username;
 	@JsonIgnore
@@ -30,7 +30,7 @@ public class User extends BaseEntity {
 	private String phone;
 	
 	private Integer status = STATUS_ACTIVE;
-	private Integer type = TYPE_ADMIN;
+	private Integer type = TYPE_SYSTEM;		// Reserved. Not used in this project.
 	
 	// Constructors
 

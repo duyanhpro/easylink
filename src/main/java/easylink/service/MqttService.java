@@ -58,6 +58,8 @@ public class MqttService {
 
 	@Autowired
     DeviceService deviceService;
+	@Autowired
+	DeviceStatusService deviceStatusService;
 
 	IMqttClient client;
 
@@ -69,14 +71,14 @@ public class MqttService {
 
 	private BlockingQueue<String> rpcResponseQueue = new LinkedBlockingQueue<>();
 	
-	static Logger log = LoggerFactory.getLogger(MqttClient.class);
+	static Logger log = LoggerFactory.getLogger(MqttService.class);
 
 	@EventListener
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		if (!mqttEnable) return;
 		log.info("Application context refreshed");
 		connectMqtt();
-		subscribeTelemetry();
+		subscribeTelemetry();	// todo: subscribe all schema's topics
 		subscribeRpcResponse();
 	}
 
@@ -112,10 +114,10 @@ public class MqttService {
 		}
 	}
 
-	@Scheduled(fixedRate = 3000)	// check every 30s
+	@Scheduled(fixedRate = 30000)	// check every 30s
 	public void checkMqttConnection() {
 		if (!mqttEnable) return;
-		log.debug("Mqtt watchdog");
+		log.trace("Mqtt watchdog");
 		if (!client.isConnected())
 			connectMqtt();
 	}
@@ -149,35 +151,39 @@ public class MqttService {
 		ObjectMapper mapper = new ObjectMapper();
 
 		int lastSlashIndex = topic.lastIndexOf('/');
-		String deviceToken =  topic.substring(lastSlashIndex + 1);
+		String deviceTokenFromTopic =  topic.substring(lastSlashIndex + 1);
 
 		try {
 			Map<String, Object> map = mapper.readValue(msg, Map.class);
 
-			normalizedData(deviceToken, map);
+			boolean r = normalizedData(deviceTokenFromTopic, map);
+			if (!r) return;		// skip this event
 
 			if (enableSaveStatus)
-				deviceService.updateDeviceStatus(deviceToken, map, msg);
+				deviceStatusService.updateDeviceStatus(deviceTokenFromTopic, map, msg);
 			if (enableInsert)
 				ingestService.insertData(map);
 			if (enableRule)
-				ruleExecutionService.executeRule(deviceToken, map);
+				ruleExecutionService.executeRule(deviceTokenFromTopic, map);
 			
 		} catch (Exception e) {
 			log.error("Exception when processing event: {}", e);
 		}
 	}
 
-	public void normalizedData(String deviceToken, Map<String, Object> data) {
-		// TODO: read timestamp from message, reject if message too old (for example 1 hour late)
-		data.put("event_time", new Date());
-		String token = (String) data.get("deviceToken");	// TODO: sau se doi ten tu device
-		if (token != null) {
-			data.put(Constant.DEVICE_TOKEN, data.get("deviceToken"));	// uu tien token trong message truoc
-			data.remove("deviceToken");
-		} else {
-			data.put(Constant.DEVICE_TOKEN, deviceToken);	// neu khong co thi lay token tu topic
-		}
+	@Value("${event.max-delay-time}")
+	int maxDelayTime = 60;	// Max time in seconds to wait for event. Reject older events
+	public boolean normalizedData(String deviceToken, Map<String, Object> data) {
+		// Read timestamp from message, reject if message too old (for example 1 hour late)
+		Long t = (Long)data.get("event_time");
+		Long now = System.currentTimeMillis();
+		if ((t == null) || (now - t > maxDelayTime *1000))
+			return false;
+		if (t == null)
+			data.put("event_time", new Date());	// use system time if message does not have "event_time"
+		if (!data.containsKey(Constant.DEVICE_TOKEN))
+			data.put(Constant.DEVICE_TOKEN, deviceToken);  // get device token from mqtt topic
+		return true;
 	}
 
 	public void processRpcResponse(String topic, String msg) {
@@ -186,7 +192,7 @@ public class MqttService {
 	}
 
 	public void sendToMqtt(String topic, String message) {
-
+		log.debug("Publish mqtt message {} to topic {}", message, topic);
 		if (!client.isConnected()) {
 			connectMqtt();
 			if (!client.isConnected())
@@ -196,7 +202,8 @@ public class MqttService {
 		msg.setQos(2);
 		msg.setRetained(false);
 		try {
-			client.publish(topic, msg);
+			client.getTopic(topic).publish(msg);
+			//client.publish(topic, msg);
 		} catch (MqttException e) {
 			log.error("Exception when sending MQTT message to topic {}: {}", topic, e);
 		}
@@ -216,42 +223,5 @@ public class MqttService {
 		}
 		return response;
 	}
-//	public void executeRule_basic(Map<String, Object> map) {
-//	
-//	// TODO: create 1 thread for each Rule to to avoid conflict
-//	new Thread(new Runnable() {
-//		
-//		@Override
-//		public void run() {
-//			
-//			// Find rules applied to this deviceToken
-//			//List<Rule> lr = ruleService.findRuleByDeviceId((String)map.get("deviceToken"));
-//			List<Rule> lr = ruleService.findAll();
-//			for (Rule r: lr) {
-//				log.debug("Checking condition {} on event {}", r.getCondition(), map);
-//
-//				Expression exp = expressionCache.get(r.getCondition());
-//				if (exp == null) {
-//					ExpressionParser parser = new SpelExpressionParser();
-//					exp = parser.parseExpression(r.getCondition());
-//					expressionCache.put(r.getCondition(), exp);
-//				}
-//				StandardEvaluationContext context = new StandardEvaluationContext();
-//				for (Map.Entry<String, Object> entry : map.entrySet()) {
-//				    context.setVariable(entry.getKey(),entry.getValue());
-//				}
-//				try {
-//				boolean b = exp.getValue(context, Boolean.class);
-//				//log.info("Condition check result: {}", b);
-//				if (b) {
-//					log.debug("Execute action {}", r.getAction());
-//					
-//				}
-//				} catch (Exception e) {
-//					log.debug("Condition Expression Invalid");
-//				}
-//			}
-//		}
-//	}).start();
-//}
+
 }

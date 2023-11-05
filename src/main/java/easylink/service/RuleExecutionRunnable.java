@@ -88,7 +88,7 @@ public class RuleExecutionRunnable implements Runnable {
 	public void executeAction(Rule rule, Map<String, Object> message) {
 
 		//Check limit time between 2 consecutive actions 
-		String deviceToken = (String) message.get("deviceToken");
+		String deviceToken = (String) message.get(Constant.DEVICE_TOKEN);
 		Long lastTime = actionTime.get(rule.getId()+"-"+deviceToken);
 		if (lastTime != null && ((System.currentTimeMillis()-lastTime)<(rule.getMinInterval()*1000))) {
 			return;

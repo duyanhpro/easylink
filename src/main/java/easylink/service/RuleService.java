@@ -1,7 +1,9 @@
 package easylink.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import easylink.entity.Rule;
 import easylink.entity.RuleDevice;
@@ -11,6 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,5 +113,35 @@ public class RuleService {
 		}
 	}
 
+	/**
+	 * Validate condition expression.  Return true if expression is valid
+	 * @param condition
+	 * @return
+	 */
+    public boolean validate(String condition) {
+		log.info("Validating rule condition {}", condition);
+		ExpressionParser parser = new SpelExpressionParser();
+		Expression exp = parser.parseExpression(condition);
+		StandardEvaluationContext context = new StandardEvaluationContext();
 
+		// create fake data object. Actually this will depend on schema!
+		Map<String, Object> map = Map.of("event_time",new Date(), "vol1",20,"vol2",30,
+				"cur1",3.5, "cur2",2.4, "door1",0, "door2",1,
+				"hum1",40.5, "hum2",32.1); // max 10 items
+//		map.put("temp1",42.5);
+//		map.put("temp2", 39.6);
+
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			context.setVariable(entry.getKey(),entry.getValue());
+		}
+		boolean b = false;
+		try {
+			b = exp.getValue(context, Boolean.class);		// Note:  #nonExistentVar will become null (Spring's design)
+			log.debug("Condition result on fake data: " + b);
+			return true;  // no exception means condition is valid
+		} catch (Exception e) {
+			log.debug("Condition Expression Invalid " + e.getMessage());
+			return false;
+		}
+    }
 }

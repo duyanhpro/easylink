@@ -65,7 +65,7 @@
 						<th style="width: 20px" align="center">STT</th>
 						<th style="width: 20px">ID</th>
 						<th>Tên nhóm</th>
-						<th>Trạng thái</th>
+<!--						<th>Trạng thái</th>-->
 						<th>Thao tác</th>
 					</tr>
 				</thead>
@@ -74,11 +74,11 @@
 						<td th:text="${iterationStatus.count}">1</td>
 						<td th:text="${group.id}"></td>
 						<td><a th:href="@{'/group/view/' + ${group.id}}">[[${group.name}]]</a></td>
-						<div th:switch="${group.status}">
-							<td th:case="'1'">Kích hoạt</td>
-							<td th:case="'0'">Khóa</td>
-							<td th:case="*">Unknown status</td>
-						</div>
+<!--						<div th:switch="${group.status}">-->
+<!--							<td th:case="'1'">Kích hoạt</td>-->
+<!--							<td th:case="'0'">Khóa</td>-->
+<!--							<td th:case="*">Unknown status</td>-->
+<!--						</div>-->
 						<td>
 							<a class="btn btn-gradient-primary" th:href="@{'/group/view/' + ${group.id}}">Chi tiết</a>
 							<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/group/delete/' + ${group.id}}">[[#{delete}]]</a>

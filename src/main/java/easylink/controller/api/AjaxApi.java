@@ -9,10 +9,7 @@ import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
 import easylink.exception.AccessDeniedException;
 import easylink.security.NeedPermission;
-import easylink.service.AlarmService;
-import easylink.service.GroupService;
-import easylink.service.MqttService;
-import easylink.service.DeviceService;
+import easylink.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +34,8 @@ public class AjaxApi {
 
 	@Autowired
 	DeviceService deviceService;
-
+	@Autowired
+	DeviceStatusService deviceStatusService;
 	@Autowired
     MqttService mqttService;
 
@@ -46,6 +44,9 @@ public class AjaxApi {
 
 	@Autowired
 	AlarmService alarmService;
+
+	@Autowired
+	RuleService ruleService;
 
 	@GetMapping("/api/devices")
 	@ResponseBody
@@ -66,7 +67,7 @@ public class AjaxApi {
 	@ResponseBody
 	@NeedPermission("device:view")
 	public DeviceStatus getStatusDevice(@PathVariable("deviceToken") String deviceToken) {
-		return deviceService.findStatus(deviceToken);
+		return deviceStatusService.findStatus(deviceToken);
 	}
 
 	@GetMapping("/api/devices/{deviceToken}/alarm")
@@ -81,7 +82,7 @@ public class AjaxApi {
 	@ResponseBody
 	@NeedPermission("device:list")
 	public List<DeviceStatus> getAllDeviceStatus() {
-		return deviceService.findAllStatus();
+		return deviceStatusService.findAllStatus();
 	}
 
 	// Enable SSH tunnel
@@ -109,5 +110,11 @@ public class AjaxApi {
 	@ResponseBody
 	public GroupNode getGroupTree() {
 		return groupService.getGroupNodeTree();
+	}
+
+	@GetMapping("/api/rule/validate")
+	@ResponseBody
+	public String validate(@RequestParam String condition) {
+		return ruleService.validate(condition) ? "OK" : "NOK";
 	}
 }

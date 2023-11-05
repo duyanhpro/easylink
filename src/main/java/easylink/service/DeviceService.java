@@ -36,9 +36,6 @@ public class DeviceService {
 	@Autowired
 	DeviceRepository repo;
 	
-	@Autowired
-	DeviceStatusRepository statusRepo;
-	
 	public List<Device> findAll() {
 		return repo.findAll();
 	}
@@ -92,75 +89,6 @@ public class DeviceService {
 		}
 	}
 
-	/**
-	 * Find status. Convert json to hashmap to display on screen
-	 * @param deviceToken
-	 * @return
-	 * @throws JsonProcessingException 
-	 * @throws JsonMappingException 
-	 */
-	public DeviceStatus findStatus(String deviceToken)  {
-		DeviceStatus ss = repo.findStatus(deviceToken);
-		//System.out.println(ss);
-		if (ss == null) {
-			return new DeviceStatus(deviceToken);
-		}
-		ObjectMapper mapper = new ObjectMapper();
-
-		// convert JSON string to Map
-		Map<String, Object> map = new HashMap<String, Object>();
-		try {
-			map = mapper.readValue(ss.getTelemetry(), Map.class);
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// it works
-		// 		String json = "{\"name\":\"mkyong\", \"age\":\"37\"}";
-		//Map<String, String> map = mapper.readValue(json, new TypeReference<Map<String, String>>() {});
-
-		log.debug("Loaded status:  {}, status = {}", map, ss.getStatus());
-		ss.setTelemetryMap(map);
-
-		return ss;
-	}
-	
-	/**
-	 * Update device status when receive event from MQTT
-	 * @param deviceToken
-	 * @param map
-	 * @param msg
-	 */
-	public void updateDeviceStatus(String deviceToken, Map<String, Object> map, String msg) {
-		// TODO: handle it in batch, in a queue 
-		// TODO 2: use Redis to store it
-		try {
-			log.trace("Saving device status: " + map);
-			DeviceStatus st = new DeviceStatus();
-			st.setDeviceToken(deviceToken);
-			st.setEventTime(new Date());
-			st.setTelemetry(msg);
-			//st.setStatus((Integer)map.get("status")==1?1:0);		// status:  connection status from gateway to monitoring device
-//			if (map.containsKey("status"))
-//				//if (map.get("status"))
-//				st.setStatus((Integer)map.get("status"));
-//			else
-//				st.setStatus(0); 	// TODO: error string
-			st.setStatus(DeviceStatus.STATUS_OK);
-			statusRepo.save(st);
-		} catch (Exception e) {
-			log.error("Exception when updateDeviceStatus: {}", e.getMessage());
-		}
-	}
-	
-	public DeviceStatus updateStatus(DeviceStatus st) {
-		return statusRepo.save(st);
-	}
-	
 	public void deleteById(int id) {
 		repo.deleteById(id);
 	}
@@ -173,8 +101,4 @@ public class DeviceService {
 		return repo.save(cam);
 	}
 
-	public List<DeviceStatus> findAllStatus() {
-		return statusRepo.findAll();
-	}
-	
 }

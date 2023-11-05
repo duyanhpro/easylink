@@ -29,9 +29,6 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
 	@Query("select distinct v.tags from Device v where v.tags is not null and v.tags != ''")
 	List<String> findAllGroup();
 
-	@Query("select v from DeviceStatus v where v.deviceToken = :deviceToken")
-	DeviceStatus findStatus(@Param("deviceToken") String deviceToken);
-
     Device findByDeviceToken(String deviceToken);
 
     List<Device> findAllByStatus(int status);

@@ -174,7 +174,7 @@
 					console.log("Add marker: for " + cam.name + " at " + cam.lat + ":" + cam.lon);
 					var mypopup = '<a href="' + [[@{/device/edit/}]] + cam.id + '/">' + "<b>" + cam.name + "</b></a><br>"
 					+ cam.location
-					+ "<br>Trạng thái chung: " + (cam.status == 0? "OK":"NOK")
+					+ "<br>Trạng thái chung: " + (cam.status == 1? "OK":"NOK")
 					+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
 					+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
 					//+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'
@@ -229,7 +229,7 @@
 				$.getJSON([[@{/api/devices/}]] + deviceToken + '/status', function(st) {
 					console.log("Status: " + st);
 					//$('#telemetry-table').append('<tr><td>Thời điểm cập nhật</td><td>' + st.eventTime + '</td></tr>');
-					$("#eventTime").html('Thời điểm cập nhật: ' + st.eventTime);
+					$("#eventTime").html('Thời điểm cập nhật: ' + (st.eventTime == null)? "Chưa có dữ liệu": st.eventTime);
 					$.each( st.telemetryMap, function( key, val ) {
 						console.log(key + ' : ' + val);
 						$('#telemetry-table').append('<tr><td>' + key + '</td><td>' + val + '</td></tr>');
