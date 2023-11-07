@@ -177,7 +177,7 @@ public class MqttService {
 		// Read timestamp from message, reject if message too old (for example 1 hour late)
 		Long t = (Long)data.get("event_time");
 		Long now = System.currentTimeMillis();
-		if ((t == null) || (now - t > maxDelayTime *1000))
+		if ((t != null) && (now - t > maxDelayTime *1000))		// reject event
 			return false;
 		if (t == null)
 			data.put("event_time", new Date());	// use system time if message does not have "event_time"
@@ -193,19 +193,22 @@ public class MqttService {
 
 	public void sendToMqtt(String topic, String message) {
 		log.debug("Publish mqtt message {} to topic {}", message, topic);
-		if (!client.isConnected()) {
-			connectMqtt();
-			if (!client.isConnected())
-				return;
-		}
-		MqttMessage msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
-		msg.setQos(2);
-		msg.setRetained(false);
 		try {
+			if (!client.isConnected()) {
+				connectMqtt();
+				if (!client.isConnected())
+					return;
+			}
+			MqttMessage msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
+			msg.setQos(2);
+			msg.setRetained(false);
+
 			client.getTopic(topic).publish(msg);
 			//client.publish(topic, msg);
-		} catch (MqttException e) {
-			log.error("Exception when sending MQTT message to topic {}: {}", topic, e);
+//		} catch (MqttException e) {
+//			log.error("Exception when sending MQTT message to topic {}: {}", topic, e);
+		} catch (Exception e) {
+			log.error("Exception when sending MQTT message to topic {}: {}", topic, e.getMessage());
 		}
 		return;
 	}

@@ -178,10 +178,12 @@
 				<p>-&nbsp; C&aacute;c to&aacute;n tử hỗ trợ:&nbsp; &nbsp;AND, OR</p>
 				<p>- Phủ định:&nbsp; d&ugrave;ng dấu ! trước biểu thức cần phủ định</p>
 				<p>- Lấy trường từ dữ liệu của thiết bị gửi l&ecirc;n:&nbsp;&nbsp;d&ugrave;ng k&yacute; hiệu # trước t&ecirc;n trường cần lấy</p>
+				<p>- So sánh chuỗi (kiểu String):  #my_var.equals("chuỗi cần so sánh")</p>
 				<p><strong>V&iacute; dụ 1 số biểu thức điều kiện:</strong></p>
 				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi điện &aacute;p vol1 &gt; 230 v&agrave; d&ograve;ng điện amp1 &lt;= 10:&nbsp; &nbsp; #vol1 &gt; 203 AND #amp1 &lt;= 10</p>
 				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi tổng điện &aacute;p 2 cảm biến &gt; 500V:&nbsp; &nbsp;(#vol1 + #vol2) &gt; 500</p>
 				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi cổng 1 hoặc cổng 2 bị mở:&nbsp; &nbsp;#door1==0 OR #door2==0</p>
+				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi cảm biến cur2 bị lỗi:  #cur2.equals("error")</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

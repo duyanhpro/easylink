@@ -23,4 +23,7 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Inte
 	@Modifying
 	@Query("update DeviceStatus s SET s.status = :status WHERE s.deviceToken = :token")
 	void updateStatus(String token, int status);
+
+	@Query("select v from DeviceStatus v, Device d where v.deviceToken = d.deviceToken and d.status = 1")
+    List<DeviceStatus> findActiveDevices();
 }

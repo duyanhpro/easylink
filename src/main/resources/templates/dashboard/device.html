@@ -14,10 +14,18 @@
 	
 	function toggleFullScreen() {
 		console.log("Go full-screen");
-		$('.topbar').toggle();			// toggle hide/show
-		$('.left-sidenav').toggle();
-		//$('.page-wrapper').css("margin-top","0");
-		$('.page-wrapper').toggleClass("no-margin-top");
+		// $('.topbar').toggle();			// toggle hide/show
+		// $('.left-sidenav').toggle();
+		// //$('.page-wrapper').css("margin-top","0");
+		// $('.page-wrapper').toggleClass("no-margin-top");
+		const iframe = document.getElementById('myIframe');
+		if (!document.fullscreenElement) {
+			iframe.requestFullscreen().catch((err) => {
+				console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+			});
+		} else {
+			document.exitFullscreen();
+		}
 	}
 	
 	$(document).ready(function() {
@@ -33,7 +41,7 @@
 <section class="content">
       
       <div class="embed-responsive embed-responsive-16by9">
-  			<iframe th:src="${deviceDashboard}" ></iframe>
+  			<iframe id="myIframe" th:src="${deviceDashboard}" ></iframe>
 		</div>
       <!-- /.row -->
       

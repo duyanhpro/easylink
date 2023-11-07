@@ -121,8 +121,10 @@
 </style>
 <script th:inline="javascript">
 
-	var markerMap = new Map();;
+	var markerMap = new Map();
+	var popupMap = new Map();
 	var map;
+	var deviceMap = new Map();
 
 	$(document).ready(function() {
 
@@ -172,16 +174,7 @@
 
 				} else {
 					console.log("Add marker: for " + cam.name + " at " + cam.lat + ":" + cam.lon);
-					var mypopup = '<a href="' + [[@{/device/edit/}]] + cam.id + '/">' + "<b>" + cam.name + "</b></a><br>"
-					+ cam.location
-					+ "<br>Trạng thái chung: " + (cam.status == 1? "OK":"NOK")
-					+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
-					+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
-					//+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'
-					+ "<br><a data-target=\"#alarm_modal\" data-toggle=\"modal\" data-device-token=\""
-					+ cam.deviceToken + "\" data-device-name=\"" + cam.name
-					+ "\" data-device-id=\"" + cam.id + "\" href=\"#my_modal\">Cảnh báo</a>"
-						;
+					var mypopup = buildPopup(cam, (status == 0? "Đang tắt":"Kích hoạt"));
 
 					var marker;
 					//if (cam.status == 0) // 0 is OK
@@ -192,18 +185,23 @@
 					//else marker = L.marker([cam.lat, cam.lon], {icon: redIcon,  title:cam.name}).bindPopup(mypopup).addTo(map);
 					//markerList.push(marker);
 					markerMap.set(cam.deviceToken, marker);
+					popupMap.set(cam.deviceToken, mypopup);
+					deviceMap.set(cam.deviceToken, cam);
 				}
 			});
 			});
 
 			// update device status
 			$.getJSON([[@{/api/devices/status}]], function(sstatus){
-				console.log("Updating device status: " + sstatus);
+				console.log("Updating device status 1st time: " + sstatus);
 				for (const s of sstatus) {
 					console.log("Device " + s.deviceToken + ", status: " + s.status);
 					var marker = markerMap.get(s.deviceToken);
-					if (marker != null)
-						marker.setIcon(s.status==0? greenIcon: redIcon);
+					if (marker != null) {
+						marker.setIcon(s.status == 1 ? greenIcon : redIcon);
+						marker.setPopupContent(buildPopup(deviceMap.get(s.deviceToken), (s.status == 1? "OK":"Mất kết nối")));
+
+					}
 				}
 			});
 
@@ -214,8 +212,13 @@
 					for (const s of sstatus) {
 						console.log("Device " + s.deviceToken + ", status: " + s.status);
 						var marker = markerMap.get(s.deviceToken);
-						if (marker != null)
-							marker.setIcon(s.status==0? greenIcon: redIcon);
+						if (marker != null) {
+							console.log("Update marker icon for " + s.deviceToken);
+							marker.setIcon(s.status == 1 ? greenIcon : redIcon);
+							marker.setPopupContent(buildPopup(deviceMap.get(s.deviceToken), (s.status == 1? "OK":"Mất kết nối")));
+						} else {
+							console.log("No marker for this device " + s.deviceToken);
+						}
 					}
 				});
 			}, 5000);     // Update every 5 seconds
@@ -262,6 +265,18 @@
 			$("body").toggleClass("enlarge-menu");
 
 		});
+
+		function buildPopup(cam, statusStr) {
+			return '<a href="' + [[@{/device/edit/}]] + cam.id + '/">' + "<b>" + cam.name + "</b></a><br>"
+			+ cam.location
+			+ "<br>Trạng thái chung: <strong>" + statusStr + "</strong>"
+			+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
+			+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
+			//+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'
+			+ "<br><a data-target=\"#alarm_modal\" data-toggle=\"modal\" data-device-token=\""
+			+ cam.deviceToken + "\" data-device-name=\"" + cam.name
+			+ "\" data-device-id=\"" + cam.id + "\" href=\"#my_modal\">Cảnh báo</a>"
+		};
 
 		function focusDevice(deviceToken) {
 			console.log("click " + deviceToken);
@@ -342,7 +357,7 @@
 </div>
 
 <div class="modal fade" id="alarm_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
+	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="alarmModalLabel">Cảnh báo gần nhất</h5>
@@ -351,7 +366,6 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<h5 class="modal-title" id="eventTime" style="margin-bottom:10px">Thời điểm cập nhật</h5>
 				<table id="alarm-table" class="table table-bordered">
 					<thead>
 						<tr>

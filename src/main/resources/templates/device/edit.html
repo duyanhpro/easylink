@@ -43,6 +43,16 @@
 			tags: true
 		});
 		$("#page-title").html("Quản lý Thiết bị");
+
+		$('#statusCb').change(function() {
+			if(this.checked) {
+				$('#statusLabel').text("Kích hoạt");
+				$('#status').val("1");
+			} else {
+				$('#statusLabel').text("Tắt");
+				$('#status').val("0");
+			}
+		});
 	});
 </script>
 
@@ -53,10 +63,11 @@
 
 				<!-- form start -->
 <!--				<form class="form-horizontal  needs-validation" novalidate th:action="@{/device/save}" method="post">-->
-				<form class="form-horizontal  form-parsley"  th:action="@{/device/save}" method="post">
+				<form class="form-horizontal  "  th:action="@{/device/save}" method="post">
 					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
 					<input type="hidden" id="id" name="id" th:value="${device.id}">
 					<input type="hidden" id="status" name="status" th:value="${device.status}">
+						<!-- Need this because status check-box not submitted when unchecked -->
 					<div class="box-body">
 						<div class="form-group row">
 							<label class="col-sm-2 control-label col-form-label">Tên thiết bị *</label>
@@ -80,6 +91,17 @@
 								</select>
 							</div>
 						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 control-label text-right">Trạng thái</label>
+							<div class="col-sm-5">
+								<div class="custom-control custom-switch switch-primary">
+									<input th:value="${device.status}" type="checkbox" name="statusCb" class="custom-control-input" id="statusCb"
+										   th:checked="${device.status==1}" >
+									<label id="statusLabel" class="custom-control-label" for="statusCb">[[${device.status==1? "Kích hoạt":"Tắt"}]]</label>
+								</div>
+							</div>
+						</div>
+
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label">Mô tả</label>
 							<div class="col-sm-5">

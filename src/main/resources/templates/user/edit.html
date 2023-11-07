@@ -33,11 +33,13 @@
         	 $("#isFormChanged").val(true);
         })
         
-        $('#status').change(function() {
+        $('#statusCb').change(function() {
             if(this.checked) {
                 $('#statusLabel').text("Kích hoạt");
+				$('#status').val("1");
             } else {
             	$('#statusLabel').text("Khóa");
+				$('#status').val("0");
             }
             
         });
@@ -53,6 +55,7 @@
 			<input type="hidden" id="isUserGroupChanged" name="isUserGroupChanged" value="false">
 			<input type="hidden" id="isUserRoleChanged" name="isUserRoleChanged" value="false"> <input type="hidden" id="id" name="id" th:value="${user.id}">
 			<input type="hidden" id="action" name="action" th:value="${action}">
+			<input type="hidden" id="status" name="status" th:value="${user.status}">
 
 			<div class="form-group row">
 				<label for="username" class="col-sm-2 col-form-label">Tài khoản *</label>
@@ -86,15 +89,13 @@
 				</div>
 			</div>
 
-
-
 			<div class="form-group row">
 				<label class="col-sm-2 control-label text-right">Trạng thái</label>
 				<div class="col-sm-5">
 					<div class="custom-control custom-switch switch-primary">
-						<input value="1" type="checkbox" name="status" class="custom-control-input" id="status"
+						<input value="1" type="checkbox" name="statusCb" class="custom-control-input" id="statusCb"
 							   th:checked="${user.status==1}" th:disabled="${action=='profile'}" >
-						<label id="statusLabel" class="custom-control-label" for="status">[[${user.status==1? "Kích hoạt":"Khóa"}]]</label>
+						<label id="statusLabel" class="custom-control-label" for="statusCb">[[${user.status==1? "Kích hoạt":"Khóa"}]]</label>
 					</div>
 				</div>
 			</div>

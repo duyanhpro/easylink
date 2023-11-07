@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RuleExecutionServie {
-	static Logger log = LoggerFactory.getLogger(RuleExecutionServie.class);
+	Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	RuleService ruleService;

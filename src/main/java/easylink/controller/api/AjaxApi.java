@@ -82,7 +82,7 @@ public class AjaxApi {
 	@ResponseBody
 	@NeedPermission("device:list")
 	public List<DeviceStatus> getAllDeviceStatus() {
-		return deviceStatusService.findAllStatus();
+		return deviceStatusService.findStatusOfActiveDevices();
 	}
 
 	// Enable SSH tunnel

@@ -126,6 +126,9 @@ public class DeviceStatusService {
     public List<DeviceStatus> findAllStatus() {
         return statusRepo.findAll();
     }
+    public List<DeviceStatus> findStatusOfActiveDevices() {
+        return statusRepo.findActiveDevices();
+    }
 
     @Value("${mqtt.device.timeout}")
     int timeOut = 10;  // in seconds
@@ -134,7 +137,7 @@ public class DeviceStatusService {
     @Value("${mqtt.topic.connection}")
     String connectionTopic = "connection";
 
-    @Scheduled(fixedRateString = "${monitor.interval}")
+    //@Scheduled(fixedRateString = "${monitor.interval}")
     @Transactional
     public void monitorDeviceConnection() {
         log.trace("Check device connections");
