@@ -137,7 +137,7 @@ public class DeviceStatusService {
     @Value("${mqtt.topic.connection}")
     String connectionTopic = "connection";
 
-    //@Scheduled(fixedRateString = "${monitor.interval}")
+    @Scheduled(fixedDelayString = "${monitor.interval}")
     @Transactional
     public void monitorDeviceConnection() {
         log.trace("Check device connections");
@@ -156,7 +156,8 @@ public class DeviceStatusService {
         // iterate all tokens, check if (now - lastUpdate) >= TIME_OUT then update status = NOK in DB
         for (String token: activeTokens) {
             Long lastTime = lastStatusUpdateTime.get(token);
-            if ((lastTime != null) && (System.currentTimeMillis() - lastTime < timeOut))
+            Long now = System.currentTimeMillis();
+            if ((lastTime != null) && (now - lastTime < timeOut * 1000))
                 continue;
             // else device timeout
             log.info("No message from Device {} after timeout {}s -> Update status to NOK", token, timeOut);

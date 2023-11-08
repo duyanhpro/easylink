@@ -232,7 +232,7 @@
 				$.getJSON([[@{/api/devices/}]] + deviceToken + '/status', function(st) {
 					console.log("Status: " + st);
 					//$('#telemetry-table').append('<tr><td>Thời điểm cập nhật</td><td>' + st.eventTime + '</td></tr>');
-					$("#eventTime").html('Thời điểm cập nhật: ' + (st.eventTime == null)? "Chưa có dữ liệu": st.eventTime);
+					$("#eventTime").html('Thời điểm cập nhật: ' + (st.eventTime == null ? "Chưa có dữ liệu": st.eventTime));
 					$.each( st.telemetryMap, function( key, val ) {
 						console.log(key + ' : ' + val);
 						$('#telemetry-table').append('<tr><td>' + key + '</td><td>' + val + '</td></tr>');
@@ -269,7 +269,7 @@
 		function buildPopup(cam, statusStr) {
 			return '<a href="' + [[@{/device/edit/}]] + cam.id + '/">' + "<b>" + cam.name + "</b></a><br>"
 			+ cam.location
-			+ "<br>Trạng thái chung: <strong>" + statusStr + "</strong>"
+			+ "<br>Trạng thái: <strong>" + statusStr + "</strong>"
 			+ "<br><a data-target=\"#my_modal\" data-toggle=\"modal\" data-device-token=\""
 			+ cam.deviceToken + "\" data-device-name=\"" + cam.name +"\" href=\"#my_modal\">Chi tiết trạng thái</a>"
 			//+ '<br><a href="' + [[@{/alarm?selectedDevice=}]] + '' + cam.id + '">Xem cảnh báo</a> <br>'

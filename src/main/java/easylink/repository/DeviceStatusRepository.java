@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Inte
 
 	@Modifying
 	@Query("update DeviceStatus s SET s.status = :status WHERE s.deviceToken = :token")
+	@Transactional		// hmm somehow try this because exception in production
 	void updateStatus(String token, int status);
 
 	@Query("select v from DeviceStatus v, Device d where v.deviceToken = d.deviceToken and d.status = 1")
