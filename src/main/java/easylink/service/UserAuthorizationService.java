@@ -1,10 +1,13 @@
 package easylink.service;
 
+import java.util.List;
 import java.util.Set;
 
+import easylink.entity.Group;
 import easylink.entity.Permission;
 import easylink.entity.Role;
 import easylink.entity.User;
+import easylink.repository.GroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,9 @@ public class UserAuthorizationService {
 	
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private GroupRepository groupRepo;
 	
 	@Autowired
 	RolePermissionService rpService;
@@ -52,7 +58,7 @@ public class UserAuthorizationService {
 		for (Role r: roleSet) {
 			ud.getRoleCollection().add(r.getName());
 		}
-		
+
 		// Load all permission from all roles
 		Set<Permission> perms = rpService.findAllPermissionOfUser(user.getId());
 		

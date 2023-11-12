@@ -8,6 +8,7 @@ import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -35,4 +36,11 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
 
 	@Query("SELECT new easylink.dto.DeviceListDto(d.id, d.name, d.description, d.location, d.city, g.name, d.deviceToken, d.tags) FROM Device d, Group g WHERE d.groupId = g.id")
 	List<DeviceListDto> findDeviceListDto();
+
+	//@Procedure("GetDevicesForUser") // only work with simple return procedure
+	@Query(value = "CALL GetDevicesForUser(:userId);", nativeQuery = true)
+	List<Device> getDevicesForUser(@Param("userId") Integer userId);	// get devices of groups of user (recursively)
+
+	@Query(value = "CALL GetDeviceIdsForUser(:userId);", nativeQuery = true)
+	List<Integer> getDeviceIdsForUser(@Param("userId") Integer userId);	// get device IDs of groups of user (recursively)
 }

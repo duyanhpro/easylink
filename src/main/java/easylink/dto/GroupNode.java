@@ -3,6 +3,9 @@ package easylink.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Used by JS lib to display tree
+ */
 public class GroupNode {
     String id;
     String text;

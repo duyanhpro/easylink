@@ -1,15 +1,17 @@
 package easylink.service;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import easylink.dto.DeviceGroupDto;
 import easylink.dto.DeviceListDto;
 import easylink.dto.Location;
 import easylink.entity.Device;
-import easylink.entity.DeviceStatus;
-import easylink.repository.DeviceStatusRepository;
+import easylink.entity.Group;
+import easylink.repository.GroupRepository;
+import easylink.security.SecurityUtil;
 import easylink.util.BeanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +20,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import easylink.exception.NotFoundException;
 import easylink.exception.ServiceException;
@@ -35,12 +33,43 @@ public class DeviceService {
 	
 	@Autowired
 	DeviceRepository repo;
-	
-	public List<Device> findAll() {
-		return repo.findAll();
+	@Autowired
+	GroupService groupService;
+	@Autowired
+	GroupRepository groupRepo;
+
+	// Find all belong to this user
+	public List<DeviceGroupDto> findAllDeviceWithGroup() {
+		List<DeviceGroupDto> ldg = new ArrayList<>();
+		List<Device> ld = findAllMyDevices();
+		List<Group> lg = groupRepo.findAll();
+		Map<Integer, Group> mg = new HashMap<>();
+		for (Group g: lg) {
+			mg.put(g.getId(), g);
+		}
+		for (Device d: ld) {
+			DeviceGroupDto dg = new DeviceGroupDto();
+			dg.setDevice(d);
+			dg.setGroup(mg.get(d.getGroupId())); // todo:  set to root group if group = null
+			ldg.add(dg);
+		}
+		return ldg;
 	}
 
-	public List<DeviceListDto> getDeviceList() { return repo.findDeviceListDto(); }
+	/**
+	 * Find all devices that user is permitted to see
+	 * @return
+	 */
+	public List<Device> findAllMyDevices() {
+//		List<Group> lg = groupService.findGroupByUserId(SecurityUtil.getUserDetail().getUserId());
+//		if (lg.isEmpty())
+//			return repo.findAll();
+		return repo.getDevicesForUser(SecurityUtil.getUserDetail().getUserId());
+	}
+
+//	public List<DeviceListDto> getDeviceList() {
+//		return repo.findDeviceListDto();
+//	}
 
 	public List<Device> findAllActive() {
 		return repo.findAllByStatus(Device.STATUS_ACTIVE);

@@ -3,6 +3,9 @@
 	$(document).ready(function () {
 		$('#lstUserGroup').select2({
 		});
+		$('#parentId').select2();
+		$('#lstDevice').select2();
+
 
         var isFormChanged = false;
         var isConfirmed = false;
@@ -30,8 +33,8 @@
             } else {
             	$('#statusLabel').text("Khóa");
             }
-            
         });
+
 	});
 </script>
 
@@ -50,7 +53,8 @@
 						<div class="form-group row">
 							<label for="name" class="col-sm-3 control-label col-form-label">Tên nhóm *</label>
 							<div class="col-sm-5">
-								<input type="text" class="form-control" id="name" name="name" th:value="${group.name}" required data-parsley-error-message="Tên nhóm không được bỏ trống">
+								<input type="text" class="form-control" id="name" name="name" th:disabled="${group.id==1}"
+									   th:value="${group.name}" required data-parsley-error-message="Tên nhóm không được bỏ trống">
 							</div>
 						</div>
 						<div class="form-group row" hidden>
@@ -65,8 +69,8 @@
 						<div class="form-group row">
 							<label for="parentId" class="col-sm-3 control-label col-form-label">Nhóm cha</label>
 							<div class="col-sm-5">
-								<select id="parentId" class="form-control" placeholder="Nhóm cha" name="parentId">
-									<option value="0"></option>
+								<select id="parentId" class="form-control select2" placeholder="Nhóm cha" name="parentId">
+<!--									<option value="0"></option>-->
 									<option th:each="g : ${allGroups}" th:value="${g.id}" th:selected="${group.parentId!=null && group.parentId==g.id}" th:if="${g.id != group.id}">[[${g.name}]]</option>
 								</select>
 							</div>
@@ -77,6 +81,14 @@
 							  <select id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Select users" name="userIds" multiple>
 		                          <option th:each="user : ${allUsers}" th:value="${user.id}" th:selected="${usernames!=null && usernames.contains(user.username)}">[[${user.username}]]</option>
 		                      </select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="lstDevice" class="col-sm-3 control-label col-form-label">Thiết bị trong nhóm</label>
+							<div class="col-sm-5">
+								<select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Select users" name="deviceIds" multiple>
+									<option th:each="device : ${allDevices}" th:value="${device.id}" th:selected="${device.groupId == group.id}">[[${device.name}]]</option>
+								</select>
 							</div>
 						</div>
 

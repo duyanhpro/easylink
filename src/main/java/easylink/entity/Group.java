@@ -16,7 +16,7 @@ import javax.persistence.Transient;
         
 @Entity
 @Table(name = "tbl_group")
-public class Group extends BaseEntity {
+public class Group extends BaseEntity implements Comparable<Group> {
 
 	public static final int STATUS_ACTIVE = 1;
 	public static final int STATUS_INACTIVE = 0;
@@ -107,5 +107,10 @@ public class Group extends BaseEntity {
 				", roles=" + roles +
 				", users=" + users +
 				'}';
+	}
+
+	@Override
+	public int compareTo(Group o) {
+		return Integer.compare(this.id, o.id);
 	}
 }

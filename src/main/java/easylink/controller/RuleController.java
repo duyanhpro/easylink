@@ -42,7 +42,9 @@ public class RuleController extends BaseController {
 		model.addAttribute("rule", r);
 		model.addAttribute("alarm", (ActionCreateAlarm)JsonUtil.parse(r.getAction(), ActionCreateAlarm.class));
 		model.addAttribute("devices", ruleService.findAppliedDeviceIds(id));	// applied devices
-		model.addAttribute("allDevices", deviceService.findAll());
+		model.addAttribute("allDevices", deviceService.findAllMyDevices());
+		model.addAttribute("groups", ruleService.findAppliedGroupIds(id));
+		model.addAttribute("allGroups", groupService.findAllMyGroups());
 		return "rule/edit";
 	}
 	
@@ -54,17 +56,18 @@ public class RuleController extends BaseController {
 		model.addAttribute("action", "create");
 		model.addAttribute("rule", new Rule());
 		model.addAttribute("alarm", new ActionCreateAlarm());
-		model.addAttribute("allDevices", deviceService.findAll());
+		model.addAttribute("allDevices", deviceService.findAllMyDevices());
+		model.addAttribute("allGroups", groupService.findAllMyGroups());
 		return "rule/edit";
 	}
 	
 	// Save rule (insert or update)
 	@PostMapping("/save")
 	@NeedPermission("rule:save")
-	public String save(Model model, Integer id, Integer[] deviceIds, String name, String condition, String actionType, 
+	public String save(Model model, Integer id, Integer[] deviceIds, Integer[] groupIds, String name, String condition, String actionType,
 			@RequestParam(defaultValue = "0") Integer status, 
 			String alarmContent, String alarmType, String alarmLevel, @RequestParam(defaultValue = "0") Integer interval,  
-			boolean isFormChanged, boolean allDevice, boolean isDeviceChanged,
+			boolean isFormChanged, boolean allDevice, boolean isDeviceChanged, boolean isGroupChanged,
 			RedirectAttributes redirectAttrs) {
 		log.info("Saving rule {}, apply to devices {}, allDevice={}", id, deviceIds, allDevice);
 		if (isFormChanged) {
@@ -84,8 +87,10 @@ public class RuleController extends BaseController {
 				else 
 					r.setScope(Rule.SCOPE_PER_DEVICE);
 				ruleService.save(r);
-				if (!allDevice && isDeviceChanged)
+				if (isDeviceChanged)
 					ruleService.saveRuleDeviceLink(r, deviceIds);
+				if (isGroupChanged)
+					ruleService.saveRuleGroupLink(r, groupIds);
 				
 				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("update.success"));
 			} else { 
@@ -97,8 +102,10 @@ public class RuleController extends BaseController {
 				else 
 					r.setScope(Rule.SCOPE_PER_DEVICE);
 				ruleService.save(r);
-				if (!allDevice && isDeviceChanged)
+				if (isDeviceChanged)
 					ruleService.saveRuleDeviceLink(r, deviceIds);
+				if (isGroupChanged)
+					ruleService.saveRuleGroupLink(r, groupIds);
 				id = r.getId();
 				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("create.success"));
 			}

@@ -3,6 +3,8 @@
 	$(document).ready(function () {
 		$('#lstDevice').select2({
 		});
+		$('#lstGroup').select2({
+		});
 
 		if ($("#allDevice").is(":checked")) {
  	        $('#lstDevice').prop('disabled', 'disabled');
@@ -24,6 +26,11 @@
         	$("#isDeviceChanged").val(true);
         	$("#isFormChanged").val(true);
         });
+		$("#lstGroup").change(function() {
+			console.log("Group list has changed");
+			$("#isGroupChanged").val(true);
+			$("#isFormChanged").val(true);
+		});
         
         $("#allDevice").change(function() {
         	console.log("allDevice checkbox change");
@@ -64,6 +71,7 @@
 					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
 <!-- 					<input type="hidden" id="isUserGroupChanged" name="isUserGroupChanged" value="false"> -->
 					<input type="hidden" id="isDeviceChanged" name="isDeviceChanged" value="false">
+					<input type="hidden" id="isGroupChanged" name="isGroupChanged" value="false">
 					<input type="hidden" id="id" name="id" th:value="${rule.id}">
 					
 					<div class="box-body">
@@ -137,6 +145,15 @@
 							<div class="col-sm-2 custom-control custom-checkbox">
 								<input type="checkbox" class="custom-control-input" id="allDevice" name="allDevice" th:checked="${rule.scope==1}">
 								<label class="custom-control-label" for="allDevice">Tất cả</label>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="lstGroup" class="col-sm-3 col-form-label">Nhóm được áp dụng</label>
+							<div class="col-sm-5">
+								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm được áp dụng luật"
+										name="groupIds" multiple>
+									<option th:each="s : ${allGroups}" th:value="${s.id}" th:selected="${groups !=null && groups.contains(s.id)}">[[${s.name}]]</option>
+								</select>
 							</div>
 						</div>
 						<div class="form-group row">

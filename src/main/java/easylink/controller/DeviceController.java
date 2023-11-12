@@ -29,7 +29,8 @@ public class DeviceController extends BaseController {
 	public String list(Model model) {
 		model.addAttribute("pageTitle", "Danh sách trạm");
 		//model.addAttribute("devices", deviceService.findAll());
-		model.addAttribute("devices", deviceService.getDeviceList());
+//		model.addAttribute("devices", deviceService.getDeviceList());
+		model.addAttribute("deviceGroups", deviceService.findAllDeviceWithGroup());
 		return "device/list";
 	}
 	
@@ -58,7 +59,7 @@ public class DeviceController extends BaseController {
 		model.addAttribute("districts", deviceService.findAllDistrict());
 		model.addAttribute("cities", deviceService.findAllCity());
 		model.addAttribute("tags", deviceService.findAllTags());
-		model.addAttribute("allGroups", groupService.findAll());
+		model.addAttribute("allGroups", groupService.findAllMyGroups());
 		
 		return "device/edit";
 	}

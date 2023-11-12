@@ -82,21 +82,21 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="device,iterationStatus  : ${devices}">
+					<tr th:each="dg,iterationStatus  : ${deviceGroups}">
 						<td th:text="${iterationStatus.count}">1</td>
 						<!-- 						<td th:text="${device.id}"></td> -->
-						<td><a th:href="@{'/device/edit/' + ${device.id}}">[[${device.name}]]</a></td>
-						<td th:text="${device.description}">1</td>
-						<td th:text="${device.city}">1</td>
+						<td><a th:href="@{'/device/edit/' + ${dg.device.id}}">[[${dg.device.name}]]</a></td>
+						<td th:text="${dg.device.description}">1</td>
+						<td th:text="${dg.device.city}">1</td>
 <!--						<td th:text="${device.location}">1</td>-->
-						<td th:text="${device.groupName}">1</td>
+						<td th:text="${dg.group.name}">1</td>
 <!--						<td th:text="${device.city}">1</td>-->
 <!--						<td th:text="${device.district}">1</td>-->
 <!--						<td th:text="${device.street}">1</td>-->
 						<td><a class="btn btn-gradient-primary"
-							th:href="@{'/device/edit/' + ${device.id}}">Chi tiết</a>
+							th:href="@{'/device/edit/' + ${dg.device.id}}">Chi tiết</a>
 							<a class="btn btn-gradient-danger"
-							   th:attr="onclick=|confirmDelete('${device.id}', '@{/device/delete/}')|"
+							   th:attr="onclick=|confirmDelete('${dg.device.id}', '@{/device/delete/}')|"
 							   href="#">[[#{delete}]]</a>
 						</td>
 					</tr>

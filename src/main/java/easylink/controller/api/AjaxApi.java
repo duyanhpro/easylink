@@ -52,7 +52,7 @@ public class AjaxApi {
 	@ResponseBody
 	@NeedPermission("device:list")
 	public List<Device> getListDevice() {
-		return deviceService.findAll();
+		return deviceService.findAllMyDevices();
 	}
 	
 	@PostMapping("/api/devices/{id}/location")

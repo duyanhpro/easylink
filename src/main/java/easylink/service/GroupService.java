@@ -1,9 +1,11 @@
 package easylink.service;
 
-import java.util.List;
+import java.util.*;
 
 import easylink.dto.GroupNode;
 import easylink.entity.Group;
+import easylink.exception.AccessDeniedException;
+import easylink.security.SecurityUtil;
 import easylink.util.BeanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,24 +24,48 @@ public class GroupService {
 	@Autowired
 	private GroupRepository repo;
 	
-	public List<Group> findAll() {
-		return repo.findAllByOrderByNameAsc();
+	public Set<Group> findAllMyGroups() {
+		return findGroupAndChilrenGroup(SecurityUtil.getUserDetail().getUserId());
+		//return repo.findAllByOrderByNameAsc();
 	}
 	
-	public List<Group> findGroupByUserIdOrderbyGroupName(int userId) {
+	public List<Group> findGroupByUserId(int userId) {
 		return repo.findAllByUserIdSortbyName(userId);
 	}
+	public Set<Integer> findGroupIdAndChildrenByUser(int userId) {
+		List<Integer> lg = repo.findGroupIdsByUserId(userId);
+		Set<Integer> a = new HashSet<>();
 
-	public List<Group> findByGroupNameSimilar(String groupName) {
-		return repo.findByNameLike(groupName);
+		a.addAll(lg);
+		for (Integer groupId: lg) {
+			findGroupIdAndChildren(groupId, a);
+		}
+		return a;
 	}
+	public void findGroupIdAndChildren(int groupId, Set<Integer> s) {	// recursively
+			List<Integer> li = repo.findChildrenIds(groupId);
+			s.addAll(li);
+			for (Integer g: li) {
+				findGroupIdAndChildren(g, s);
+			}
+	}
+//	public List<Group> findByGroupNameSimilar(String groupName) {
+//		return repo.findByNameLike(groupName);
+//	}
 
 	public Group findById(int id) {
-		return repo.findById(id).orElseThrow(() -> new NotFoundException("Group not found"));
+		Set<Integer> myGroup = findGroupIdAndChildrenByUser(SecurityUtil.getUserDetail().getUserId());
+		if (myGroup.contains(id))
+			return repo.findById(id).orElseThrow(() -> new NotFoundException("Group not found"));
+		else
+			throw new AccessDeniedException("Can not view this group");
 	}
 
 	@Transactional
 	public Group update(int groupId, Group group) {
+		Set<Integer> myGroup = findGroupIdAndChildrenByUser(SecurityUtil.getUserDetail().getUserId());
+		if (!myGroup.contains(groupId))
+			throw new AccessDeniedException("Can not update this group");
 		Group g = repo.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
 		BeanUtil.merge(g, group);
 		return repo.save(g);
@@ -57,6 +83,9 @@ public class GroupService {
 
 	@Transactional
 	public void deleteAndUpdateTree(int id) {
+		Set<Integer> myGroup = findGroupIdAndChildrenByUser(SecurityUtil.getUserDetail().getUserId());
+		if (!myGroup.contains(id))
+			throw new AccessDeniedException("Can not update this group");
 		log.info("Delete a node and update all child nodes to point to grandfather");
 		Group g =  findById(id);
 		List<Group> children = repo.findChildren(id);
@@ -66,8 +95,6 @@ public class GroupService {
 		}
 		repo.delete(g);
 	}
-
-
 
 	public GroupNode getGroupNodeTree() {
 		GroupNode root = new GroupNode("root", "Tất cả");
@@ -79,6 +106,7 @@ public class GroupService {
 		}
 		return root;
 	}
+
 	public void getChildrenRecursively(GroupNode n) {
 		List<Group> lg = repo.findChildren(Integer.parseInt(n.getId()));
 		for (Group g: lg) {
@@ -86,5 +114,23 @@ public class GroupService {
 			n.getChildren().add(child);
 			getChildrenRecursively(child);
 		}
+	}
+
+	public Set<Group> findGroupAndChilrenGroup(int userId) {
+		List<Group> lg = repo.findAllByUserIdSortbyName(userId);		// có thể bị lặp
+		Set<Group> a = new TreeSet<>();
+		a.addAll(lg);
+		for (Group g: lg) {
+			findChildrenRecursively(g.getId(), a);
+		}
+		return a;
+	}
+
+	private void findChildrenRecursively(int groupId, Set<Group> lg) {
+			List<Group> children = repo.findChildren(groupId);
+			lg.addAll(children);
+			for (Group g: children) {
+				findChildrenRecursively(g.getId(), lg);
+			}
 	}
 }

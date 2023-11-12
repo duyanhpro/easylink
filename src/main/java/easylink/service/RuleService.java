@@ -7,7 +7,9 @@ import java.util.Map;
 
 import easylink.entity.Rule;
 import easylink.entity.RuleDevice;
+import easylink.entity.RuleGroup;
 import easylink.repository.RuleDeviceRepository;
+import easylink.repository.RuleGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,8 @@ public class RuleService {
 	
 	@Autowired
 	RuleDeviceRepository rsRepo;
+	@Autowired
+	RuleGroupRepository rgRepo;
 	
 	public List<Rule> fakeRule() {
 		List<Rule> lr = new ArrayList<Rule>();
@@ -59,6 +63,7 @@ public class RuleService {
 	public List<Integer> findAppliedDeviceIds(int ruleId) {
 		return repo.findAppliedDeviceIds(ruleId);
 	}
+	public List<Integer> findAppliedGroupIds(int ruleId) { return repo.findAppliedGroupIds(ruleId); }
 	
 	public Rule save(Rule r) {
 		log.debug("Saving new rule {}", r);
@@ -90,6 +95,7 @@ public class RuleService {
 	}
 
 	// Check if rule apply to this device
+	// TODO: check for group: direct group & children group
 	public boolean isApplied(Rule r, String deviceToken) {
 		if (r.getScope() == Rule.SCOPE_ALL_DEVICES)
 			return true;
@@ -110,6 +116,18 @@ public class RuleService {
 			RuleDevice rs = new RuleDevice(r.getId(), deviceId, deviceToken);
 			log.debug("Add relation {}", rs);
 			rsRepo.save(rs);
+		}
+	}
+	public void saveRuleGroupLink(Rule r, Integer[] groupIds) {
+		// remove all old rule-device link
+		repo.deleteRuleGroupLink(r.getId());
+
+		if (groupIds == null) return;
+		// save new rule-device link
+		for (int groupId: groupIds) {
+			RuleGroup rg = new RuleGroup(r.getId(), groupId);
+			log.debug("Add relation {}", rg);
+			rgRepo.save(rg);
 		}
 	}
 

@@ -114,7 +114,7 @@
 				<label for="lstUserGroup" class="col-sm-2 col-form-label">Nhóm / Tổ chức</label>
 				<div class="col-sm-5">
 					<select id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm" name="groupIds"
-						multiple th:disabled="${action=='profile'}" >
+						multiple th:disabled="${action=='profile'}" required data-parsley-error-message="Nhóm không được bỏ trống">
 						<option th:value="${group.id}" th:each="group : ${allGroups}"
 							th:selected="${userGroups!=null && userGroups.contains(group.name)}">[[${group.name}]]</option>
 					</select>

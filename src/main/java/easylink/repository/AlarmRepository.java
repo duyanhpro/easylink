@@ -5,10 +5,12 @@ import java.util.List;
 
 import easylink.dto.AlarmLevel;
 import easylink.entity.Alarm;
+import easylink.entity.DeviceStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -36,4 +38,7 @@ public interface AlarmRepository extends JpaRepository<Alarm, Integer> {
 
 	@Query("select v from Alarm v where :deviceToken = v.deviceToken and (:start is null or :start <= v.eventTime) order by v.eventTime desc")
 	List<Alarm> findRecentAlarm(@Param("deviceToken") String deviceToken, @Param("start") Date start, Pageable pageable);
+
+	@Query(value = "CALL GetAlarmsForUser(:userId);", nativeQuery = true)
+	List<Alarm> getAlarmsForUser(@Param("userId") Integer userId);	// get alarms of devices of groups of user (recursively)
 }

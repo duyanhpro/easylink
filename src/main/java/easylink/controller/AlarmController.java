@@ -62,7 +62,7 @@ public class AlarmController extends BaseController {
 		
 		Page<Alarm> p = alarmService.findAlarm(selectedDevice<=0? null:selectedDevice, type.isEmpty()? null:type,
 				level.isEmpty()? null: AlarmLevel.valueOf(level), start, end, page, pageSize);
-		model.addAttribute("devices", deviceService.findAll());
+		model.addAttribute("devices", deviceService.findAllMyDevices());
 		model.addAttribute("mypage", p);
 		return "alarm/list";
 	}

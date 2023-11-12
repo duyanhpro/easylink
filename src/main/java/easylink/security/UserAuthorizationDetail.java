@@ -1,10 +1,8 @@
 package easylink.security;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import easylink.entity.Group;
 import easylink.entity.User;
 
 @SuppressWarnings("serial")
@@ -20,6 +18,7 @@ public class UserAuthorizationDetail {
 	private User user;
 	private Set<String> roleCollection = new HashSet<>();
 	private Map<String, Set<String>> permCon = new HashMap<>(); //  Map(resource:action, Set<condition>)
+//	private List<Group> groups;
 
 	public int getUserId() {
 		return userId;
@@ -60,6 +59,14 @@ public class UserAuthorizationDetail {
 	public void setPermissionMap(Map<String, Set<String>> permissionMap) {
 		this.permCon = permissionMap;
 	}
+
+//	public List<Group> getGroups() {
+//		return groups;
+//	}
+//
+//	public void setGroups(List<Group> groups) {
+//		this.groups = groups;
+//	}
 
 	/**
 	 * Return set of conditions according to resource:action

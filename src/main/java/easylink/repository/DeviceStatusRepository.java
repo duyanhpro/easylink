@@ -5,6 +5,7 @@ import easylink.entity.DeviceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,4 +29,7 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Inte
 
 	@Query("select v from DeviceStatus v, Device d where v.deviceToken = d.deviceToken and d.status = 1")
     List<DeviceStatus> findActiveDevices();
+
+	@Query(value = "CALL GetDeviceStatusForUser(:userId);", nativeQuery = true)
+	List<DeviceStatus> getDeviceStatusForUser(@Param("userId") Integer userId);	// get device statuses of groups of user (recursively)
 }

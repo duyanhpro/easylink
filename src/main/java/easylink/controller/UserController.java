@@ -41,7 +41,7 @@ public class UserController extends BaseController {
 		model.addAttribute("pageTitle", "Tạo mới người dùng");
 		model.addAttribute("action", "create");
 		model.addAttribute("user", new User());
-		model.addAttribute("allGroups", groupService.findAll());
+		model.addAttribute("allGroups", groupService.findAllMyGroups());
 		model.addAttribute("allRoles", rpService.findAllRole());
 		return "user/edit";
 	}
@@ -59,7 +59,7 @@ public class UserController extends BaseController {
 		
 		model.addAttribute("pageTitle", "Chi tiết người dùng " + u.getUsername());
 		model.addAttribute("user", u);
-		model.addAttribute("allGroups", groupService.findAll());
+		model.addAttribute("allGroups", groupService.findAllMyGroups());
 		model.addAttribute("userGroups", ugService.findGroupNameByUserId(id));
 		model.addAttribute("allRoles", rpService.findAllRole());
 		model.addAttribute("userRoleNames", rpService.findDirectRoleNameOfUser(id));
@@ -76,7 +76,7 @@ public class UserController extends BaseController {
 
 		model.addAttribute("pageTitle", "Thông tin cá nhân");
 		model.addAttribute("user", u);
-		model.addAttribute("allGroups", groupService.findAll());
+		model.addAttribute("allGroups", groupService.findAllMyGroups());
 		model.addAttribute("userGroups", ugService.findGroupNameByUserId(u.getId()));
 		model.addAttribute("allRoles", rpService.findAllRole());
 		model.addAttribute("userRoleNames", rpService.findDirectRoleNameOfUser(u.getId()));
