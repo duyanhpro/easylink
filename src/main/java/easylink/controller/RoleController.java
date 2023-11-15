@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/role")
-@NeedRole({Constant.ROLE_ADMIN})		// only admin can CRUD role
+//@NeedRole({Constant.ROLE_ADMIN})		// only admin can CRUD role
 public class RoleController extends BaseController {
 
 	// List role

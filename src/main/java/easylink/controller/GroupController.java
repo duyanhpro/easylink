@@ -45,7 +45,7 @@ public class GroupController extends BaseController {
 		model.addAttribute("pageTitle", "Tạo mới nhóm");
 		model.addAttribute("action", "create");
 		model.addAttribute("group", new Group());
-		model.addAttribute("allUsers", userService.findAll());	// list all users (used to add user into group)
+		model.addAttribute("allUsers", userService.findAllMyUser());	// list all users (used to add user into group)
 		model.addAttribute("allGroups", groupService.findAllMyGroups());	// list all groups (used to select parent)
 		model.addAttribute("allDevices", deviceService.findAllMyDevices());
 		return "group/edit";
@@ -64,7 +64,7 @@ public class GroupController extends BaseController {
 		model.addAttribute("action", "view");
 		model.addAttribute("group", g);
 		model.addAttribute("usernames", ugService.findUserNameByGroupId(id));	// list usernames in group
-		model.addAttribute("allUsers", userService.findAll());						// list all users (used to add user into group)
+		model.addAttribute("allUsers", userService.findAllMyUser());						// list all users (used to add user into group)
 		model.addAttribute("allGroups", groupService.findAllMyGroups());	// list all groups (used to select parent)
 		model.addAttribute("allDevices", deviceService.findAllMyDevices());
 		return "group/edit";
@@ -78,17 +78,19 @@ public class GroupController extends BaseController {
 			RedirectAttributes redirectAttrs) {
 		log.info("Creating/Updating groupr {}", group.getName());
 		log.debug("Group {}", group);
-		if (isFormChanged) {
-			if (group.getId()!=null) {
-				SecurityUtil.authorize("group", "update", group);
-				groupService.update(group.getId(), group);
-				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("group.update.success"));
-			} else { 
-				SecurityUtil.authorize("group", "create", group);
-				groupService.create(group);
-				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("group.update.success"));
-			}
-			
+		if (group.getId() == null) {
+			// create
+			SecurityUtil.authorize("group", "create", group);
+			groupService.create(group);
+			redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("group.update.success"));
+			ugService.updateUserForGroup(group, userIds);
+		} else if (isFormChanged) {
+			// update
+			SecurityUtil.authorize("group", "update", group);
+			groupService.update(group.getId(), group);
+			redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("group.update.success"));
+
+
 			// Update users in group
 			if (isUserGroupChanged)
 				ugService.updateUserForGroup(group, userIds);

@@ -59,16 +59,18 @@
 			"contextmenu": {
 				"items": function (node) {
 					// Disable the right-click context menu on the root node
-					if (node.id === 'root') {
-						return {};
-					}
+					// if (node.id === '1') {
+					// 	return {};
+					// }
 					// Create an object with the context menu items
 					var items = {
 						"Edit": {
 							"label": "Sửa",
 							"action": function (data) {
-								if (node.id === 'root')
-									return;
+								// if (node.id === '1') {
+								// 	console.log("Root node, need to check permission?")
+								// 	return;
+								// }
 								// Edit the node
 								console.log("Edit: " + JSON.stringify(node) + ", " + JSON.stringify(data.node));
 								window.location.href = [[@{/group/view/}]] + node.id;
@@ -80,8 +82,10 @@
 								// Delete the node
 								// console.log("Delete: " + node.id);
 								//Swal.fire("Chac chan xoa nhom " + node.id + "?");
-								if (node.id === 'root')
+								if (node.id === '1') {
+									Swal.fire("Không thể xóa nhóm gốc!");
 									return;
+								}
 								confirmDelete(node.id, [[@{/group/delete/}]]);
 
 							}
@@ -151,7 +155,7 @@
 
 <div class="row">
 
-	<div class="col-3">
+	<div class="col-4">
 		<div class="card">
 			<div class="card-body">
 				<section class="content">
@@ -170,7 +174,7 @@
 		</div>
 	</div> <!-- end col -->
 
-	<div class="col-9">
+	<div class="col-8">
 		<div class="card">
 			<div class="card-body">
 				<section class="content">
@@ -195,8 +199,8 @@
 									<tr>
 										<th style="width: 20px" align="center">STT</th>
 										<th style="width: 20px">ID</th>
-										<th>Tên nhóm</th>
-										<th>Trạng thái</th>
+										<th>Danh sách nhóm được quản lý</th>
+<!--										<th>Trạng thái</th>-->
 										<th>Thao tác</th>
 									</tr>
 									</thead>
@@ -205,11 +209,11 @@
 										<td th:text="${iterationStatus.count}">1</td>
 										<td th:text="${group.id}"></td>
 										<td><a th:href="@{'/group/view/' + ${group.id}}">[[${group.name}]]</a></td>
-										<div th:switch="${group.status}">
-											<td th:case="'1'">Kích hoạt</td>
-											<td th:case="'0'">Khóa</td>
-											<td th:case="*">Unknown status</td>
-										</div>
+<!--										<div th:switch="${group.status}">-->
+<!--											<td th:case="'1'">Kích hoạt</td>-->
+<!--											<td th:case="'0'">Khóa</td>-->
+<!--											<td th:case="*">Unknown status</td>-->
+<!--										</div>-->
 										<td>
 											<a class="btn btn-gradient-primary" th:href="@{'/group/view/' + ${group.id}}">Chi tiết</a>
 <!--											<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/group/delete/' + ${group.id}}">[[#{delete}]]</a>-->

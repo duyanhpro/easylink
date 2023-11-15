@@ -41,7 +41,8 @@ public class AjaxApi {
 
 	@Autowired
 	GroupService groupService;
-
+	@Autowired
+	UserGroupService ugService;
 	@Autowired
 	AlarmService alarmService;
 
@@ -83,6 +84,19 @@ public class AjaxApi {
 	@NeedPermission("device:list")
 	public List<DeviceStatus> getAllDeviceStatus() {
 		return deviceStatusService.findStatusOfActiveDevices();
+	}
+
+	@GetMapping("/api/devices/rebuildGroupRelationship")		// debug only!
+	@ResponseBody
+	public String rebuildDeviceGroup() {
+		deviceService.rebuildAllDeviceGroupRelationship();
+		return "OK";
+	}
+	@GetMapping("/api/users/rebuildGroupRelationship")		// debug only!
+	@ResponseBody
+	public String rebuildUserGroup() {
+		ugService.rebuildUserGroupRelationship();
+		return "OK";
 	}
 
 	// Enable SSH tunnel

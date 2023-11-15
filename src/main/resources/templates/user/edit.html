@@ -94,7 +94,7 @@
 				<div class="col-sm-5">
 					<div class="custom-control custom-switch switch-primary">
 						<input value="1" type="checkbox" name="statusCb" class="custom-control-input" id="statusCb"
-							   th:checked="${user.status==1}" th:disabled="${action=='profile'}" >
+							   th:checked="${user.status==1}" th:disabled="${user.id == session.user.id}" >
 						<label id="statusLabel" class="custom-control-label" for="statusCb">[[${user.status==1? "Kích hoạt":"Khóa"}]]</label>
 					</div>
 				</div>
@@ -114,17 +114,18 @@
 				<label for="lstUserGroup" class="col-sm-2 col-form-label">Nhóm / Tổ chức</label>
 				<div class="col-sm-5">
 					<select id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm" name="groupIds"
-						multiple th:disabled="${action=='profile'}" required data-parsley-error-message="Nhóm không được bỏ trống">
+						multiple required data-parsley-error-message="Nhóm không được bỏ trống"
+						th:disabled="${user.id == session.user.id or action=='profile'}">
 						<option th:value="${group.id}" th:each="group : ${allGroups}"
 							th:selected="${userGroups!=null && userGroups.contains(group.name)}">[[${group.name}]]</option>
 					</select>
 				</div>
 			</div>
-			<div th:if="${session.principal.hasRole('ROLE_ADMIN')}" class="form-group row">
+			<div class="form-group row">
 				<label for="lstUserRole" class="col-sm-2 col-form-label">Quyền</label>
 				<div class="col-sm-5">
 					<select id="lstUserRole" class="form-control select2" style="width: 100%;" data-placeholder="Chọn quyền" name="roleIds"
-						multiple th:disabled="${action=='profile'}" >
+						multiple th:disabled="${user.id == session.user.id || action=='profile'}" >
 						<option th:value="${role.id}" th:each="role : ${allRoles}"
 							th:selected="${userRoleNames!=null && userRoleNames.contains(role.name)}">[[${role.name}]]</option>
 					</select>
@@ -139,9 +140,10 @@
 			<a th:if="${action!='profile'}" th:href="@{/user/}" class="btn btn-warning pull-left">[[#{back}]]</a>
 			<a th:if="${action=='profile'}" href="javascript:history.back()" class="btn btn-warning pull-left">[[#{back}]]</a>
 
-			<a th:if="${action=='update'}" class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${user.id}','@{/user/delete/}')|" href="#">[[#{delete}]]</a>
+			<a th:if="${action=='update' && session.principal.hasRole('ADMIN') && user.id != session.user.id}"
+			   class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${user.id}','@{/user/delete/}')|" href="#">[[#{delete}]]</a>
 
-			<a th:if="${action=='update'}" th:href="@{'/user/resetPassword/' + ${user.id}}" class="btn btn-gradient-success">[[#{user.resetPassword}]]</a>
+			<a th:if="${action=='update' && session.principal.hasRole('ADMIN')}" th:href="@{'/user/resetPassword/' + ${user.id}}" class="btn btn-gradient-success">[[#{user.resetPassword}]]</a>
 			<a th:if="${action=='profile'}" th:href="@{'/user/changePassword/'}" class="btn btn-gradient-success">Đổi mật khẩu</a>
 			<button type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 		</div>

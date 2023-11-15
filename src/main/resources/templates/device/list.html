@@ -56,7 +56,7 @@
 				<div class="col-lg-6 cold-md-6 col-sm-8 col-xs-8">
 					<div class="">
 						<button id="search" type="submit" class="btn btn-gradient-primary">[[#{search}]]</button>
-						<a th:href="@{/device/edit/0}" class="btn btn-gradient-success">[[#{new}]]</a>
+						<a th:if="${session.principal.hasRole('ADMIN')}" th:href="@{/device/edit/0}" class="btn btn-gradient-success">[[#{new}]]</a>
 					</div>
 				</div>
 			</div>
@@ -95,7 +95,7 @@
 <!--						<td th:text="${device.street}">1</td>-->
 						<td><a class="btn btn-gradient-primary"
 							th:href="@{'/device/edit/' + ${dg.device.id}}">Chi tiết</a>
-							<a class="btn btn-gradient-danger"
+							<a th:if="${session.principal.hasRole('ADMIN')}" class="btn btn-gradient-danger"
 							   th:attr="onclick=|confirmDelete('${dg.device.id}', '@{/device/delete/}')|"
 							   href="#">[[#{delete}]]</a>
 						</td>

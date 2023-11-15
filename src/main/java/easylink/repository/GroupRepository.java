@@ -26,8 +26,9 @@ public interface GroupRepository extends JpaRepository<Group, Integer>, GroupRep
 	@Query("select g.id from Group g where g.parentId = :groupId")
 	List<Integer> findChildrenIds(int groupId);
 
-	@Query("select g from Group g where g.parentId is null or g.parentId = 0")
-	List<Group> findRootNode();
+	// 12/11 update: fix root node with id = 1
+//	@Query("select g from Group g where g.parentId is null or g.parentId = 0")
+//	List<Group> findRootNode();
 
 	@Query("select g.id from Group g, UserGroup ug where g.id=ug.groupId and ug.userId = :userId")
 	List<Integer> findGroupIdsByUserId(int userId);

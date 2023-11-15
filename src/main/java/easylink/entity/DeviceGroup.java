@@ -1,31 +1,34 @@
 package easylink.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * User entity. @author MyEclipse Persistence Tools
  */
 @Entity
-@Table(name = "tbl_device_group_full")
-public class DeviceGroupFull {
+@Table(name = "tbl_device_group")
+@IdClass(DeviceGroup.class)
+public class DeviceGroup implements Serializable {
 
+	@Id
 	private Integer deviceId;
+	@Id
 	private Integer groupId;
+	@Id
 	Boolean inherit = false;
 
 	/** default constructor */
-	public DeviceGroupFull() {
+	public DeviceGroup() {
 	}
 
-	public DeviceGroupFull(Integer deviceId, Integer groupId, Boolean inherit) {
+	public DeviceGroup(Integer deviceId, Integer groupId, Boolean inherit) {
 		this.deviceId = deviceId;
 		this.groupId = groupId;
 		this.inherit = inherit;
 	}
 
-	public DeviceGroupFull(int deviceId, int groupId) {
+	public DeviceGroup(int deviceId, int groupId) {
 		this.deviceId = deviceId;
 		this.groupId = groupId;
 	}

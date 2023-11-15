@@ -72,8 +72,7 @@ public class BaseController {
 
 		ModelAndView mav = new ModelAndView();
 
-		// TODO:  different message for each type of exception
-		mav.addObject("pageError", "Có lỗi xảy ra: " + ex.getClass().getSimpleName());
+		mav.addObject("pageError", "Lỗi: " + ex.getMessage());
 
 		mav.setViewName("layout/error");		// full path to html template because exception is not affected by ThymeleafInterceptor
 		return mav;

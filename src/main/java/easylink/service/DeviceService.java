@@ -1,15 +1,14 @@
 package easylink.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import easylink.dto.DeviceGroupDto;
 import easylink.dto.DeviceListDto;
 import easylink.dto.Location;
 import easylink.entity.Device;
+import easylink.entity.DeviceGroup;
 import easylink.entity.Group;
+import easylink.repository.DeviceGroupRepository;
 import easylink.repository.GroupRepository;
 import easylink.security.SecurityUtil;
 import easylink.util.BeanUtil;
@@ -37,6 +36,8 @@ public class DeviceService {
 	GroupService groupService;
 	@Autowired
 	GroupRepository groupRepo;
+	@Autowired
+	DeviceGroupRepository dgRepo;
 
 	// Find all belong to this user
 	public List<DeviceGroupDto> findAllDeviceWithGroup() {
@@ -105,16 +106,37 @@ public class DeviceService {
 	public Device createOrUpdate(Device device) {
 		log.debug("Saving device: {}", device);
 		try {
-			if (device.getId() == null)
-				return repo.saveAndFlush(device);
-			else {
+			if (device.getId() == null) {    // new device
+				Device d = repo.save(device);
+				updateDeviceGroupRelationship(device);
+				return d;
+			} else {
 				Device c = repo.findById(device.getId()).orElseThrow(() -> new NotFoundException(""));
+				if (c.getGroupId() != device.getGroupId())
+					updateDeviceGroupRelationship(device);
 				BeanUtil.merge(c, device);
-				c = repo.saveAndFlush(c);
+				c = repo.save(c);
 				return c;
 			}
 		} catch (Exception e) {
 			throw new ServiceException("Cập nhật không thành công. Device đã tồn tại!", e);
+		}
+	}
+	@Transactional
+	public void updateDeviceGroupRelationship(Device device) {
+		log.debug("Save relationship device {} - group {}", device.getId(), device.getGroupId());
+		dgRepo.deleteByDeviceId(device.getId());
+		dgRepo.save(new DeviceGroup(device.getId(), device.getGroupId(), false));
+		Set<Integer> parentIds = groupService.findAllParentIds(device.getGroupId());
+		for (int i: parentIds) {
+			log.debug("Save inherited relationship device {} - parent group {}", device.getId(), i);
+			dgRepo.save(new DeviceGroup(device.getId(), i, true));
+		}
+	}
+	public void rebuildAllDeviceGroupRelationship() {
+		log.info("Rebuild all device-group relationship table");
+		for (Device d: repo.findAll()) {
+			updateDeviceGroupRelationship(d);
 		}
 	}
 

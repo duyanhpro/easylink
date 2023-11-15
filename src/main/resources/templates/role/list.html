@@ -43,19 +43,19 @@
 
 <section class="content">
 	<div class="box box-default">
-		<div class="box-header with-border">
-				<div class="row">
-					<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-						<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Tên quyền">
-					</div>
-					<div class="col-lg-6 cold-md-6 col-sm-12 col-xs-12" >
-						<div class="">
-							<button id="search" type="submit" class="btn btn-gradient-primary">[[#{search}]]</button>
-							<a th:href="@{/role/create}" class="btn btn-gradient-success">[[#{new}]]</a>
-						</div>
-					</div>
-				</div>
-		</div>
+<!--		<div class="box-header with-border">-->
+<!--				<div class="row">-->
+<!--					<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="margin-bottom:10px;">-->
+<!--						<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Tên quyền">-->
+<!--					</div>-->
+<!--					<div class="col-lg-6 cold-md-6 col-sm-12 col-xs-12" >-->
+<!--						<div class="">-->
+<!--							<button id="search" type="submit" class="btn btn-gradient-primary">[[#{search}]]</button>-->
+<!--							<a th:href="@{/role/create}" class="btn btn-gradient-success">[[#{new}]]</a>-->
+<!--						</div>-->
+<!--					</div>-->
+<!--				</div>-->
+<!--		</div>-->
 		<div class="box-body">
 			<div class="table-responsive">	
 			<table id="mainTable" class="table table-bordered dt-responsive nowrap" style="width: 100%;" >
@@ -65,8 +65,8 @@
 					<th style="width: 20px">ID</th>
 					<th>Tên quyền</th>
 					<th>Mô tả</th>
-					<th>Trạng thái</th>
-					<th>Thao tác</th>
+<!--					<th>Trạng thái</th>-->
+<!--					<th>Thao tác</th>-->
 				</tr>
 				</thead>
 				<tbody>
@@ -75,15 +75,15 @@
 					<td th:text="${role.id}"></td>
 					<td><a th:href="@{'/role/view/' + ${role.id}}">[[${role.name}]]</a></td>
 					<td th:text="${role.description}">duyanh@vivas.vn</td>
-					<div th:switch="${role.status}">
-						<td th:case="'1'">Kích hoạt</td>
-						<td th:case="'0'">Khóa</td>
-						<td th:case="*">Unknown status</td>
-					</div>
-					<td>
-						<a class="btn btn-gradient-primary" th:href="@{'/role/view/' + ${role.id}}">Chi tiết</a>
-						<a class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${role.id}','@{/role/delete/}')|" href="#" th:if="${role.editable == true}" >[[#{delete}]]</a>
-					</td>
+<!--					<div th:switch="${role.status}">-->
+<!--						<td th:case="'1'">Kích hoạt</td>-->
+<!--						<td th:case="'0'">Khóa</td>-->
+<!--						<td th:case="*">Unknown status</td>-->
+<!--					</div>-->
+<!--					<td>-->
+<!--						<a class="btn btn-gradient-primary" th:href="@{'/role/view/' + ${role.id}}">Chi tiết</a>-->
+<!--						<a class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${role.id}','@{/role/delete/}')|" href="#" th:if="${role.editable == true}" >[[#{delete}]]</a>-->
+<!--					</td>-->
 				</tr>
 				</tbody>
 			</table>

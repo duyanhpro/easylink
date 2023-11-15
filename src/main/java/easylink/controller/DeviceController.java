@@ -27,7 +27,7 @@ public class DeviceController extends BaseController {
 	@NeedPermission("device:list")
 	@GetMapping("")
 	public String list(Model model) {
-		model.addAttribute("pageTitle", "Danh sách trạm");
+		model.addAttribute("pageTitle", "Danh sách thiết bị");
 		//model.addAttribute("devices", deviceService.findAll());
 //		model.addAttribute("devices", deviceService.getDeviceList());
 		model.addAttribute("deviceGroups", deviceService.findAllDeviceWithGroup());
@@ -80,7 +80,7 @@ public class DeviceController extends BaseController {
 				redirectAttrs.addFlashAttribute("infoMsg", "Cập nhật thành công");
 			}
 		} catch (ServiceException e) {
-			log.error("Save exception: " + e.getMessage());
+			log.error("Save exception: " + e.getMessage(), e);
 			redirectAttrs.addFlashAttribute("errorMsg", e.getMessage());
 		}			
 		//return "redirect:/device/edit/" + device.getId();

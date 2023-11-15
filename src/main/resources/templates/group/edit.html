@@ -6,6 +6,18 @@
 		$('#parentId').select2();
 		$('#lstDevice').select2();
 
+		// Click event for the submit button
+		$("#submitButton").click(function() {
+			// Show the spinner
+			$("#spinnerContainer").show();
+
+			// Simulate an asynchronous action (e.g., form submission)
+			// In a real scenario, you would replace this with your actual form submission logic
+			setTimeout(function() {
+				// Hide the spinner after the action is complete
+				$("#spinnerContainer").hide();
+			}, 3000); // Change this value to simulate the duration of your asynchronous action
+		});
 
         var isFormChanged = false;
         var isConfirmed = false;
@@ -19,6 +31,11 @@
         	console.log("UserGroup has changed");
         	$("#isUserGroupChanged").val(true);
         })
+
+		$("#lstDevice").change(function() {
+			console.log("DeviceGroup has changed");
+			$("#isDeviceGroupChanged").val(true);
+		})
 
         //console.log($('#status').prop("checked"));
         if($('#status').prop("checked")) {
@@ -37,6 +54,24 @@
 
 	});
 </script>
+<style>
+	/* Centered Spinner Styles */
+	#spinnerContainer {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 1001; /* Place above the overlay */
+		display: none; /* Initially hidden */
+	}
+</style>
+<!-- Bootstrap Spinner -->
+<div class="text-center" id="spinnerContainer" style="display: none;">
+	<div class="spinner-border text-primary" role="status">
+		<span class="sr-only">Đang xử lý...</span>
+	</div>
+	<p>Đang xử lý...</p>
+</div>
 
 <section class="content">
 
@@ -47,13 +82,14 @@
 				
 					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
 					<input type="hidden" id="isUserGroupChanged" name="isUserGroupChanged" value="false">
+					<input type="hidden" id="isDeviceGroupChanged" name="isDeviceGroupChanged" value="false">
 					<input type="hidden" id="id" name="id" th:value="${group.id}">
 					
 					<div class="box-body">
 						<div class="form-group row">
 							<label for="name" class="col-sm-3 control-label col-form-label">Tên nhóm *</label>
 							<div class="col-sm-5">
-								<input type="text" class="form-control" id="name" name="name" th:disabled="${group.id==1}"
+								<input type="text" class="form-control" id="name" name="name"
 									   th:value="${group.name}" required data-parsley-error-message="Tên nhóm không được bỏ trống">
 							</div>
 						</div>
@@ -66,10 +102,10 @@
 								</div>
 							</div>
 						</div>
-						<div class="form-group row">
+						<div class="form-group row" th:if="${group.id!=1}">
 							<label for="parentId" class="col-sm-3 control-label col-form-label">Nhóm cha</label>
 							<div class="col-sm-5">
-								<select id="parentId" class="form-control select2" placeholder="Nhóm cha" name="parentId">
+								<select id="parentId" class="form-control select2" placeholder="Nhóm cha" name="parentId" >
 <!--									<option value="0"></option>-->
 									<option th:each="g : ${allGroups}" th:value="${g.id}" th:selected="${group.parentId!=null && group.parentId==g.id}" th:if="${g.id != group.id}">[[${g.name}]]</option>
 								</select>
@@ -78,7 +114,7 @@
 						<div class="form-group row">
 							<label for="lstUserGroup" class="col-sm-3 control-label col-form-label">Người dùng trong nhóm</label>
 							<div class="col-sm-5">
-							  <select id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Select users" name="userIds" multiple>
+							  <select disabled id="lstUserGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn người dùng" name="userIds" multiple>
 		                          <option th:each="user : ${allUsers}" th:value="${user.id}" th:selected="${usernames!=null && usernames.contains(user.username)}">[[${user.username}]]</option>
 		                      </select>
 							</div>
@@ -86,7 +122,7 @@
 						<div class="form-group row">
 							<label for="lstDevice" class="col-sm-3 control-label col-form-label">Thiết bị trong nhóm</label>
 							<div class="col-sm-5">
-								<select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Select users" name="deviceIds" multiple>
+								<select disabled id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn thiết bị" name="deviceIds" multiple>
 									<option th:each="device : ${allDevices}" th:value="${device.id}" th:selected="${device.groupId == group.id}">[[${device.name}]]</option>
 								</select>
 							</div>
@@ -99,7 +135,7 @@
 						<div class="col-sm-5 text-right">
 							<a th:href="@{/group/}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
 							<a th:if="${action!='create'}" class="btn btn-danger" th:attr="onclick=|confirmDelete('${group.id}','@{/group/delete/}')|" href="#">[[#{delete}]]</a>
-							<button type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
+							<button id="submitButton" type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 						</div>
 					</div>
 				</form>

@@ -57,6 +57,10 @@ public class UserService {
 		return repo.findAllByOrderByUsernameAsc();
 		//return repo.findAll(new Sort(Sort.Direction.ASC, "username"));
 	}
+	public List<User> findAllMyUser() {
+		// Must find users of all children group (direct users)
+		return repo.findAllMyUserOrderByUsernameAsc(SecurityUtil.getUserDetail().getUserId());
+	}
 
 	@Transactional
 	public void deleteById(int id) {
@@ -99,13 +103,13 @@ public class UserService {
 		return repo.save(u);
 	}
 
-	public Page<User> findByUsernameSimilar(String username, int page, int pageSize) {
-		if (StringUtil.isNotBlank(username))
-			return repo.findByUsernameLike("%" + username + "%", PageRequest.of(page-1, pageSize));
-		else
-			return repo.findByUsernameLike(null, PageRequest.of(page-1, pageSize));
-		//			return dao.findAll(page);
-	}
+//	public Page<User> findByUsernameSimilar(String username, int page, int pageSize) {
+//		if (StringUtil.isNotBlank(username))
+//			return repo.findByUsernameLike("%" + username + "%", PageRequest.of(page-1, pageSize));
+//		else
+//			return repo.findByUsernameLike(null, PageRequest.of(page-1, pageSize));
+//		//			return dao.findAll(page);
+//	}
 
 //	public Page<UserWithGroupRole> findUserWithGroupAndRole(int page, int pageSize) {
 //

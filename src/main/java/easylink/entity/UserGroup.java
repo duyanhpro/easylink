@@ -19,11 +19,17 @@ public class UserGroup extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	private Integer userId;
 	private Integer groupId;
+	Boolean inherit = false;
 
 	/** default constructor */
 	public UserGroup() {
 	}
 
+	public UserGroup(Integer userId, Integer groupId, Boolean inherit) {
+		this.userId = userId;
+		this.groupId = groupId;
+		this.inherit = inherit;
+	}
 
 	public UserGroup(int userId, int groupId) {
 		this.userId = userId;
@@ -45,10 +51,16 @@ public class UserGroup extends BaseEntity {
 		return groupId;
 	}
 
-
 	public void setGroupId(Integer groupId) {
 		this.groupId = groupId;
 	}
 
+	@Column(name = "inherit", nullable = false)
+	public Boolean getInherit() {
+		return inherit;
+	}
 
+	public void setInherit(Boolean inherit) {
+		this.inherit = inherit;
+	}
 }

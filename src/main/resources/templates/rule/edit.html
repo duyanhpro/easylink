@@ -142,7 +142,7 @@
 		                      </select>
 							</div>
 
-							<div class="col-sm-2 custom-control custom-checkbox">
+							<div class="col-sm-2 custom-control custom-checkbox" style="display: none;">
 								<input type="checkbox" class="custom-control-input" id="allDevice" name="allDevice" th:checked="${rule.scope==1}">
 								<label class="custom-control-label" for="allDevice">Tất cả</label>
 							</div>
@@ -169,8 +169,8 @@
 						<div class="col-sm-3"></div>
 						<div class="col-sm-5 text-right">
 							<a th:href="@{/rule/}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
-							<a class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${rule.id}','@{/rule/delete/}')|" href="#">[[#{delete}]]</a>
-							<button type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
+							<an th:if="${session.principal.hasRole('ADMIN')}"  class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${rule.id}','@{/rule/delete/}')|" href="#">[[#{delete}]]</an>
+							<button th:if="${session.principal.hasRole('ADMIN')}"  type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 						</div>
 					</div>
 					

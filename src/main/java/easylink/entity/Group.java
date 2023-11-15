@@ -101,7 +101,8 @@ public class Group extends BaseEntity implements Comparable<Group> {
 	@Override
 	public String toString() {
 		return "Group{" +
-				"name='" + name + '\'' +
+				"id=" + id +
+				", name='" + name +
 				", status=" + status +
 				", parentId=" + parentId +
 				", roles=" + roles +

@@ -24,11 +24,12 @@ public class UserController extends BaseController {
 	public String list(Model model) {
 		model.addAttribute("pageTitle", "Danh sách người dùng");
 		List<User> users;
-		if (SecurityUtil.hasPermission("user", "listAll"))
-		//if (SecurityUtil.hasRole("ROLE_ADMIN"))
-			users = userService.findAll();
-		else
-			users = userService.findAllUserByType(User.TYPE_CUSTOMER);
+//		if (SecurityUtil.hasPermission("user", "listAll"))
+//		//if (SecurityUtil.hasRole("ROLE_ADMIN"))
+//			users = userService.findAll();
+//		else
+//			users = userService.findAllUserByType(User.TYPE_CUSTOMER);
+		users = userService.findAllMyUser();
 		
 		model.addAttribute("users", users);
 		return "user/list";
@@ -138,7 +139,9 @@ public class UserController extends BaseController {
 	@GetMapping("/delete/{id}")
 	public String deleteUser(Model model, @PathVariable int id, RedirectAttributes redirectAttrs) {
 		log.debug("Delete user id {}", id);
-		
+		if (id == SecurityUtil.getUserDetail().getUserId()) {
+			throw new RuntimeException("Không thể xóa tài khoản của chính mình!");
+		}
 		SecurityUtil.authorize("user", "delete", userService.findById(id));
 		
 		userService.deleteById(id);
