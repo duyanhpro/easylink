@@ -67,17 +67,19 @@ $(document).ready(function () {
 			<thead>
 				<tr>
 					<th style="width: 20px" align="center">STT</th>
+					<th>Thiết bị</th>
 					<th>Thời gian</th>
 					<th>Nội dung cảnh báo</th>
 					<th>Mức độ</th>
 					<th>Loại</th>
-					<th>Thiết bị</th>
+
 <!-- 					<th>Thao tác</th> -->
 				</tr>
 			</thead>
 			<tbody>
 				<tr th:each="v,iterationStatus  : ${mypage.content}">
 					<td th:text="${iterationStatus.count + mypage.number * mypage.size}">1</td>
+					<td th:text="${v.deviceToken}"></td>
 					<td th:text="${#dates.format(v.eventTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
 					<td th:text="${v.content}"></td>
 					<div th:switch="${v.level}">
@@ -87,7 +89,6 @@ $(document).ready(function () {
 						<td th:case="*">[[${v.level}]]</td>
 					</div>
 					<td th:text="${v.type}"></td>
-					<td th:text="${v.deviceToken}"></td>
 <!-- 					<td><a class="btn btn-default" th:href="@{'/alarm/edit/' + ${v.id}}">Chi tiết</a></td> -->
 				</tr>
 			</tbody>
@@ -100,7 +101,7 @@ $(document).ready(function () {
 		    	<li th:class="${mypage.first} ? 'page-item disabled'"><a class="page-link" th:href="'javascript:jumpPage(\'searchForm\',\'' + 1 + '\');'">Trang đầu</a></li>
 		        <li th:class="${mypage.first} ? 'page-item disabled'" >
 		        	<a class="page-link" th:href="'javascript:jumpPage(\'searchForm\',\'' + ${mypage.number} + '\');'">&larr; </a></li>
-		        <li class="page-link disabled" th:text="${'Trang ' + (mypage.number+1) + '/' + mypage.totalPages + ' - Tổng số: ' + mypage.totalElements}"></li>
+		        <li class="page-link disabled" th:text="${'Trang ' + (mypage.number+1) + '/' + (mypage.totalPages==0?1:mypage.totalPages) + ' - Tổng số: ' + mypage.totalElements}"></li>
 		        <li th:class="${mypage.last} ? 'page-item disabled'"><a class="page-link"  th:href="'javascript:jumpPage(\'searchForm\',\'' + ${mypage.number+2} + '\');'">&rarr;</a></li>
 		        <li th:class="${mypage.last} ? 'page-item disabled'"><a class="page-link"  th:href="'javascript:jumpPage(\'searchForm\',\'' +  ${mypage.totalPages} + '\');'">Trang cuối</a></li>
 		       	

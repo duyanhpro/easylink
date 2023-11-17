@@ -40,7 +40,7 @@ public class DeviceService {
 	DeviceGroupRepository dgRepo;
 
 	// Find all belong to this user
-	public List<DeviceGroupDto> findAllDeviceWithGroup() {
+	public List<DeviceGroupDto> findMyDeviceWithGroup() {
 		List<DeviceGroupDto> ldg = new ArrayList<>();
 		List<Device> ld = findAllMyDevices();
 		List<Group> lg = groupRepo.findAll();
@@ -68,6 +68,9 @@ public class DeviceService {
 		return repo.getDevicesForUser(SecurityUtil.getUserDetail().getUserId());
 	}
 
+	public List<Device> findAllDevicesByUserId(int userId) {		// mainly for debug
+		return repo.getDevicesForUser(userId);
+	}
 //	public List<DeviceListDto> getDeviceList() {
 //		return repo.findDeviceListDto();
 //	}
@@ -105,22 +108,25 @@ public class DeviceService {
 	@CacheEvict(cacheNames = "device",key = "#device.deviceToken")
 	public Device createOrUpdate(Device device) {
 		log.debug("Saving device: {}", device);
-		try {
+//		try {
 			if (device.getId() == null) {    // new device
 				Device d = repo.save(device);
 				updateDeviceGroupRelationship(device);
 				return d;
 			} else {
 				Device c = repo.findById(device.getId()).orElseThrow(() -> new NotFoundException(""));
+				boolean needUpdateGroup = false;
 				if (c.getGroupId() != device.getGroupId())
-					updateDeviceGroupRelationship(device);
+					needUpdateGroup = true;
 				BeanUtil.merge(c, device);
 				c = repo.save(c);
+				if (needUpdateGroup) updateDeviceGroupRelationship(c);
 				return c;
 			}
-		} catch (Exception e) {
-			throw new ServiceException("Cập nhật không thành công. Device đã tồn tại!", e);
-		}
+//		} catch (Exception e) {
+//			throw new Exception("Cập nhật không thành công: " , e);
+////			throw new ServiceException("Cập nhật không thành công: " + e.getMessage(), e);
+//		}
 	}
 	@Transactional
 	public void updateDeviceGroupRelationship(Device device) {

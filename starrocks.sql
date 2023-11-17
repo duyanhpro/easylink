@@ -21,6 +21,60 @@ PROPERTIES (
 "compression" = "LZ4"
 );
 
+CREATE TABLE `user_group` (
+                              `user_id` int(10) NOT NULL,
+                              `group_id` int(10) NOT NULL,
+                              `inherit` tinyint(1)
+)
+    ENGINE=mysql
+PROPERTIES (
+    "host" = "mariadb",
+    "port" = "3306",
+    "user" = "root",
+    "password" = "S@dIOT-2k23!@#",
+    "database" = "easylink",
+    "table" = "tbl_user_group"
+);
+
+CREATE TABLE `device_group` (
+                                `device_id` int(10)  NOT NULL,
+                                `group_id` int(10)  NOT NULL,
+                                `inherit` tinyint(1)
+)
+    ENGINE=mysql
+PROPERTIES (
+    "host" = "mariadb",
+    "port" = "3306",
+    "user" = "root",
+    "password" = "S@dIOT-2k23!@#",
+    "database" = "easylink",
+    "table" = "tbl_device_group"
+);
+
+CREATE TABLE `device` (
+                          `id` int(10) ,
+                          `name` varchar(50) NOT NULL,
+                          `description` varchar(255) DEFAULT '',
+                          `location` varchar(255) DEFAULT '',
+                          `street` varchar(255) DEFAULT NULL,
+                          `district` varchar(255) DEFAULT NULL,
+                          `city` varchar(255) DEFAULT NULL,
+                          `device_token` varchar(255) DEFAULT NULL COMMENT 'IoT Device ID',
+                          `status` tinyint(3) NOT NULL  COMMENT '0: inactive; 1: active',
+                          `lon` float DEFAULT NULL COMMENT 'Kinh do',
+                          `lat` float DEFAULT NULL COMMENT 'Vi do',
+                          `group_id` int(10),
+                          `tags` varchar(255) DEFAULT NULL
+)
+    ENGINE=mysql
+PROPERTIES (
+    "host" = "mariadb",
+    "port" = "3306",
+    "user" = "root",
+    "password" = "S@dIOT-2k23!@#",
+    "database" = "easylink",
+    "table" = "tbl_device"
+);
 
 -- easylink.sensor_data2 definition
 

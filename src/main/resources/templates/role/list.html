@@ -62,7 +62,7 @@
 			<thead>
 				<tr>
 					<th style="width: 20px" align="center">STT</th>
-					<th style="width: 20px">ID</th>
+<!--					<th style="width: 20px">ID</th>-->
 					<th>Tên quyền</th>
 					<th>Mô tả</th>
 <!--					<th>Trạng thái</th>-->
@@ -72,8 +72,8 @@
 				<tbody>
 				<tr th:each="role,iterationStatus  : ${roles}">
 					<td th:text="${iterationStatus.count}">1</td>
-					<td th:text="${role.id}"></td>
-					<td><a th:href="@{'/role/view/' + ${role.id}}">[[${role.name}]]</a></td>
+<!--					<td th:text="${role.id}"></td>-->
+					<td th:text="${role.name}"></td>
 					<td th:text="${role.description}">duyanh@vivas.vn</td>
 <!--					<div th:switch="${role.status}">-->
 <!--						<td th:case="'1'">Kích hoạt</td>-->

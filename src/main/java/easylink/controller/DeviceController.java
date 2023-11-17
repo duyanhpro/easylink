@@ -30,7 +30,7 @@ public class DeviceController extends BaseController {
 		model.addAttribute("pageTitle", "Danh sách thiết bị");
 		//model.addAttribute("devices", deviceService.findAll());
 //		model.addAttribute("devices", deviceService.getDeviceList());
-		model.addAttribute("deviceGroups", deviceService.findAllDeviceWithGroup());
+		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup());
 		return "device/list";
 	}
 	

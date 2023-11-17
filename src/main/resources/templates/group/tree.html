@@ -217,7 +217,7 @@
 										<td>
 											<a class="btn btn-gradient-primary" th:href="@{'/group/view/' + ${group.id}}">Chi tiết</a>
 <!--											<a class="btn btn-gradient-danger" onclick="return confirm('Chắc chắn xóa?')" th:href="@{'/group/delete/' + ${group.id}}">[[#{delete}]]</a>-->
-											<a class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${group.id}','@{/group/delete/}')|" href="#">[[#{delete}]]</a>
+											<a th:if="${group.id!=1}" class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${group.id}','@{/group/delete/}')|" href="#">[[#{delete}]]</a>
 										</td>
 									</tr>
 									</tbody>

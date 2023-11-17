@@ -23,7 +23,7 @@ import easylink.repository.GroupRepository;
 @Service
 public class GroupService {
 
-	static Logger log = LoggerFactory.getLogger(DeviceService.class);
+	Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private GroupRepository repo;
@@ -84,12 +84,18 @@ public class GroupService {
 //	}
 
 	public Group findById(int id) {
-		// Check permission to view this group
-		Set<Integer> myGroup = findGroupIdAndChildrenByUser(SecurityUtil.getUserDetail().getUserId());
-		if (myGroup.contains(id))
-			return repo.findById(id).orElseThrow(() -> new NotFoundException("Group not found"));
-		else
-			throw new AccessDeniedException("Can not view this group");
+		return repo.findById(id).orElseThrow(() -> new NotFoundException("Group not found"));
+	}
+
+	/**
+	 * Check if current logged-in user can access group Id
+	 * @param groupId
+	 * @return
+	 */
+	public boolean checkPermission(int groupId) {
+		//Set<Integer> myGroup = findGroupIdAndChildrenByUser(SecurityUtil.getUserDetail().getUserId());
+		List<Integer> myGroup = repo.findGroupIdsByUserId(SecurityUtil.getUserDetail().getUserId());
+		return myGroup.contains(groupId);
 	}
 
 	@Transactional
@@ -183,16 +189,16 @@ public class GroupService {
 
 	@Transactional
 	public void deleteAndUpdateTree(int id) {
-		// todo: Find user or devices in this group. If exist then not allow delete
+		if (id == 1)
+			throw new RuntimeException("Không thể xóa nhóm gốc!");
+		// Check permission voi group
+		if (!checkPermission(id))
+			throw new AccessDeniedException("Người dùng không có quyền với nhóm này");
+		// Find user or devices in this group. If exist then not allow delete
 		List<User> users = ugRepo.findAllUserByGroupIdNoInherit(id);
 		if (!users.isEmpty()) throw new RuntimeException("Không thể xóa. Có người dùng thuộc nhóm này!");
 		List<Integer> devices = dgRepo.findDeviceIdByGroup(id);
 		if (!devices.isEmpty()) throw new RuntimeException("Không thể xóa. Có thiết bị thuộc nhóm này!");
-
-		// Check permission
-		Set<Integer> myGroup = findGroupIdAndChildrenByUser(SecurityUtil.getUserDetail().getUserId());
-		if (!myGroup.contains(id))
-			throw new AccessDeniedException("Can not update this group");
 
 		log.info("Delete a node and update all child nodes to point to grandfather");
 		Group g =  findById(id);

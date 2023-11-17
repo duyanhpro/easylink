@@ -37,11 +37,7 @@
 		    placeholder: "-",
 			tags: true
 		});
-		$('#lstGroup').select2({
-			allowClear: true,
-			placeholder: "-",
-			tags: true
-		});
+		$('#lstGroup').select2();
 		$("#page-title").html("Quản lý Thiết bị");
 
 		$('#statusCb').change(function() {
@@ -63,7 +59,7 @@
 
 				<!-- form start -->
 <!--				<form class="form-horizontal  needs-validation" novalidate th:action="@{/device/save}" method="post">-->
-				<form class="form-horizontal  "  th:action="@{/device/save}" method="post">
+				<form class="form-horizontal form-parsley"  th:action="@{/device/save}" method="post">
 					<input type="hidden" id="isFormChanged" name="isFormChanged" value="false">
 					<input type="hidden" id="id" name="id" th:value="${device.id}">
 					<input type="hidden" id="status" name="status" th:value="${device.status}">
@@ -72,13 +68,15 @@
 						<div class="form-group row">
 							<label class="col-sm-2 control-label col-form-label">Tên thiết bị *</label>
 							<div class="col-sm-5">
-								<input type="text" class="form-control" id="name"	name="name" th:value="${device.name}"  required data-parsley-error-message="Tên thiết bị không được bỏ trống">
+								<input type="text" class="form-control" id="name"	name="name" th:value="${device.name}"
+									   required data-parsley-error-message="Tên thiết bị không được bỏ trống">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label">IoT Device Token *</label>
 							<div class="col-sm-5">
-								<input type="text" class="form-control" id="deviceToken"	name="deviceToken" th:value="${device.deviceToken}" required data-parsley-error-message="Token thiết bị không được bỏ trống">
+								<input type="text" class="form-control" id="deviceToken"	name="deviceToken" th:value="${device.deviceToken}"
+									   required data-parsley-error-message="Token thiết bị không được bỏ trống">
 							</div>
 						</div>
 						<div class="form-group row">
@@ -109,7 +107,7 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Thành phố</label>
+							<label class="col-sm-2 col-form-label">Tỉnh / Thành phố</label>
 							<div class="col-sm-5">
 								<select id="lstCity" class="form-control select2" style="width: 100%;" data-placeholder="" name="city">
 									<option value="" th:selected="${device.city == null}"></option>
@@ -118,7 +116,7 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Quận/Huyện</label>
+							<label class="col-sm-2 col-form-label">Quận / Huyện</label>
 							<div class="col-sm-5">
 								<select id="lstDistrict" class="form-control select2" style="width: 100%;" data-placeholder="" name="district">
 									<option value="" th:selected="${device.district == null}"></option>
@@ -127,7 +125,7 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Đường/Phố</label>
+							<label class="col-sm-2 col-form-label">Đường / Phố</label>
 							<div class="col-sm-5">
 								<select id="lstStreet" class="form-control select2" style="width: 100%;" data-placeholder="" name="street">
 									<option value="" th:selected="${device.street == null}"></option>

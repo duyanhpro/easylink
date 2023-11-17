@@ -1,6 +1,7 @@
 package easylink.controller;
 
 import easylink.entity.Group;
+import easylink.exception.AccessDeniedException;
 import easylink.security.NeedPermission;
 import easylink.security.SecurityUtil;
 import easylink.service.DeviceService;
@@ -87,6 +88,9 @@ public class GroupController extends BaseController {
 		} else if (isFormChanged) {
 			// update
 			SecurityUtil.authorize("group", "update", group);
+			if (!groupService.checkPermission(group.getId()))
+				throw new AccessDeniedException("Người dùng không có quyền với nhóm này");
+
 			groupService.update(group.getId(), group);
 			redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("group.update.success"));
 
@@ -108,7 +112,8 @@ public class GroupController extends BaseController {
 	public String deleteGroup(Model model, @PathVariable int id, RedirectAttributes redirectAttrs) {
 		log.debug("Delete group id {}", id);
 		SecurityUtil.authorize("group", "delete", groupService.findById(id));
-		groupService.deleteAndUpdateTree(id);
+
+		groupService.deleteAndUpdateTree(id);		// check policy in this method
 		redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("group.delete.success"));
 		return "redirect:/group";
 	}

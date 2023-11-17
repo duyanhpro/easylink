@@ -103,7 +103,7 @@ public class RuleExecutionRunnable implements Runnable {
 			log.info("Create alarm {}", a);	
 			
 			AlarmService as = BeanUtil.getBean(AlarmService.class);
-			as.saveAlarm(a);
+			as.createAlarm(a);
 			
 		} else {
 			log.error("Unknown action type!");

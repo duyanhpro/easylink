@@ -98,6 +98,11 @@ public class AjaxApi {
 		ugService.rebuildUserGroupRelationship();
 		return "OK";
 	}
+	@GetMapping("/api/debug/findDeviceToken")		// debug only!
+	@ResponseBody
+	public List<Device> findDeviceTokenByUser(@RequestParam int userId) {
+		return deviceService.findAllDevicesByUserId(userId);
+	}
 
 	// Enable SSH tunnel
 	@PostMapping("/api/devices/rpc/{deviceToken}")

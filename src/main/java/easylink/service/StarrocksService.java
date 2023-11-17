@@ -2,7 +2,10 @@ package easylink.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import easylink.common.Constant;
+import easylink.dto.AlarmLevel;
+import easylink.entity.Alarm;
 import easylink.entity.DeviceType;
+import easylink.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -25,7 +27,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import javax.annotation.PreDestroy;
 
 @Service
-public class StarrocksInsert implements IngestDataService {
+public class StarrocksService {
 
     @Value("${raw.insert.batch.size}")
     int batchSize;// = 30;
@@ -55,7 +57,6 @@ public class StarrocksInsert implements IngestDataService {
     LinkedList<Map<String, Object>> batch = new LinkedList<>();
     long first = 0;
 
-    @Override
     public void insertData(Map<String, Object> data) {
         // TODO: find schema and redirect it to corresponding queue for each device type
         messageQueue.add(data);
@@ -114,6 +115,140 @@ public class StarrocksInsert implements IngestDataService {
         }
     }
 
+    public void insertAlarm(Alarm a) {
+    // SQL query
+        String insertQuery = "INSERT INTO alarm (device_token, event_time, content, type, level, rule_id) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+            // Set parameters
+                preparedStatement.setString(1, a.getDeviceToken());
+                //preparedStatement.setDate(2, a.getEventTime());
+                preparedStatement.setTimestamp(2, new Timestamp(a.getEventTime().getTime()));
+                preparedStatement.setString(3, a.getContent());
+                preparedStatement.setString(4, a.getType());
+                preparedStatement.setInt(5, a.getLevel().ordinal());
+                preparedStatement.setObject(6, a.getRuleId());  // Can be null
+
+                // Execute the insert query
+                int rowsAffected = preparedStatement.executeUpdate();
+                log.trace("Inserted {} alarm record.", rowsAffected);
+
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public List<Alarm>  searchAlarm(String deviceToken, Date startDate, Date endDate, Integer level, String type,
+                                    int pageNumber, int pageSize) {
+        // SQL query with parameters
+        StringBuilder searchQuery = new StringBuilder("SELECT * FROM alarm WHERE 1=1 ");
+        if (deviceToken != null)
+            searchQuery.append(" AND device_token = ?");
+        if (startDate != null)
+            searchQuery.append(" AND event_time >= ?");
+        if (endDate != null)
+            searchQuery.append(" AND event_time < ?");
+        if (level != null)
+            searchQuery.append(" AND level = ?");
+        if (type != null)
+            searchQuery.append(" AND type = ?");
+        searchQuery.append(" AND device_token in (select device_token from device where id in (select device_id from device_group where \n" +
+                "group_id in (select group_id from user_group where user_id = ?))) ");
+        // Add paging parameters
+        int offset = (pageNumber - 1) * pageSize;
+        searchQuery.append(" order by event_time desc LIMIT ? OFFSET ? ");
+        log.debug("Alarm search query: {}", searchQuery.toString());
+        List<Alarm> resultList = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(searchQuery.toString())) {
+
+            int parameterIndex = 1;
+            // Set parameters
+            if (deviceToken != null)
+                preparedStatement.setString(parameterIndex++, deviceToken);
+            if (startDate!=null)
+                preparedStatement.setTimestamp(parameterIndex++, new java.sql.Timestamp(startDate.getTime()));
+            if (endDate != null)
+                preparedStatement.setTimestamp(parameterIndex++, new java.sql.Timestamp(endDate.getTime()));
+            if (level != null)
+                preparedStatement.setInt(parameterIndex++, level);
+            if (type!= null)
+                preparedStatement.setString(parameterIndex++, type);
+
+            preparedStatement.setInt(parameterIndex++, SecurityUtil.getUserDetail().getUserId());
+
+            // Set paging parameters
+            preparedStatement.setInt(parameterIndex++, pageSize);
+            preparedStatement.setInt(parameterIndex, offset);
+
+            // Execute the search query
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    // Retrieve and process the results
+                    String retrievedDeviceToken = resultSet.getString("device_token");
+                    Timestamp retrievedEventTime = resultSet.getTimestamp("event_time");
+                    String retrievedContent = resultSet.getString("content");
+                    String retrievedType = resultSet.getString("type");
+                    int retrievedLevel = resultSet.getInt("level");
+                    Integer retrievedRuleId = resultSet.getInt("rule_id");
+
+                    resultList.add(new Alarm(retrievedDeviceToken,
+                            retrievedEventTime == null? null : new Date(retrievedEventTime.getTime()),
+                            retrievedContent, retrievedType, AlarmLevel.values()[retrievedLevel], retrievedRuleId));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+    public int  countAlarm(String deviceToken, Date startDate, Date endDate, Integer level, String type) {
+        // SQL query with parameters
+        StringBuilder searchQuery = new StringBuilder("SELECT count(*) FROM alarm WHERE 1=1 ");
+        if (deviceToken != null)
+            searchQuery.append(" AND device_token = ?");
+        if (startDate != null)
+            searchQuery.append(" AND event_time >= ?");
+        if (endDate != null)
+            searchQuery.append(" AND event_time < ?");
+        if (level != null)
+            searchQuery.append(" AND level = ?");
+        if (type != null)
+            searchQuery.append(" AND type = ?");
+        searchQuery.append(" AND device_token in (select device_token from device where id in (select device_id from device_group where \n" +
+                "group_id in (select group_id from user_group where user_id = ?))) ");
+        List<Alarm> resultList = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(searchQuery.toString())) {
+
+            int parameterIndex = 1;
+            // Set parameters
+            if (deviceToken != null)
+                preparedStatement.setString(parameterIndex++, deviceToken);
+            if (startDate!=null)
+                preparedStatement.setTimestamp(parameterIndex++, new java.sql.Timestamp(startDate.getTime()));
+            if (endDate != null)
+                preparedStatement.setTimestamp(parameterIndex++, new java.sql.Timestamp(endDate.getTime()));
+            if (level != null)
+                preparedStatement.setInt(parameterIndex++, level);
+            if (type!= null)
+                preparedStatement.setString(parameterIndex++, type);
+            preparedStatement.setInt(parameterIndex++, SecurityUtil.getUserDetail().getUserId());
+
+            // Execute the search query
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int count = resultSet.getInt(1);
+                    return count;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 //    Map<String, String> schema = Map.of(
 //            "device_token", "String",
 //            "event_time", "Date",

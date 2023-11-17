@@ -2,11 +2,14 @@ package easylink.service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 
 import easylink.common.Constant;
+import easylink.entity.Device;
+import easylink.entity.DeviceType;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -34,8 +37,8 @@ public class MqttService {
 	@Value("${mqtt.password}")
 	String mqttPassword;
 
-	@Value("${mqtt.topic.telemetry}")
-	String telemetryTopic;
+//	@Value("${mqtt.topic.telemetry}")
+//	String telemetryTopic;
 
 	@Value("${mqtt.topic.rpc.request}")
 	String rpcRequestTopic;
@@ -60,6 +63,8 @@ public class MqttService {
     DeviceService deviceService;
 	@Autowired
 	DeviceStatusService deviceStatusService;
+	@Autowired
+	DeviceTypeService deviceTypeService;
 
 	IMqttClient client;
 
@@ -67,7 +72,7 @@ public class MqttService {
 	RuleExecutionServie ruleExecutionService;
 
 	@Autowired
-	IngestDataService ingestService;
+	StarrocksService ingestService;
 
 	private BlockingQueue<String> rpcResponseQueue = new LinkedBlockingQueue<>();
 	
@@ -123,14 +128,17 @@ public class MqttService {
 	}
 
 	public void subscribeTelemetry() {
-		try {
-			log.info("Subscribe to MQTT topic: " + telemetryTopic);
-			client.subscribe(telemetryTopic, (topic, msg) -> {
-				String body = new String(msg.getPayload());
-				processTelemetryEvent(topic, body);
-			});
-		} catch (MqttException e) {
-			log.error("MQTT subscribe telemetry exception ",e);
+		List<DeviceType> ld = deviceTypeService.findAll();
+		for (DeviceType d: ld) {
+			try {
+				log.info("Subscribe to MQTT topic: " + d.getTopic());
+				client.subscribe(d.getTopic(), (topic, msg) -> {
+					String body = new String(msg.getPayload());
+					processTelemetryEvent(topic, body);
+				});
+			} catch (MqttException e) {
+				log.error("MQTT subscribe telemetry exception ", e);
+			}
 		}
 	}
 
@@ -141,7 +149,7 @@ public class MqttService {
 				processRpcResponse(topic, body);
 			});
 		} catch (MqttException e) {
-			log.error("MQTT subscribe telemetry exception ",e);
+			log.error("MQTT subscribe RPC repsonse exception ",e);
 		}
 	}
 
@@ -152,6 +160,11 @@ public class MqttService {
 
 		int lastSlashIndex = topic.lastIndexOf('/');
 		String deviceTokenFromTopic =  topic.substring(lastSlashIndex + 1);
+
+		// check if device is disabled then discard event
+		Device d = deviceService.findByToken(deviceTokenFromTopic);
+		if (d.getStatus() == Device.STATUS_INACTIVE)
+			return;
 
 		try {
 			Map<String, Object> map = mapper.readValue(msg, Map.class);

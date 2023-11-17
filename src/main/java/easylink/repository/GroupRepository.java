@@ -1,6 +1,7 @@
 package easylink.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import easylink.entity.Group;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,6 +31,9 @@ public interface GroupRepository extends JpaRepository<Group, Integer>, GroupRep
 //	@Query("select g from Group g where g.parentId is null or g.parentId = 0")
 //	List<Group> findRootNode();
 
-	@Query("select g.id from Group g, UserGroup ug where g.id=ug.groupId and ug.userId = :userId")
+	@Query("select ug.groupId from UserGroup ug where ug.userId = :userId")
 	List<Integer> findGroupIdsByUserId(int userId);
+
+//	@Query(nativeQuery = true, value = "select group_id from tbl_user_group where user_id = ?1")
+//    List<Integer> findGroupIdAndChildrenByUser(int userId);
 }
