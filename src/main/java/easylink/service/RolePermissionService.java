@@ -87,7 +87,7 @@ public class RolePermissionService {
 		List<Role> ur = findDirectRoleOfUser(userId);
 //		System.out.println("Direct role: " + ur);
 		Set<Role> sr = new HashSet<>();
-//		System.out.println("Group role: " + sr);
+//		System.out.println("Group direct role: " + ur);
 		sr.addAll(ur);
 
 		Set<Role> inheritedRoles = new HashSet<>();

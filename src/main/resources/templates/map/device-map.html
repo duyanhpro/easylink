@@ -134,7 +134,8 @@
 
 		// add the OpenStreetMap tiles
 		//L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		L.tileLayer('http://113.190.243.86:21088/osm/{z}/{x}/{y}.png', {
+		//L.tileLayer('http://113.190.243.86:21088/osm/{z}/{x}/{y}.png', {
+		L.tileLayer('http://103.252.72.194/map/vietnam/{z}/{x}/{y}.png', {
 			maxZoom: 19,
 			//attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
 		}).addTo(map);
@@ -328,7 +329,7 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="myModalLabel">Chi tiết trạng thái trạm</h5>
+				<h5 class="modal-title" id="myModalLabel">Chi tiết trạng thái thiết bị</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -396,7 +397,7 @@
 				<div class="nav flex-sm-column flex-row">
 
 					<ul  class="list-group">
-						<li class="list-group-item"><h3>Danh sách Trạm</h3></li>
+						<li class="list-group-item"><h3>Danh sách Thiết bị</h3></li>
 						<li th:each="device,iterationStatus  : ${devices}"
 							class="list-group-item" th:id="${device.id}"
 							th:text="${iterationStatus.count +'.  ' + device.name}"

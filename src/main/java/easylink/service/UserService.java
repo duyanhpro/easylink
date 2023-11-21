@@ -1,19 +1,13 @@
 package easylink.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import easylink.dto.UserWithGroupRole;
-import easylink.entity.Group;
-import easylink.entity.Role;
+import easylink.dto.IUserDto;
 import easylink.entity.User;
 import easylink.util.BeanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +19,6 @@ import easylink.security.SecurityUtil;
 import easylink.repository.GroupRepository;
 import easylink.repository.RoleRepository;
 import easylink.repository.UserGroupRepository;
-import vn.vivas.core.util.StringUtil;
 
 @Service
 public class UserService {
@@ -57,9 +50,10 @@ public class UserService {
 		return repo.findAllByOrderByUsernameAsc();
 		//return repo.findAll(new Sort(Sort.Direction.ASC, "username"));
 	}
-	public List<User> findAllMyUser() {
+	public List<IUserDto> findAllMyUser() {
 		// Must find users of all children group (direct users)
-		return repo.findAllMyUserOrderByUsernameAsc(SecurityUtil.getUserDetail().getUserId());
+		//return repo.findAllMyUserOrderByUsernameAsc(SecurityUtil.getUserDetail().getUserId());
+		return repo.findAllMyUserWithGroupAndRole(SecurityUtil.getUserDetail().getUserId());
 	}
 
 	@Transactional

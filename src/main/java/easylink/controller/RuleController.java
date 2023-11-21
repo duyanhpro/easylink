@@ -2,9 +2,12 @@ package easylink.controller;
 
 import easylink.dto.ActionCreateAlarm;
 import easylink.entity.Rule;
+import easylink.exception.AccessDeniedException;
 import easylink.security.NeedPermission;
+import easylink.security.SecurityUtil;
 import easylink.service.RuleService;
 import easylink.service.DeviceService;
+import easylink.service.UserGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +25,9 @@ public class RuleController extends BaseController {
 	
 	@Autowired
 	DeviceService deviceService;
+
+	@Autowired
+	UserGroupService ugService;
 	
 	// List rule
 	@GetMapping("")
@@ -29,6 +35,9 @@ public class RuleController extends BaseController {
 	public String list(Model model) {
 		model.addAttribute("pageTitle", "Quản lý luật cảnh báo");
 		model.addAttribute("rules", ruleService.findAll());
+		model.addAttribute("isRoot", ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
+
+		//model.addAttribute("permissions", ruleService.getMyPermission());
 		return "rule/list";
 	}
 	
@@ -42,9 +51,10 @@ public class RuleController extends BaseController {
 		model.addAttribute("rule", r);
 		model.addAttribute("alarm", (ActionCreateAlarm)JsonUtil.parse(r.getAction(), ActionCreateAlarm.class));
 		model.addAttribute("devices", ruleService.findAppliedDeviceIds(id));	// applied devices
-		model.addAttribute("allDevices", deviceService.findAllMyDevices());
+		model.addAttribute("allDevices", deviceService.findAll());
 		model.addAttribute("groups", ruleService.findAppliedGroupIds(id));
-		model.addAttribute("allGroups", groupService.findAllMyGroups());
+		model.addAttribute("allGroups", groupService.findAll());
+		model.addAttribute("isRoot", ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
 		return "rule/edit";
 	}
 	
@@ -56,8 +66,9 @@ public class RuleController extends BaseController {
 		model.addAttribute("action", "create");
 		model.addAttribute("rule", new Rule());
 		model.addAttribute("alarm", new ActionCreateAlarm());
-		model.addAttribute("allDevices", deviceService.findAllMyDevices());
-		model.addAttribute("allGroups", groupService.findAllMyGroups());
+		model.addAttribute("allDevices", deviceService.findAll());
+		model.addAttribute("allGroups", groupService.findAll());
+		model.addAttribute("isRoot", ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
 		return "rule/edit";
 	}
 	
@@ -69,6 +80,10 @@ public class RuleController extends BaseController {
 			String alarmContent, String alarmType, String alarmLevel, @RequestParam(defaultValue = "0") Integer interval,  
 			boolean isFormChanged, boolean allDevice, boolean isDeviceChanged, boolean isGroupChanged,
 			RedirectAttributes redirectAttrs) {
+		if (!ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId())) {
+			throw new AccessDeniedException("Chỉ người dùng nhóm cao nhất được phép lưu luật cảnh báo");
+		}
+
 		log.info("Saving rule {}, apply to devices {}, allDevice={}", id, deviceIds, allDevice);
 		if (isFormChanged) {
 			if (id != null) {

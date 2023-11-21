@@ -1,0 +1,90 @@
+
+<style>
+	.dataTables_filter {
+	   display: none;		// hide datatable default search box to use our search input
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		
+	});
+</script>
+
+<div class="row">
+
+	<div class="col-8">
+		<div class="card">
+			<div class="card-body">
+				<section class="content">
+					<div class="box box-default">
+
+						<div class="box-body">
+							<table id="mainTable" class="table table-bordered dt-responsive nowrap" style="width: 100%;" >
+								<tbody>
+								<tr>
+									<td>Trạng thái License</td>
+									<td style="font-weight: bold;" th:text='${licenseStatus}'></td>
+								</tr>
+								<tr th:if="${lic!=null}">
+									<td>Đơn vị được cấp License</td>
+									<td th:text="${lic.company}"></td>
+								</tr>
+								<tr th:if="${lic!=null}">
+									<td>Số lượng thiết bị tối đa</td>
+									<td th:text="${lic==null? 0: lic.maxDevice}"></td>
+								</tr>
+								<tr th:if="${lic!=null}">
+									<td>Số lượng thiết bị đã sử dụng</td>
+									<td th:text="${currentDeviceCount}"></td>
+								</tr>
+								<tr th:if="${lic!=null}">
+									<td>Thời gian hết hạn</td>
+									<td th:text="${lic.expireDate == null? 'Bản quyền vĩnh viễn' : #dates.format(lic.expireDate, 'dd/MM/yyyy')}"></td>
+								</tr>
+								</tbody>
+							</table>
+
+							<div class="row">
+
+								<div class="col-sm-12 text-right">
+									<button id="submitButton" type="submit" class="btn btn-gradient-primary"
+											data-toggle="modal" data-target="#myModal">Cập nhật License</button>
+								</div>
+							</div>
+
+						</div>	<!--box body-->
+
+					</div>
+				</section>
+
+			</div>
+		</div>
+	</div> <!-- end col -->
+</div>
+
+<div id="myModal" class="modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Cập nhật License key</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form class="form-horizontal form-parsley"  th:action="@{/license}" method="post">
+				<div class="modal-body">
+					<div class="col-md-12">
+						<div class="form-group">
+					<textarea name="licenseKey" class="form-control" rows="5" th:text="${licenseKey}"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-gradient-primary">Cập nhật</button>
+					<button type="button" class="btn btn-gradient-warning pull-left" data-dismiss="modal">Đóng</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

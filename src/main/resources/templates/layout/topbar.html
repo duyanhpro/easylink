@@ -1,6 +1,11 @@
       <script>
 		$(document).ready(function(){
 		  $('.toast').toast('show');
+            window.setTimeout(function() {
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove();
+                });
+            }, 3500);
 		});
 	</script>
 
@@ -58,28 +63,29 @@
 		     <!-- Notification -->
 				<!-- Position it -->
 				<div style="position: absolute; top: 200; right: 0; width: 300px; ">
-		
+
+                    <!-- 17/11: replace toast by alert (easier to see) -->
 					<!-- Then put toasts within -->
-					<div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true" data-toggle="toast"  data-delay="5000" th:if="${infoMsg}">
-						<div class="toast-header">
-							<i class="mdi mdi-circle-slice-8 font-18 mr-1 text-info"></i> <strong class="mr-auto">Thông báo</strong>
-							<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-								<span aria-hidden="true">×</span>
-							</button>
-						</div>
-						<div class="toast-body">[[${infoMsg}]]</div>
-					</div>
-					<!--end toast-->
-		
-					<div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true" data-toggle="toast" data-delay="5000" th:if="${errorMsg}">
-						<div class="toast-header">
-							<i class="mdi mdi-circle-slice-8 font-18 mr-1 text-danger"></i> <strong class="mr-auto">Thông báo</strong>
-							<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-								<span aria-hidden="true">×</span>
-							</button>
-						</div>
-						<div class="toast-body">[[${errorMsg}]]</div>
-					</div>
+<!--					<div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true" data-toggle="toast"  data-delay="5000" th:if="${infoMsg}">-->
+<!--						<div class="toast-header">-->
+<!--							<i class="mdi mdi-circle-slice-8 font-18 mr-1 text-info"></i> <strong class="mr-auto">Thông báo</strong>-->
+<!--							<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">-->
+<!--								<span aria-hidden="true">×</span>-->
+<!--							</button>-->
+<!--						</div>-->
+<!--						<div class="toast-body">[[${infoMsg}]]</div>-->
+<!--					</div>-->
+<!--					&lt;!&ndash;end toast&ndash;&gt;-->
+<!--		-->
+<!--					<div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true" data-toggle="toast" data-delay="5000" th:if="${errorMsg}">-->
+<!--						<div class="toast-header">-->
+<!--							<i class="mdi mdi-circle-slice-8 font-18 mr-1 text-danger"></i> <strong class="mr-auto">Thông báo</strong>-->
+<!--							<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">-->
+<!--								<span aria-hidden="true">×</span>-->
+<!--							</button>-->
+<!--						</div>-->
+<!--						<div class="toast-body">[[${errorMsg}]]</div>-->
+<!--					</div>-->
 					<!--end toast-->
 				</div>
 

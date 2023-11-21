@@ -50,7 +50,7 @@
 					<div class="col-lg-6 cold-md-6 col-sm-12 col-xs-12" >
 						<div class="">
 							<button id="search" type="submit" class="btn btn-gradient-primary">[[#{search}]]</button>
-							<a  th:if="${session.principal.hasRole('ADMIN')}" th:href="@{/rule/create}" class="btn btn-gradient-success">[[#{new}]]</a>
+							<a  th:if="${session.principal.hasRole('ADMIN') && isRoot}" th:href="@{/rule/create}" class="btn btn-gradient-success">[[#{new}]]</a>
 						</div>
 					</div>
 				</div>
@@ -81,7 +81,7 @@
 					</div>
 					<td>
 						<a class="btn btn-gradient-primary" th:href="@{'/rule/view/' + ${r.id}}">Chi tiết</a>
-						<a  th:if="${session.principal.hasRole('ADMIN')}" class="btn btn-gradient-danger"
+						<a  th:if="${session.principal.hasRole('ADMIN') && isRoot}" class="btn btn-gradient-danger"
 							th:attr="onclick=|confirmDelete('${r.id}','@{/rule/delete/}')|" href="#" >[[#{delete}]]</a>
 					</td>
 				</tr>

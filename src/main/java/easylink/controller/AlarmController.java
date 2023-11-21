@@ -69,7 +69,7 @@ public class AlarmController extends BaseController {
 //				level.isEmpty()? null: AlarmLevel.valueOf(level), start, end, page, pageSize);
 		List<Alarm> la = starrocks.searchAlarm(d==null? null: d.getDeviceToken(), start, end, level.isEmpty()? null: AlarmLevel.valueOf(level).ordinal(),
 				type.isEmpty()? null:type, page, pageSize);
-		Integer countAllAlarm = starrocks.countAlarm(null, start, end, level.isEmpty()? null: AlarmLevel.valueOf(level).ordinal(),
+		Integer countAllAlarm = starrocks.countAlarm(d==null? null: d.getDeviceToken(), start, end, level.isEmpty()? null: AlarmLevel.valueOf(level).ordinal(),
 				type.isEmpty()? null:type);
 		model.addAttribute("devices", deviceService.findAllMyDevices());
 		model.addAttribute("mypage", new PageImpl<Alarm>(la, PageRequest.of(page-1, pageSize), countAllAlarm)); // start from page 0

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -53,10 +54,6 @@ public class StarrocksService {
     @Autowired
     DeviceTypeService deviceTypeService;
 
-    // Create a batch for insertion
-    LinkedList<Map<String, Object>> batch = new LinkedList<>();
-    long first = 0;
-
     public void insertData(Map<String, Object> data) {
         // TODO: find schema and redirect it to corresponding queue for each device type
         messageQueue.add(data);
@@ -73,12 +70,22 @@ public class StarrocksService {
         config.setMinimumIdle(5);        // Set the minimum idle connections (optional)
         dataSource = new HikariDataSource(config);
 
-        log.info("Create thread to ingest data");
+        log.info("Create thread to wait for data from queue and insert");
         new Thread(new Runnable() {
             @Override
             public void run() {
+                // Create a batch for insertion
+                LinkedList<Map<String, Object>> batch = new LinkedList<>();
+                long first = System.currentTimeMillis();
 
                 while (true) {
+                    // Check if it is time to insert
+                    if ((batch.size() >= batchSize) || ((System.currentTimeMillis() - first) >= (batchMaxWaitTime *1000))) {
+                        insertBatchIntoDatabase(batch);
+                        // reset
+                        batch.clear();
+                    }
+
                     Map<String, Object> m = messageQueue.poll();
                     if (m == null) {
                         try {
@@ -87,25 +94,22 @@ public class StarrocksService {
                             e.printStackTrace();
                         }
                         continue;
+                    } else {
+                        // add message to batch
+                        if (batch.isEmpty())
+                            first = System.currentTimeMillis();
+                        batch.add(m);
                     }
 
-//                    insertOne(m);
-
-                    // add message to batch
-                    if (batch.isEmpty())
-                        first = System.currentTimeMillis();
-                    batch.add(m);
-
-                    // Check if it is time to insert
-                    if ((batch.size() >= batchSize) || ((System.currentTimeMillis() - first) >= (batchMaxWaitTime *1000))) {
-                        insertBatchIntoDatabase(batch);
-                        // reset
-                        batch.clear();
-                    }
                 }
             }
         }).start();
     }
+
+//    @Scheduled(fixedDelayString = "${raw.insert.batch.max-wait-time-second}", initialDelay = 5000)
+//    public void scheduleInsertBatch() {
+//
+//    }
 
     @PreDestroy
     public void closeDataSource() {
@@ -152,8 +156,7 @@ public class StarrocksService {
             searchQuery.append(" AND level = ?");
         if (type != null)
             searchQuery.append(" AND type = ?");
-        searchQuery.append(" AND device_token in (select device_token from device where id in (select device_id from device_group where \n" +
-                "group_id in (select group_id from user_group where user_id = ?))) ");
+        searchQuery.append(" AND device_token in (select device_token from user_device_view where user_id = ?) ");
         // Add paging parameters
         int offset = (pageNumber - 1) * pageSize;
         searchQuery.append(" order by event_time desc LIMIT ? OFFSET ? ");

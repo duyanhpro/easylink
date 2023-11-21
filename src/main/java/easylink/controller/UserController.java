@@ -23,15 +23,15 @@ public class UserController extends BaseController {
 	@GetMapping("")
 	public String list(Model model) {
 		model.addAttribute("pageTitle", "Danh sách người dùng");
-		List<User> users;
+//		List<User> users;
 //		if (SecurityUtil.hasPermission("user", "listAll"))
 //		//if (SecurityUtil.hasRole("ROLE_ADMIN"))
 //			users = userService.findAll();
 //		else
 //			users = userService.findAllUserByType(User.TYPE_CUSTOMER);
-		users = userService.findAllMyUser();
+//		users = userService.findAllMyUser();
 		
-		model.addAttribute("users", users);
+		model.addAttribute("users", userService.findAllMyUser());
 		return "user/list";
 	}
 

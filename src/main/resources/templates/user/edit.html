@@ -125,7 +125,7 @@
 				<label for="lstUserRole" class="col-sm-2 col-form-label">Quyền</label>
 				<div class="col-sm-5">
 					<select id="lstUserRole" class="form-control select2" style="width: 100%;" data-placeholder="Chọn quyền" name="roleIds"
-						multiple th:disabled="${user.id == session.user.id || action=='profile'}" >
+						th:disabled="${user.id == session.user.id || action=='profile'}" >
 						<option th:value="${role.id}" th:each="role : ${allRoles}"
 							th:selected="${userRoleNames!=null && userRoleNames.contains(role.name)}">[[${role.name}]]</option>
 					</select>

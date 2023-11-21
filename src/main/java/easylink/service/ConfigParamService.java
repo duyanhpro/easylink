@@ -46,5 +46,11 @@ public class ConfigParamService {
 	public String getDeviceDashboardUrl() {
 		return (String) configRepo.findParameter("STATION_DASHBOARD");
 	}
-	
+
+	public Object getConfig(String configParam) {
+		return configRepo.findParameter(configParam);
+	}
+	public void updateConfig(String configParam, String value, String type) {
+		configRepo.saveOrUpdateParameter(configParam, value, type);
+	}
 }

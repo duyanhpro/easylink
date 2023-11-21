@@ -24,7 +24,13 @@ public interface RuleRepository extends JpaRepository<Rule, Integer> {
 	@Query("select rs.deviceToken from RuleDevice rs where rs.ruleId = ?1")
 	List<String> findDeviceTokenByRule(int ruleId);		// todo:  change token need to update this table!
 
+	@Query("select d.deviceToken from RuleGroup rg, DeviceGroup dg, Device d where rg.ruleId = ?1 and rg.groupId = dg.groupId and dg.deviceId = d.id")
+	List<String> findDeviceTokenByRuleFromGroup(int ruleId);		// todo:  change token need to update this table!
+
 	List<Rule> findByStatus(int statusActive);
+
+	@Query("select ug.groupId from UserGroup ug, Rule r where r.id = :ruleId and ug.userId = r.createdUser and ug.inherit = false")
+	Integer findCreatedUserGroup(int ruleId);
 
 	@Query("delete from RuleDevice rs where rs.ruleId = ?1")
 	@Transactional

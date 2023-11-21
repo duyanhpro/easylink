@@ -41,13 +41,13 @@ public class DeviceController extends BaseController {
 
 		if (id == 0) {
 			log.debug("Create new device");
-			model.addAttribute("pageTitle", "Tạo mới trạm");
+			model.addAttribute("pageTitle", "Tạo mới thiết bị");
 			SecurityUtil.authorize("device", "create");
 			
 			model.addAttribute("action", "create");
 			model.addAttribute("device", new Device());
 		} else {
-			model.addAttribute("pageTitle", "Cập nhật trạm");
+			model.addAttribute("pageTitle", "Cập nhật thiết bị");
 			log.debug("Showing detail of device id {}", id);
 			model.addAttribute("action", "update");
 			

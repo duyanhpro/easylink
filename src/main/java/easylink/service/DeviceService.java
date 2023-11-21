@@ -3,7 +3,6 @@ package easylink.service;
 import java.util.*;
 
 import easylink.dto.DeviceGroupDto;
-import easylink.dto.DeviceListDto;
 import easylink.dto.Location;
 import easylink.entity.Device;
 import easylink.entity.DeviceGroup;
@@ -38,6 +37,8 @@ public class DeviceService {
 	GroupRepository groupRepo;
 	@Autowired
 	DeviceGroupRepository dgRepo;
+	@Autowired
+	LicenseService licenseService;
 
 	// Find all belong to this user
 	public List<DeviceGroupDto> findMyDeviceWithGroup() {
@@ -75,6 +76,9 @@ public class DeviceService {
 //		return repo.findDeviceListDto();
 //	}
 
+	public List<Device> findAll() {
+		return repo.findAll();
+	}
 	public List<Device> findAllActive() {
 		return repo.findAllByStatus(Device.STATUS_ACTIVE);
 	}
@@ -89,7 +93,7 @@ public class DeviceService {
 	}
 
 	public List<String> findAllStreet() {
-		log.debug(repo.findAllStreet().toString());
+		//log.debug(repo.findAllStreet().toString());
 		return repo.findAllStreet();
 	}
 
@@ -108,8 +112,15 @@ public class DeviceService {
 	@CacheEvict(cacheNames = "device",key = "#device.deviceToken")
 	public Device createOrUpdate(Device device) {
 		log.debug("Saving device: {}", device);
+
+
 //		try {
 			if (device.getId() == null) {    // new device
+				// Check license
+				if (!licenseService.checkLicenseAddDevice()) {
+					throw new ServiceException("Đã hết hạn mức license. Không thể thêm mới thiết bị");
+				}
+
 				Device d = repo.save(device);
 				updateDeviceGroupRelationship(device);
 				return d;
@@ -158,4 +169,7 @@ public class DeviceService {
 		return repo.save(cam);
 	}
 
+	public Long countDevice() {
+		return repo.count();
+	}
 }

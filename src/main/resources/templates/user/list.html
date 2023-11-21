@@ -63,8 +63,10 @@
 					<tr>
 						<th style="width: 20px" align="center">STT</th>
 <!-- 						<th style="width: 20px">ID</th> -->
-						<th>Username</th>
+						<th>Tài khoản</th>
 						<th>Email</th>
+						<th>Nhóm</th>
+						<th>Quyền</th>
 						<th>Trạng thái</th>
 						<th>Thao tác</th>
 					</tr>
@@ -75,6 +77,8 @@
 <!-- 						<td th:text="${user.id}"></td> -->
 						<td><a th:href="@{'/user/view/' + ${user.id}}">[[${user.username}]]</a></td>
 						<td>[[${user.email}]]</td>
+						<td>[[${user.group}]]</td>
+						<td>[[${user.role}]]</td>
 						<div th:switch="${user.status}">
 							<td th:case="'1'">Kích hoạt</td>
 							<td th:case="'0'">Khóa</td>

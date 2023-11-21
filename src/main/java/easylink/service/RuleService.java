@@ -1,10 +1,9 @@
 package easylink.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
+import easylink.entity.Device;
 import easylink.entity.Rule;
 import easylink.entity.RuleDevice;
 import easylink.entity.RuleGroup;
@@ -38,6 +37,8 @@ public class RuleService {
 	
 	@Autowired
     DeviceRepository deviceRepo;
+	@Autowired
+	DeviceService deviceService;
 	
 	@Autowired
 	RuleDeviceRepository rsRepo;
@@ -95,13 +96,20 @@ public class RuleService {
 	}
 
 	// Check if rule apply to this device
-	// TODO: check for group: direct group & children group
+	// TODO: cache this
 	public boolean isApplied(Rule r, String deviceToken) {
 		if (r.getScope() == Rule.SCOPE_ALL_DEVICES)
 			return true;
+		// Find from rule_device and rule_group, then merge 2 list to find devices
 		List<String> deviceTokens = repo.findDeviceTokenByRule(r.getId());
 		if (deviceTokens.contains(deviceToken))
 			return true;
+
+		// Find from rule_group, then check
+		deviceTokens = repo.findDeviceTokenByRuleFromGroup(r.getId());
+		if (deviceTokens.contains(deviceToken))
+			return true;
+
 		return false;
 	}
 
@@ -121,6 +129,7 @@ public class RuleService {
 	public void saveRuleGroupLink(Rule r, Integer[] groupIds) {
 		// remove all old rule-device link
 		repo.deleteRuleGroupLink(r.getId());
+		repo.deleteRuleGroupLink(r.getId());
 
 		if (groupIds == null) return;
 		// save new rule-device link
@@ -130,6 +139,23 @@ public class RuleService {
 			rgRepo.save(rg);
 		}
 	}
+
+//	public int findCommonParent(List<Integer> groupIds) {
+//
+//	}
+
+//	Map<Integer, Set<String>> ruleDeviceTokenMap = new ConcurrentHashMap<>(); //  map ruleId to Set<device_token>
+//	// Utitilty to improve performance when check which rules apply to which devices  (can do in-mem and at start-up to increase performance even more!!!)
+//	// TOdo: Need to update when:  CRUD device; CRUD group; CRUD rule!!!  Need to lock Set<> when update/refresh it
+//	// --> too much. Probably just do caching!
+//	public void generateAllRuleDeviceLink(Integer ruleId, Integer[] deviceIds, Integer[] groupIds) {
+//		Set<String> s = ruleDeviceTokenMap.get(ruleId);
+//		if (s==null) s = new HashSet<>();
+//		for (int id: deviceIds) {
+//			Device d = deviceService.findById(id);
+//			.......
+//		}
+//	}
 
 	/**
 	 * Validate condition expression.  Return true if expression is valid
@@ -162,4 +188,19 @@ public class RuleService {
 			return false;
 		}
     }
+
+	/**
+	 * Get permission to rule ID.  True if user can edit that rule, false or null if not
+	 * User in same group or parent group can edit.
+	 * @return
+	 */
+	public Map<Integer, Boolean> getMyPermission() {
+		// Get list of group that this user have access
+
+		// Get list of rule and the group of its created user!
+
+		// build result map
+
+		return null;
+	}
 }

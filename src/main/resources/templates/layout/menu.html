@@ -21,12 +21,13 @@
                     <a th:href="@{/rule}"><i class="ti-wand"></i><span>Luật cảnh báo</span></a>
                 </li>
                 
-                <li th:if="${session.principal.hasPermission('user:list') || session.principal.hasPermission('group:list') || session.principal.hasPermission('role:list')}" >
+                <li th:if="${session.principal.hasRole('ADMIN')}" >
                     <a href="javascript: void(0);"><i class="ti-panel"></i><span>Quản trị hệ thống</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                     <ul class="nav-second-level" aria-expanded="false">
                         <li class="nav-item"><a class="nav-link" th:if="${session.principal.hasPermission('user:list')}" th:href="@{/user}"><i class="ti-user"></i>QL Người dùng</a></li>
                         <li class="nav-item"><a class="nav-link" th:if="${session.principal.hasPermission('group:list')}" th:href="@{/group}"><i class="fas fa-users"></i>QL Nhóm</a></li>
                         <li class="nav-item"><a class="nav-linrk" th:if="${session.principal.hasPermission('role:list')}" th:href="@{/role}"><i class="ti-lock"></i>QL Quyền</a></li>
+                        <li class="nav-item"><a class="nav-linrk" th:if="${session.principal.hasPermission('license:view')}" th:href="@{/license}"><i class="ti-key"></i>QL License</a></li>
                     </ul>
                 </li>                   
              </ul>

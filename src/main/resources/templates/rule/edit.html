@@ -123,14 +123,30 @@
 								<select class="form-control select2" style="width: 100%;" name="alarmLevel">
 								<option th:each="l : ${T(easylink.dto.AlarmLevel).values()}"
                 					th:selected="${alarm.alarmLevel == l.name()}" th:value="${l}" th:text="${l}"></option>
-                			
-						</select>
+								</select>
+							</div>
+							<div class="col-sm-1">
+								<i class="dripicons-question" data-toggle="modal" data-target="#helpModal2" style="font-size: 1.5em;"></i>
 							</div>
 						</div>
 						<div class="form-group row">
 							<label for="alarmType" class="col-sm-3 col-form-label">Loại cảnh báo (Tag)</label>
 							<div class="col-sm-3">
 								<input type="text" class="form-control" id="alarmType" name="alarmType" th:value="${alarm.alarmType}">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="lstGroup" class="col-sm-3 col-form-label">Nhóm được áp dụng</label>
+							<div class="col-sm-5">
+								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm được áp dụng luật"
+										name="groupIds" multiple>
+									<option th:each="s : ${allGroups}" th:value="${s.id}" th:selected="${groups !=null && groups.contains(s.id)}">[[${s.name}]]</option>
+								</select>
+							</div>
+
+							<div class="col-sm-2 custom-control custom-checkbox" style="display: none;">
+								<input type="checkbox" class="custom-control-input" id="allDevice" name="allDevice" th:checked="${rule.scope==1}">
+								<label class="custom-control-label" for="allDevice">Áp dụng cả nhóm cấp dưới</label>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -142,20 +158,8 @@
 		                      </select>
 							</div>
 
-							<div class="col-sm-2 custom-control custom-checkbox" style="display: none;">
-								<input type="checkbox" class="custom-control-input" id="allDevice" name="allDevice" th:checked="${rule.scope==1}">
-								<label class="custom-control-label" for="allDevice">Tất cả</label>
-							</div>
 						</div>
-						<div class="form-group row">
-							<label for="lstGroup" class="col-sm-3 col-form-label">Nhóm được áp dụng</label>
-							<div class="col-sm-5">
-								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm được áp dụng luật"
-										name="groupIds" multiple>
-									<option th:each="s : ${allGroups}" th:value="${s.id}" th:selected="${groups !=null && groups.contains(s.id)}">[[${s.name}]]</option>
-								</select>
-							</div>
-						</div>
+
 						<div class="form-group row">
 							<label for="interval" class="col-sm-3 col-form-label">Thời gian tối thiểu giữa các lần kích hoạt (giây)</label>
 							<div class="col-sm-5">
@@ -169,8 +173,8 @@
 						<div class="col-sm-3"></div>
 						<div class="col-sm-5 text-right">
 							<a th:href="@{/rule/}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
-							<an th:if="${session.principal.hasRole('ADMIN')}"  class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${rule.id}','@{/rule/delete/}')|" href="#">[[#{delete}]]</an>
-							<button th:if="${session.principal.hasRole('ADMIN')}"  type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
+							<an th:if="${session.principal.hasRole('ADMIN')  && isRoot}"  class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${rule.id}','@{/rule/delete/}')|" href="#">[[#{delete}]]</an>
+							<button th:if="${session.principal.hasRole('ADMIN')  && isRoot}"  type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 						</div>
 					</div>
 					
@@ -192,7 +196,7 @@
 				<p><strong>Cảnh báo sẽ được kích hoạt (theo cấu hình) khi biểu thức điều kiện đạt giá trị True.</strong></p>
 				<p>Trong công thức điều kiện này hỗ trợ các toán tử AND, OR và cho phép so sánh / tính toán trên các trường của dữ liệu đầu vào.</p>
 				<p>-&nbsp; C&aacute;c to&aacute;n tử so sánh:&nbsp; &nbsp;== (bằng nhau), != (khác), >=, <=</p>
-				<p>-&nbsp; C&aacute;c to&aacute;n tử hỗ trợ:&nbsp; &nbsp;AND, OR</p>
+				<p>-&nbsp; C&aacute;c to&aacute;n tử logic:&nbsp; &nbsp;AND, OR</p>
 				<p>- Phủ định:&nbsp; d&ugrave;ng dấu ! trước biểu thức cần phủ định</p>
 				<p>- Lấy trường từ dữ liệu của thiết bị gửi l&ecirc;n:&nbsp;&nbsp;d&ugrave;ng k&yacute; hiệu # trước t&ecirc;n trường cần lấy</p>
 				<p>- So sánh chuỗi (kiểu String):  #my_var.equals("chuỗi cần so sánh")</p>
@@ -201,6 +205,27 @@
 				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi tổng điện &aacute;p 2 cảm biến &gt; 500V:&nbsp; &nbsp;(#vol1 + #vol2) &gt; 500</p>
 				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi cổng 1 hoặc cổng 2 bị mở:&nbsp; &nbsp;#door1==0 OR #door2==0</p>
 				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi cảm biến cur2 bị lỗi:  #cur2.equals("error")</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade " id="helpModal2" tabindex="-1" aria-labelledby="helpModalLabel2" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="helpModalLabel2">Các mức cảnh báo</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+			</div>
+			<div class="modal-body">
+				<!-- Add your help content here -->
+				<p><strong>Info</strong>:  Cảnh báo mang tính chất thông tin, không ảnh hưởng hoạt động của hệ thống</p>
+				<p><strong>Warning</strong>:  Cảnh báo các vấn đề nhỏ, không đúng mong muốn nhưng không ảnh hưởng nhiều tới hệ thống</p>
+				<p><strong>Error</strong>:  Cảnh báo các lỗi xảy ra, cần có phương án xử lý </p>
+				<p><strong>Critical</strong>:  Lỗi nghiêm trọng, cần xử lý khẩn cấp</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -5,6 +5,7 @@
     "login" : "layout/login",
     "error" : "layout/error",
     "map/device-map": "layout/map",
-    "tree":  "layout/groupTree"
+    "tree":  "layout/groupTree",
+    "license": "layout/simple"
     }
 }

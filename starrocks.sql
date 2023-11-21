@@ -76,9 +76,9 @@ PROPERTIES (
     "table" = "tbl_device"
 );
 
--- easylink.sensor_data2 definition
+-- easylink.sensor_data definition
 
-CREATE TABLE `sensor_data2` (
+CREATE TABLE `sensor_data` (
                                 `device_token` varchar(255) NOT NULL COMMENT "",
                                 `event_time` datetime NOT NULL COMMENT "",
                                 `temp1` decimal64(16, 2) NULL COMMENT "",
@@ -107,3 +107,9 @@ PROPERTIES (
 "replicated_storage" = "true",
 "compression" = "LZ4"
 );
+
+CREATE MATERIALIZED VIEW user_device_view
+DISTRIBUTED BY HASH(`user_id`)
+REFRESH ASYNC EVERY (INTERVAL 30 SECOND)
+AS
+select distinct ug.user_id, d.device_token from user_group ug join device_group dg, device d where d.id = dg.device_id and ug.group_id = dg.group_id;

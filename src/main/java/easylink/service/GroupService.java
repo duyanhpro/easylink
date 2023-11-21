@@ -35,7 +35,10 @@ public class GroupService {
 	DeviceGroupRepository dgRepo;
 	@Autowired
 	DeviceService deviceService;
-	
+
+	public List<Group> findAll() {
+		return repo.findAll();
+	}
 	public Set<Group> findAllMyGroups() {
 		return findGroupAndChilrenGroup(SecurityUtil.getUserDetail().getUserId());
 		//return repo.findAllByOrderByNameAsc();
@@ -122,59 +125,59 @@ public class GroupService {
 		return g;
 	}
 
-	/**
-	 * Update user_group table & device_group table to reflect new group hierachy when parent change
-	 * @param groupId
-	 * @param oldParentId:  null when create new group
-	 * @param newParentId
-	 */
-	public void updateGroupTreeWip(int groupId, Integer oldParentId, Integer newParentId) {
-
-		// Truong hop tao moi group.  Chua co group con, chua co device nao -> easy
-		// --> user-group bo sung them link toi cac user cua nut cha;  device-group khong thay doi
-
-
-		// Truong hop sua group, chuyen sang new parent
-		// device-group:  old-parent & cac grandparent:   xoa link toi cac device cua nhom nay
-		//				  new-parent & cac grandparent:  them link toi device cua group nay (all including inherit)
-		// user-group:    old-parent & grandparent:  tim cac user, xoa link toi group nay va cac group con
-		//				  new parent & grandparent:  tim cac user cua parent, them link toi group nay va cac group con
-
-		// 1. add device-group relationship for all parents:
-		// devices belong directly or to children of this group will have relationship with new parents (including grantParents)
-		List<Integer> devices = dgRepo.findAllDeviceIdByGroup(groupId);	// this group's devices, including inherit
-		// Remove link of those devices with all old parents
-		if (oldParentId != null) {
-			Set<Integer> oldParentIds = findAllParentIds(oldParentId);
-			oldParentIds.add(oldParentId);
-			for (Integer i : devices) {
-				for (Integer p : oldParentIds) {
-					dgRepo.deleteByDeviceIdAndGroupId(i, p);
-				}
-			}
-		}
-		// Add link to new parents
-		Set<Integer> newParentIds = findAllParentIds(newParentId);
-		newParentIds.add(newParentId);
-		for (Integer i: devices) {
-			for (Integer p: newParentIds)
-				dgRepo.save(new DeviceGroup(i, p, true));
-		}
-
-		// TODO: 2. Update user-group relationship
-		// User of old parent ID and its parent:  remove link with this group
-		// User of new parent ID and all its parent:  add link to this group
-		// OR:  find list 1 all oldParentIds, find list 2 all new ParentIds.
-		//  remove which is in list1, not in list 2.  Add which is in list2, except what already in list 1
-
-		// for new parent ID, remove inherited link to oldParentId
-		// Note:  user-group link could be from many different group (not just this group!) --> how to know which to remove
-		// --> rebuild entire table???
-		// users belong directly to this group and grand-parent will have relationship with all children group
-		List<Integer> userIds = ugRepo.findAllUserIdByGroup(groupId);
-		// remove user-group link of oldParentId and all parents of it
-
-	}
+//	/**
+//	 * Update user_group table & device_group table to reflect new group hierachy when parent change
+//	 * @param groupId
+//	 * @param oldParentId:  null when create new group
+//	 * @param newParentId
+//	 */
+//	public void updateGroupTreeWip(int groupId, Integer oldParentId, Integer newParentId) {
+//
+//		// Truong hop tao moi group.  Chua co group con, chua co device nao -> easy
+//		// --> user-group bo sung them link toi cac user cua nut cha;  device-group khong thay doi
+//
+//
+//		// Truong hop sua group, chuyen sang new parent
+//		// device-group:  old-parent & cac grandparent:   xoa link toi cac device cua nhom nay
+//		//				  new-parent & cac grandparent:  them link toi device cua group nay (all including inherit)
+//		// user-group:    old-parent & grandparent:  tim cac user, xoa link toi group nay va cac group con
+//		//				  new parent & grandparent:  tim cac user cua parent, them link toi group nay va cac group con
+//
+//		// 1. add device-group relationship for all parents:
+//		// devices belong directly or to children of this group will have relationship with new parents (including grantParents)
+//		List<Integer> devices = dgRepo.findAllDeviceIdByGroup(groupId);	// this group's devices, including inherit
+//		// Remove link of those devices with all old parents
+//		if (oldParentId != null) {
+//			Set<Integer> oldParentIds = findAllParentIds(oldParentId);
+//			oldParentIds.add(oldParentId);
+//			for (Integer i : devices) {
+//				for (Integer p : oldParentIds) {
+//					dgRepo.deleteByDeviceIdAndGroupId(i, p);
+//				}
+//			}
+//		}
+//		// Add link to new parents
+//		Set<Integer> newParentIds = findAllParentIds(newParentId);
+//		newParentIds.add(newParentId);
+//		for (Integer i: devices) {
+//			for (Integer p: newParentIds)
+//				dgRepo.save(new DeviceGroup(i, p, true));
+//		}
+//
+//		// TODO: 2. Update user-group relationship
+//		// User of old parent ID and its parent:  remove link with this group
+//		// User of new parent ID and all its parent:  add link to this group
+//		// OR:  find list 1 all oldParentIds, find list 2 all new ParentIds.
+//		//  remove which is in list1, not in list 2.  Add which is in list2, except what already in list 1
+//
+//		// for new parent ID, remove inherited link to oldParentId
+//		// Note:  user-group link could be from many different group (not just this group!) --> how to know which to remove
+//		// --> rebuild entire table???
+//		// users belong directly to this group and grand-parent will have relationship with all children group
+//		List<Integer> userIds = ugRepo.findAllUserIdByGroup(groupId);
+//		// remove user-group link of oldParentId and all parents of it
+//
+//	}
 
 	public void updateGroupTree(int groupId, Integer oldParentId, Integer newParentId) {
 		// lam kieu tho thien nhat

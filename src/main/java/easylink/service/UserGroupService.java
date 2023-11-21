@@ -70,8 +70,17 @@ public class UserGroupService {
 		// todo: missign new group that have no user (but upper user can still manage)
 	}
 
+	// find groups directly link to this user
 	public List<Group> findGroupByUserIdNoInherit(int userId) {
 		return ugRepo.findByUserIdNoInherit( userId);
+	}
+
+	public boolean isInRootGroup(int userId) {
+		List<Group> lg = ugRepo.findByUserIdNoInherit(userId);
+		for (Group g: lg) {
+			if (g.getId() == 1) return true;
+		}
+		return false;
 	}
 	
 	public List<String> findGroupNameByUserId(int userId) {

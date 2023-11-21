@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<th:block th:replace="layout/head"></th:block>
+<th:block th:replace="layout/head"></th:block>  
 
 <body>
 	
@@ -46,19 +46,11 @@
                         [[${infoMsg}]].
                     </div>
 
+                    <div th:replace="${RESULT_PAGE}">
+                        PAGE CONTENT GOES HERE !!!
+                    </div>
 
 
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-									<div th:replace="${RESULT_PAGE}">
-										PAGE CONTENT GOES HERE !!!
-									</div>
-								</div>
-							</div>
-                        </div> <!-- end col -->
-                    </div> <!-- end row --> 
                     
                 </div><!-- container -->
         

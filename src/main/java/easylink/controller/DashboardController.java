@@ -23,7 +23,7 @@ public class DashboardController extends BaseController {
 	@GetMapping("/deviceDashboard")
 	@NeedPermission("device:dashboard")
 	public String deviceDashboard(Model model) {
-		model.addAttribute("pageTitle", "Giám sát trạm");
+		model.addAttribute("pageTitle", "Giám sát thiết bị");
 		model.addAttribute("deviceDashboard", configService.getDeviceDashboardUrl()
 				+ "&var-user_id=" + SecurityUtil.getUserDetail().getUserId());
 		return "dashboard/device";
