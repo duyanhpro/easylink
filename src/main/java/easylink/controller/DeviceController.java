@@ -7,6 +7,7 @@ import easylink.security.NeedPermission;
 import easylink.security.SecurityUtil;
 import easylink.service.DeviceService;
 import easylink.service.DeviceStatusService;
+import easylink.service.DeviceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,9 @@ public class DeviceController extends BaseController {
 
 	@Autowired
 	DeviceStatusService deviceStatusService;
+
+	@Autowired
+	DeviceTypeService deviceTypeService;
 
 	// List & Search device
 	@NeedPermission("device:list")
@@ -60,6 +64,7 @@ public class DeviceController extends BaseController {
 		model.addAttribute("cities", deviceService.findAllCity());
 		model.addAttribute("tags", deviceService.findAllTags());
 		model.addAttribute("allGroups", groupService.findAllMyGroups());
+		model.addAttribute("deviceTypes", deviceTypeService.findAll());
 		
 		return "device/edit";
 	}

@@ -9,7 +9,7 @@ import java.util.concurrent.*;
 
 import easylink.common.Constant;
 import easylink.entity.Device;
-import easylink.entity.DeviceType;
+import easylink.entity.DeviceSchema;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -64,7 +64,7 @@ public class MqttService {
 	@Autowired
 	DeviceStatusService deviceStatusService;
 	@Autowired
-	DeviceTypeService deviceTypeService;
+	DeviceSchemaService schemaService;
 
 	IMqttClient client;
 
@@ -128,8 +128,8 @@ public class MqttService {
 	}
 
 	public void subscribeTelemetry() {
-		List<DeviceType> ld = deviceTypeService.findAll();
-		for (DeviceType d: ld) {
+		List<DeviceSchema> ld = schemaService.findAll();
+		for (DeviceSchema d: ld) {
 			try {
 				log.info("Subscribe to MQTT topic: " + d.getTopic());
 				client.subscribe(d.getTopic(), (topic, msg) -> {
@@ -196,6 +196,7 @@ public class MqttService {
 			data.put("event_time", new Date());	// use system time if message does not have "event_time"
 		if (!data.containsKey(Constant.DEVICE_TOKEN))
 			data.put(Constant.DEVICE_TOKEN, deviceToken);  // get device token from mqtt topic
+
 		return true;
 	}
 

@@ -1,0 +1,56 @@
+<style>
+	.no-margin-top {
+		margin-top: 0px;
+	}
+</style>
+<script type="text/javascript">
+
+</script>
+
+<script>
+	function goBack() {
+	  window.history.back();
+	}
+	
+	function toggleFullScreen() {
+		console.log("Go full-screen");
+		// $('.topbar').toggle();			// toggle hide/show
+		// $('.left-sidenav').toggle();
+		// //$('.page-wrapper').css("margin-top","0");
+		// $('.page-wrapper').toggleClass("no-margin-top");
+		const iframe = document.getElementById('myIframe');
+		if (!document.fullscreenElement) {
+			iframe.requestFullscreen().catch((err) => {
+				console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+			});
+		} else {
+			document.exitFullscreen();
+		}
+	}
+	
+	$(document).ready(function() {
+		$("#full-screen").show();
+		$("#full-screen").click(function() {
+			toggleFullScreen();
+		});
+	});
+	
+</script>
+
+<!-- Content Header (Page header) -->
+<section class="content">
+      
+      <div class="embed-responsive embed-responsive-16by9">
+  			<iframe id="myIframe" th:src="${dashboardUrl}" ></iframe>
+		</div>
+      <!-- /.row -->
+      
+    
+      <!-- /.row -->
+        
+	<div class="box box-default">
+		
+		
+		
+	</div>
+</section>

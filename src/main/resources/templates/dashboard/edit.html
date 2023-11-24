@@ -1,0 +1,77 @@
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+        //console.log($('#status').prop("checked"));
+        if($('#status').prop("checked")) {
+                $('#statusLabel').text("Kích hoạt");
+            } else {
+            	$('#statusLabel').text("Khóa");
+            }
+        
+        $('#status').change(function() {
+            if(this.checked) {
+                $('#statusLabel').text("Kích hoạt");
+            } else {
+            	$('#statusLabel').text("Khóa");
+            }
+        });
+
+	});
+</script>
+
+<section class="content">
+
+            <div class="col-xs-12">
+			<div class="box box-info">
+				<!-- form start -->
+				<form class="form-horizontal form-parsley" th:action="@{/dashboard/save}" method="post">
+				
+					<input type="hidden" id="id" name="id" th:value="${dashboard.id}">
+					
+					<div class="box-body">
+						<div class="form-group row">
+							<label for="name" class="col-sm-3 control-label col-form-label">Tên Dashboard *</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="name" name="name"
+									   th:value="${dashboard.name}" required data-parsley-error-message="Tên không được bỏ trống">
+							</div>
+						</div>
+						<div class="form-group row" hidden>
+							<label class="col-sm-3 control-label text-right">Trạng thái</label>
+							<div class="col-sm-5">
+								<div class="custom-control custom-switch switch-primary">
+									<input value="1" type="checkbox" name="status" class="custom-control-input" id="status" th:checked="${dashboard.status==1}">
+									<label id="statusLabel" class="custom-control-label" for="status"></label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="name" class="col-sm-3 control-label col-form-label">Mô tả</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="description" name="description"
+									   th:value="${dashboard.description}" >
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="name" class="col-sm-3 control-label col-form-label">URL *</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="url" name="url"
+									   th:value="${dashboard.url}" required data-parsley-error-message="URL không được bỏ trống">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+					<div class="row">
+						<div class="col-sm-3"></div>
+						<div class="col-sm-5 text-right">
+							<a th:href="@{/dashboard/list}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
+							<a th:if="${action!='create' && dashboard.id!=1}" class="btn btn-danger" th:attr="onclick=|confirmDelete('${dashboard.id}','@{/dashboard/delete/}')|" href="#">[[#{delete}]]</a>
+							<button id="submitButton" type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+</section>

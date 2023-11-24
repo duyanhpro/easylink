@@ -1,6 +1,7 @@
 package easylink.controller;
 
 import easylink.dto.ActionCreateAlarm;
+import easylink.dto.RuleAlarmDto;
 import easylink.entity.Rule;
 import easylink.exception.AccessDeniedException;
 import easylink.security.NeedPermission;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import vn.vivas.core.util.JsonUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/rule")
@@ -35,6 +39,12 @@ public class RuleController extends BaseController {
 	public String list(Model model) {
 		model.addAttribute("pageTitle", "Quản lý luật cảnh báo");
 		model.addAttribute("rules", ruleService.findAll());
+		List<RuleAlarmDto> rl = new ArrayList<>();
+		for (Rule r: ruleService.findAll()) {
+			RuleAlarmDto ra = new RuleAlarmDto(r, JsonUtil.parse(r.getAction(), ActionCreateAlarm.class));
+			rl.add(ra);
+		}
+		model.addAttribute("ras", rl);
 		model.addAttribute("isRoot", ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
 
 		//model.addAttribute("permissions", ruleService.getMyPermission());
@@ -54,7 +64,7 @@ public class RuleController extends BaseController {
 		model.addAttribute("allDevices", deviceService.findAll());
 		model.addAttribute("groups", ruleService.findAppliedGroupIds(id));
 		model.addAttribute("allGroups", groupService.findAll());
-		model.addAttribute("isRoot", ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
+		model.addAttribute("isRoot", SecurityUtil.hasRole("ADMIN") && ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
 		return "rule/edit";
 	}
 	
@@ -68,7 +78,7 @@ public class RuleController extends BaseController {
 		model.addAttribute("alarm", new ActionCreateAlarm());
 		model.addAttribute("allDevices", deviceService.findAll());
 		model.addAttribute("allGroups", groupService.findAll());
-		model.addAttribute("isRoot", ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
+		model.addAttribute("isRoot", SecurityUtil.hasRole("ADMIN") && ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
 		return "rule/edit";
 	}
 	

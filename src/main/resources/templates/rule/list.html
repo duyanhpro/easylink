@@ -63,26 +63,26 @@
 					<th style="width: 20px" align="center">STT</th>
 					<th>Tên</th>
 					<th>Điều kiện</th>
-					<th>Hành động</th>
+					<th>Nội dung cảnh báo</th>
 					<th>Trạng thái</th>
 					<th>Thao tác</th>
 				</tr>
 				</thead>
 				<tbody>
-				<tr th:each="r,iterationStatus  : ${rules}">
+				<tr th:each="r,iterationStatus  : ${ras}">
 					<td th:text="${iterationStatus.count}">1</td>
-					<td><a th:href="@{'/rule/view/' + ${r.id}}">[[${r.name}]]</a></td>
-					<td th:text="${r.condition}"></td>
-					<td th:text="${r.actionType}"></td>
-					<div th:switch="${r.status}">
+					<td><a th:href="@{'/rule/view/' + ${r.rule.id}}">[[${r.rule.name}]]</a></td>
+					<td th:text="${r.rule.condition}"></td>
+					<td th:text="${r.alarm.alarmContent}"></td>
+					<div th:switch="${r.rule.status}">
 						<td th:case="'1'">Kích hoạt</td>
 						<td th:case="'0'">Khóa</td>
 						<td th:case="*">Unknown status</td>
 					</div>
 					<td>
-						<a class="btn btn-gradient-primary" th:href="@{'/rule/view/' + ${r.id}}">Chi tiết</a>
+						<a class="btn btn-gradient-primary" th:href="@{'/rule/view/' + ${r.rule.id}}">Chi tiết</a>
 						<a  th:if="${session.principal.hasRole('ADMIN') && isRoot}" class="btn btn-gradient-danger"
-							th:attr="onclick=|confirmDelete('${r.id}','@{/rule/delete/}')|" href="#" >[[#{delete}]]</a>
+							th:attr="onclick=|confirmDelete('${r.rule.id}','@{/rule/delete/}')|" href="#" >[[#{delete}]]</a>
 					</td>
 				</tr>
 				</tbody>

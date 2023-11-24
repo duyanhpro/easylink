@@ -2,11 +2,14 @@
         <div class="left-sidenav">
             <ul class="metismenu left-sidenav-menu">
                 <li>
-                    <a th:href="@{/dashboard}"><i class="ti-home"></i><span>Dashboard</span></a>
+                    <a th:href="@{/dashboard/main}"><i class="ti-home"></i><span>Dashboard</span></a>
                 </li>
 
                 <li>
-                    <a th:href="@{/deviceDashboard}"><i class="ti-signal"></i><span>Giám sát</span></a>
+                    <a th:href="@{/dashboard/device}"><i class="ti-signal"></i><span>Giám sát</span></a>
+                </li>
+                <li>
+                    <a th:href="@{/dashboard/list}"><i class="ti-signal"></i><span>Dashboard NEW</span></a>
                 </li>
                 <li>
                     <a th:href="@{/map}"><i class="ti-map-alt"></i><span>Bản đồ thiết bị</span></a>
@@ -27,7 +30,7 @@
                         <li class="nav-item"><a class="nav-link" th:if="${session.principal.hasPermission('user:list')}" th:href="@{/user}"><i class="ti-user"></i>QL Người dùng</a></li>
                         <li class="nav-item"><a class="nav-link" th:if="${session.principal.hasPermission('group:list')}" th:href="@{/group}"><i class="fas fa-users"></i>QL Nhóm</a></li>
                         <li class="nav-item"><a class="nav-linrk" th:if="${session.principal.hasPermission('role:list')}" th:href="@{/role}"><i class="ti-lock"></i>QL Quyền</a></li>
-                        <li class="nav-item"><a class="nav-linrk" th:if="${session.principal.hasPermission('license:view')}" th:href="@{/license}"><i class="ti-key"></i>QL License</a></li>
+                        <li class="nav-item"><a class="nav-linrk" th:if="${session.isAdmin && session.isRoot}" th:href="@{/license}"><i class="ti-key"></i>QL License</a></li>
                     </ul>
                 </li>                   
              </ul>

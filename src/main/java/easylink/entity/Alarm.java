@@ -9,13 +9,7 @@ import easylink.dto.AlarmLevel;
 
 /**
  */
-@SuppressWarnings("serial")
-@Entity
-@Table(name = "tbl_alarm")
 public class Alarm {
-
-	@JsonIgnore
-	Integer id;
 
 	// Fields
 	private String deviceToken;
@@ -42,18 +36,6 @@ public class Alarm {
 		this.type = type;
 		this.level = level;
 		this.ruleId = ruleId;
-	}
-
-	// Property accessors
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	public Integer getId() {
-		return this.id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getDeviceToken() {

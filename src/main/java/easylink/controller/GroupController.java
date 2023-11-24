@@ -77,7 +77,7 @@ public class GroupController extends BaseController {
 	public String save(Model model, @ModelAttribute Group group, Integer[] userIds,
 			boolean isFormChanged, boolean isUserGroupChanged, 
 			RedirectAttributes redirectAttrs) {
-		log.info("Creating/Updating groupr {}", group.getName());
+		log.info("Creating/Updating group {}", group.getName());
 		log.debug("Group {}", group);
 		if (group.getId() == null) {
 			// create

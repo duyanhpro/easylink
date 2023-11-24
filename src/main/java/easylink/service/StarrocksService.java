@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import easylink.common.Constant;
 import easylink.dto.AlarmLevel;
 import easylink.entity.Alarm;
-import easylink.entity.DeviceType;
+import easylink.entity.DeviceSchema;
 import easylink.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -52,7 +51,7 @@ public class StarrocksService {
     int floatScale;
 
     @Autowired
-    DeviceTypeService deviceTypeService;
+    DeviceSchemaService deviceTypeService;
 
     public void insertData(Map<String, Object> data) {
         // TODO: find schema and redirect it to corresponding queue for each device type
@@ -81,9 +80,11 @@ public class StarrocksService {
                 while (true) {
                     // Check if it is time to insert
                     if ((batch.size() >= batchSize) || ((System.currentTimeMillis() - first) >= (batchMaxWaitTime *1000))) {
-                        insertBatchIntoDatabase(batch);
-                        // reset
-                        batch.clear();
+                        if (!batch.isEmpty()) {
+                            insertBatchIntoDatabase(batch);
+                            // reset
+                            batch.clear();
+                        }
                     }
 
                     Map<String, Object> m = messageQueue.poll();
@@ -279,7 +280,7 @@ public class StarrocksService {
         // Note: data already normalized
         // choose schema table from deviceToken
         String token = data.get(Constant.DEVICE_TOKEN).toString();
-        DeviceType dt = deviceTypeService.findFromDeviceToken(token);
+        DeviceSchema dt = deviceTypeService.findFromDeviceToken(token);
         if (dt==null) {
             log.error("Device Type not found");
         }
@@ -370,14 +371,14 @@ public class StarrocksService {
 
     private void insertBatchIntoDatabase(LinkedList<Map<String, Object>> batch) {
         // TODO: assume this batch of same schema types!  (will separate queue for each device types
-        log.info("Insert batch of " + batch.size());
+        log.debug("Insert batch of " + batch.size());
         long start = System.currentTimeMillis();
         Map<String, Object> _data = batch.get(0);
 
         // Note: data already normalized
         // choose schema table from deviceToken
         String token = _data.get(Constant.DEVICE_TOKEN).toString();
-        DeviceType dt = deviceTypeService.findFromDeviceToken(token);
+        DeviceSchema dt = deviceTypeService.findFromDeviceToken(token);
         if (dt==null) {
             log.error("Device Type not found");
         }
@@ -430,7 +431,12 @@ public class StarrocksService {
                         String typeReceived = value.getClass().getSimpleName();
                         //log.debug("Data field type: Received: {}, expected {}", typeReceived, typeInSchema);
                         try {
-                            if (typeInSchema.equals("Double") || typeInSchema.equals("Float")) {
+                            if (!typeInSchema.equals(typeReceived)) {
+                                // Neu truong mis-match (thuong la loi "error" thi insert null
+                                log.trace("Field {}:{} have incorrect type. Received: {}, expected {} --> insert null", entry.getKey(), value, typeReceived, typeInSchema);
+                                preparedStatement.setObject(parameterIndex, null);  // already normalized
+                            }
+                            else if (typeInSchema.equals("Double") || typeInSchema.equals("Float")) {
 
                                 //Double v = (Double)entry.getValue();
                                 BigDecimal decimalValue = new BigDecimal(value.toString());
@@ -447,12 +453,11 @@ public class StarrocksService {
                                 Date d = new Date(v);
                                 preparedStatement.setObject(parameterIndex, d);
 
-                            } else {    // String, Date (already formated, just save as is)
-                                preparedStatement.setObject(parameterIndex, value);  // already normalized
+                            }  else  {    // String, Date (already formated, just save as is)
+                                    preparedStatement.setObject(parameterIndex, value);  // already normalized
                             }
-
                         } catch (Exception e) {
-                            log.trace("Field {}:{} have incorrect type. Received: {}, expected {}", entry.getKey(), value, typeReceived, typeInSchema);
+                            log.trace("Loi khac:  Field {}:{} -> insert gia tri nulll", entry.getKey(), e);
                             preparedStatement.setObject(parameterIndex, null);
                         }
                         parameterIndex++;

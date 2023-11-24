@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import easylink.common.Constant;
+import easylink.service.UserGroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class WebAuthenticationSuccessHandler implements AuthenticationSuccessHan
 	
 	@Autowired
     UserAuthorizationService userService;
+	@Autowired
+	UserGroupService ugService;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -42,6 +45,10 @@ public class WebAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
 		// Set session attribute to use on thymeleaf HTML  (except "principal" is set inside SecurityUtil.onWebAu...Success
 		session.setAttribute(Constant.SESSION_USER, uad.getUser());
+
+		// Customize:  set value of session when user is in root group:
+		session.setAttribute("isAdmin", uad.getRoleCollection().contains("ADMIN"));
+		session.setAttribute("isRoot", ugService.isInRootGroup(uad.getUserId()));
 
 		//set our response to OK status
 		response.setStatus(HttpServletResponse.SC_OK);

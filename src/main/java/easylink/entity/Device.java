@@ -27,8 +27,9 @@ public class Device extends BaseEntity {
 	Float lat;
 	
 	private Integer status = STATUS_ACTIVE;
-	Integer deviceTypeId = 1;
+	Integer schemaId = 1;
 	Integer groupId = 0;
+	Integer typeId = 1;
 
 	public Integer getGroupId() {
 		return groupId;
@@ -131,12 +132,20 @@ public class Device extends BaseEntity {
 		this.lat = lat;
 	}
 
-	public Integer getDeviceTypeId() {
-		return deviceTypeId;
+	public Integer getSchemaId() {
+		return schemaId;
 	}
 
-	public void setDeviceTypeId(Integer deviceTypeId) {
-		this.deviceTypeId = deviceTypeId;
+	public void setSchemaId(Integer deviceTypeId) {
+		this.schemaId = deviceTypeId;
+	}
+
+	public Integer getTypeId() {
+		return typeId;
+	}
+
+	public void setTypeId(Integer typeId) {
+		this.typeId = typeId;
 	}
 
 	@Override
@@ -154,8 +163,9 @@ public class Device extends BaseEntity {
 				", lon=" + lon +
 				", lat=" + lat +
 				", status=" + status +
-				", deviceTypeId=" + deviceTypeId +
+				", schemaId=" + schemaId +
 				", groupId=" + groupId +
+				", typeId=" + typeId +
 				'}';
 	}
 
