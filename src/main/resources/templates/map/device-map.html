@@ -145,26 +145,32 @@
 
 //        // handle marker popup
 //        marker.bindPopup("<b>Hello world!</b><br>I am a popup."); //.openPopup();
+// 		var greenIcon = L.icon({
+// 			//iconUrl: '/img/cam_glossy_50x50.png',
+// 			iconUrl: [[@{'/img/charging-station-green.png'}]],
+// 			iconSize:     [32, 32], // size of the icon
+// 			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+// 			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
+// 		});
 		var greenIcon = L.icon({
 			//iconUrl: '/img/cam_glossy_50x50.png',
-			iconUrl: [[@{'/img/charging-station-green.png'}]],
-			iconSize:     [32, 32], // size of the icon
-			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
-			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
+			iconUrl: [[@{'/img/telco-green.png'}]],
+			iconSize:     [48, 48], // size of the icon
+			iconAnchor:   [32, 32], // point of the icon which will correspond to marker's location
+			popupAnchor:  [-8,-32] // point from which the popup should open relative to the iconAnchor
 		});
 		var redIcon = L.icon({
-			iconUrl: [[@{'/img/charging-station-red.png'}]],
-			iconSize:     [32, 32], // size of the icon
-			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
-			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
+			iconUrl: [[@{'/img/telco-red.png'}]],
+			iconSize:     [48, 48], // size of the icon
+			iconAnchor:   [32, 32], // point of the icon which will correspond to marker's location
+			popupAnchor:  [-8,-32], // point from which the popup should open relative to the iconAnchor
 			className: 'blinking'   // to make icon blinking
 		});
 		var grayIcon = L.icon({
-			iconUrl: [[@{'/img/charging-station-gray.png'}]],
-			iconSize:     [32, 32], // size of the icon
-			iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
-			popupAnchor:  [0,-16], // point from which the popup should open relative to the iconAnchor
-			className: 'blinking'   // to make icon blinking
+			iconUrl: [[@{'/img/telco-gray.png'}]],
+			iconSize:     [48, 48], // size of the icon
+			iconAnchor:   [32, 32], // point of the icon which will correspond to marker's location
+			popupAnchor:  [-8,-32] // point from which the popup should open relative to the iconAnchor
 		});
 		//var markerList = [];
 

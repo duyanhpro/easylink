@@ -1,5 +1,6 @@
 package easylink.repository;
 
+import easylink.entity.Device;
 import easylink.entity.DeviceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,4 +13,7 @@ public interface DeviceTypeRepository extends JpaRepository<DeviceType, Integer>
 
     @Query("select count(d.id) from Device d where d.typeId = :typeId")
     Integer countDeviceByType(Integer typeId);
+
+    @Query("select d from Device d where d.typeId = :id")
+    List<Device> findDeviceByType(int id);
 }

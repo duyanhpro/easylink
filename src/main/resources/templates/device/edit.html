@@ -222,7 +222,6 @@
 		 // add the OpenStreetMap tiles
 	      //L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		  L.tileLayer('http://103.252.72.194/map/vietnam/{z}/{x}/{y}.png', {
-			  }
 	        maxZoom: 19
 	        //attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
 	      }).addTo(map);
@@ -230,13 +229,13 @@
 	      // show the scale bar on the lower left corner
 	      L.control.scale().addTo(map);
 
-	     var greenIcon = L.icon({
-	    	 iconUrl: [[@{'/img/charging-station-green.png'}]],
-		    iconSize:     [32, 32], // size of the icon
-		    iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
-		    popupAnchor:  [0,-16] // point from which the popup should open relative to the iconAnchor
+		var greenIcon = L.icon({
+			//iconUrl: '/img/cam_glossy_50x50.png',
+			iconUrl: [[@{'/img/telco-gray.png'}]],
+			iconSize:     [48, 48], // size of the icon
+			iconAnchor:   [32, 32], // point of the icon which will correspond to marker's location
+			popupAnchor:  [-8,-32] // point from which the popup should open relative to the iconAnchor
 		});
-	    
 	     
           	console.log("Add marker for " + [[${device.name}]]);
           	var mypopup = '<a href="/device/edit/' + [[${device.id}]] + '/">' + "<b>" + [[${device.name}]] + "</b></a><br>" + [[${device.location}]];

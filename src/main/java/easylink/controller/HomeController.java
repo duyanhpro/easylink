@@ -15,7 +15,7 @@ public class HomeController {
 	@GetMapping("/")
 	public String root(Model model) {
 //		if (SecurityUtil.getUserDetail().getUser().getType()== User.TYPE_ADMIN)
-			return "redirect:/dashboard/main";
+			return "redirect:/dashboard/list";
 //		else
 //			return "redirect:/mydashboard";
 	}
@@ -23,7 +23,7 @@ public class HomeController {
 	// Open home page
 	@GetMapping("/home")
 	public String home(Model model) {
-		return "redirect:/dashboard/main";
+		return "redirect:/dashboard/list";
 	}
 	
 	// Just open login page then let Spring Security handle the rest

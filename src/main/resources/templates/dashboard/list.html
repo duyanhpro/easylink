@@ -63,7 +63,6 @@
 				<thead>
 					<tr>
 						<th style="width: 20px" align="center">STT</th>
-						<th style="width: 20px">ID</th>
 						<th>Tên</th>
 						<th>Mô tả</th>
 						<th>Thao tác</th>
@@ -72,7 +71,6 @@
 				<tbody>
 					<tr th:each="d,iterationStatus  : ${dashboards}">
 						<td th:text="${iterationStatus.count}">1</td>
-						<td th:text="${d.id}"></td>
 						<td><a th:href="@{'/dashboard/view/' + ${d.id}}">[[${d.name}]]</a></td>
 						<td th:text="${d.description}"></td>
 						<td >

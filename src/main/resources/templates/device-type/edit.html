@@ -1,0 +1,74 @@
+
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+ 
+ <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+   
+<style>
+#mapid {
+	position: relative;
+	height: 400px;
+}
+</style>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+	    
+		$("#page-title").html("Quản lý loại thiết bị");
+		$('#lstDevice').select2();
+	});
+</script>
+
+<section class="content">
+
+            <div class="col-xs-12">
+			<div class="box box-info">
+
+				<!-- form start -->
+				<form class="form-horizontal form-parsley"  th:action="@{/dtype/save}" method="post">
+					<input type="hidden" id="id" name="id" th:value="${deviceType.id}">
+					<div class="box-body">
+						<div class="form-group row">
+							<label class="col-sm-3 control-label col-form-label">Tên  *</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="name"	name="name" th:value="${deviceType.name}"
+									   required data-parsley-error-message="Tên loại thiết bị không được bỏ trống">
+							</div>
+						</div>
+							<div class="form-group row">
+								<label class="col-sm-3 col-form-label">Mô tả</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="description"	name="description" th:value="${deviceType.description}">
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row" th:if="${action!='create'}">
+						<label for="lstDevice" class="col-sm-3 control-label col-form-label">Thiết bị thuộc loại này</label>
+						<div class="col-sm-5">
+							<select disabled id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="" name="deviceIds" multiple>
+								<option th:each="device : ${devices}" th:value="${device.id}" selected>[[${device.name}]]</option>
+							</select>
+						</div>
+					</div>
+					<!-- /.box-body -->
+					<div class="row">
+						<div class="col-sm-3"></div>
+						<div class="col-sm-5 text-right">
+							<button type="button" class="btn btn-gradient-warning pull-left" onclick="history.back()">
+									<i class="fa fa-close"></i> [[#{back}]]
+							</button>
+							<a th:if="${action!='create' AND session.isAdmin AND session.isRoot}" href="#"
+							   class="btn btn-gradient-danger"
+							   th:attr="onclick=|confirmDelete('${deviceType.id}', '@{/dtype/delete/}')|">Xóa</a>
+							<button th:if="${session.isAdmin && session.isRoot}" type="submit" class="btn btn-gradient-primary">Lưu</button>
+						</div>
+					</div>
+					
+				</form>
+			</div>
+		</div>
+</section>

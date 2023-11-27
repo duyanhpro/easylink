@@ -74,8 +74,10 @@ public class DashboardController extends BaseController {
 	@NeedPermission("dashboard:view")
 	// View dashboard
 	public String getDashboard(Model model, @PathVariable int id) {
-		model.addAttribute("pageTitle", "Chi tiết Dashboard");
-		String url = dashboardService.findById(id).getUrl();
+
+		Dashboard d = dashboardService.findById(id);
+		model.addAttribute("pageTitle", d.getName()); //"Chi tiết Dashboard");
+		String url = d.getUrl();
 		if (!url.contains("user_id")) {
 			if (!url.contains("?"))
 				url += "?force=1&standalone=2&user_id=" + SecurityUtil.getUserDetail().getUserId();
