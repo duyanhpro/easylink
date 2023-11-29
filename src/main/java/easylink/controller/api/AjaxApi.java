@@ -104,19 +104,19 @@ public class AjaxApi {
 		return deviceService.findAllDevicesByUserId(userId);
 	}
 
-	// Enable SSH tunnel
-	@PostMapping("/api/devices/rpc/{deviceToken}")
-	@NeedPermission("device:rpc")
-	public String sendRpcCommand(@PathVariable String deviceToken,  @RequestBody String body) {
-		log.info("Receive RPC command: {}", body);
-		mqttService.sendRpcRequest(deviceToken, body);
-		String response = null;
-		response = mqttService.waitForRpcResponse(deviceToken);
-		if (response == null)
-			return "Timeout. No response from device.";
-		else
-			return response;
-	}
+//	// Enable SSH tunnel
+//	@PostMapping("/api/devices/rpc/{deviceToken}")
+//	@NeedPermission("device:rpc")
+//	public String sendRpcCommand(@PathVariable String deviceToken,  @RequestBody String body) {
+//		log.info("Receive RPC command: {}", body);
+//		mqttService.sendRpcRequest(deviceToken, body);
+//		String response = null;
+//		response = mqttService.waitForRpcResponse(deviceToken);
+//		if (response == null)
+//			return "Timeout. No response from device.";
+//		else
+//			return response;
+//	}
 
 	@ExceptionHandler({ AccessDeniedException.class })
 	public ResponseEntity<Object> handleAccessDeniedException(

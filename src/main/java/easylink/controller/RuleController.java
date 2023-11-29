@@ -2,10 +2,12 @@ package easylink.controller;
 
 import easylink.dto.ActionCreateAlarm;
 import easylink.dto.RuleAlarmDto;
+import easylink.dto.RuleMetadata;
 import easylink.entity.Rule;
 import easylink.exception.AccessDeniedException;
 import easylink.security.NeedPermission;
 import easylink.security.SecurityUtil;
+import easylink.service.DeviceTypeService;
 import easylink.service.RuleService;
 import easylink.service.DeviceService;
 import easylink.service.UserGroupService;
@@ -29,6 +31,8 @@ public class RuleController extends BaseController {
 	
 	@Autowired
 	DeviceService deviceService;
+	@Autowired
+	DeviceTypeService deviceTypeService;
 
 	@Autowired
 	UserGroupService ugService;
@@ -64,7 +68,9 @@ public class RuleController extends BaseController {
 		model.addAttribute("allDevices", deviceService.findAll());
 		model.addAttribute("groups", ruleService.findAppliedGroupIds(id));
 		model.addAttribute("allGroups", groupService.findAll());
-		model.addAttribute("isRoot", SecurityUtil.hasRole("ADMIN") && ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
+		model.addAttribute("metadata",
+				r.getMetadata() == null? new RuleMetadata(): JsonUtil.parse(r.getMetadata(), RuleMetadata.class));
+		model.addAttribute("allDeviceTypes", deviceTypeService.findAll());
 		return "rule/edit";
 	}
 	
@@ -78,7 +84,8 @@ public class RuleController extends BaseController {
 		model.addAttribute("alarm", new ActionCreateAlarm());
 		model.addAttribute("allDevices", deviceService.findAll());
 		model.addAttribute("allGroups", groupService.findAll());
-		model.addAttribute("isRoot", SecurityUtil.hasRole("ADMIN") && ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId()));
+		model.addAttribute("metadata", new RuleMetadata());
+		model.addAttribute("allDeviceTypes", deviceTypeService.findAll());
 		return "rule/edit";
 	}
 	
@@ -86,17 +93,17 @@ public class RuleController extends BaseController {
 	@PostMapping("/save")
 	@NeedPermission("rule:save")
 	public String save(Model model, Integer id, Integer[] deviceIds, Integer[] groupIds, String name, String condition, String actionType,
-			@RequestParam(defaultValue = "0") Integer status, 
+			@RequestParam(defaultValue = "0") Integer status, Integer[] deviceTypes,
 			String alarmContent, String alarmType, String alarmLevel, @RequestParam(defaultValue = "0") Integer interval,  
-			boolean isFormChanged, boolean allDevice, boolean isDeviceChanged, boolean isGroupChanged,
+			boolean isFormChanged, boolean includeChildren, boolean isDeviceChanged, boolean isGroupChanged,
 			RedirectAttributes redirectAttrs) {
 		if (!ugService.isInRootGroup(SecurityUtil.getUserDetail().getUserId())) {
 			throw new AccessDeniedException("Chỉ người dùng nhóm cao nhất được phép lưu luật cảnh báo");
 		}
 
-		log.info("Saving rule {}, apply to devices {}, allDevice={}", id, deviceIds, allDevice);
+		log.info("Saving rule {}, apply to devices {}, deviceTypes {}, groups {}", id, deviceIds, deviceTypes, groupIds);
 		if (isFormChanged) {
-			if (id != null) {
+			if (id != null) {	// update
 				//SecurityUtil.authorize("group", "update", group);
 				log.debug("Update rule {}", id);
 				Rule r = ruleService.findById(id);
@@ -107,10 +114,18 @@ public class RuleController extends BaseController {
 				r.setActionType(actionType);
 				r.setStatus(status);
 				r.setMinInterval(interval);
-				if (allDevice) 
-					r.setScope(Rule.SCOPE_ALL_DEVICES);
+				if (deviceTypes != null) {
+					RuleMetadata rm = new RuleMetadata();
+					for (int dt: deviceTypes)
+						rm.getDeviceTypes().add(dt);
+					r.setMetadata(JsonUtil.toString(rm));
+				} else {
+					r.setMetadata(null);
+				}
+				if (includeChildren)
+					r.setScope(Rule.SCOPE_RECURSIVE_GROUP);
 				else 
-					r.setScope(Rule.SCOPE_PER_DEVICE);
+					r.setScope(Rule.SCOPE_NON_RECURSIVE_GROUP);
 				ruleService.save(r);
 				if (isDeviceChanged)
 					ruleService.saveRuleDeviceLink(r, deviceIds);
@@ -118,14 +133,22 @@ public class RuleController extends BaseController {
 					ruleService.saveRuleGroupLink(r, groupIds);
 				
 				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("update.success"));
-			} else { 
+			} else { 	// create new rule
 				//SecurityUtil.authorize("group", "create", group);
 				ActionCreateAlarm a = new ActionCreateAlarm(alarmType, alarmContent, alarmLevel);
 				Rule r = new Rule(null, name, condition, JsonUtil.toString(a), actionType, status, interval);
-				if (allDevice) 
-					r.setScope(Rule.SCOPE_ALL_DEVICES);
+				if (deviceTypes != null) {
+					RuleMetadata rm = new RuleMetadata();
+					for (int dt: deviceTypes)
+						rm.getDeviceTypes().add(dt);
+					r.setMetadata(JsonUtil.toString(rm));
+				} else {
+					r.setMetadata(null);
+				}
+				if (includeChildren)
+					r.setScope(Rule.SCOPE_RECURSIVE_GROUP);
 				else 
-					r.setScope(Rule.SCOPE_PER_DEVICE);
+					r.setScope(Rule.SCOPE_NON_RECURSIVE_GROUP);
 				ruleService.save(r);
 				if (isDeviceChanged)
 					ruleService.saveRuleDeviceLink(r, deviceIds);

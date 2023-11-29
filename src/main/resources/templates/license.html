@@ -31,11 +31,11 @@
 									<td th:text="${lic.company}"></td>
 								</tr>
 								<tr th:if="${lic!=null}">
-									<td>Số lượng thiết bị tối đa</td>
+									<td>Số lượng trạm tối đa</td>
 									<td th:text="${lic==null? 0: lic.maxDevice}"></td>
 								</tr>
 								<tr th:if="${lic!=null}">
-									<td>Số lượng thiết bị đã sử dụng</td>
+									<td>Số lượng trạm đã sử dụng</td>
 									<td th:text="${currentDeviceCount}"></td>
 								</tr>
 								<tr th:if="${lic!=null}">

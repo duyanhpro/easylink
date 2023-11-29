@@ -120,7 +120,7 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="lstDevice" class="col-sm-3 control-label col-form-label">Thiết bị trong nhóm</label>
+							<label for="lstDevice" class="col-sm-3 control-label col-form-label">Trạm trong nhóm</label>
 							<div class="col-sm-5">
 								<select disabled id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="" name="deviceIds" multiple>
 									<option th:each="device : ${allDevices}" th:value="${device.id}" th:selected="${device.groupId == group.id}">[[${device.name}]]</option>

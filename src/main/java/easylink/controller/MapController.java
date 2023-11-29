@@ -19,7 +19,7 @@ public class MapController extends BaseController {
 	@NeedPermission("map:view")
 	@GetMapping("map")
 	public String list(Model model) {
-		model.addAttribute("pageTitle", "Bản đồ thiết bị");
+		model.addAttribute("pageTitle", "Bản đồ trạm");
 		model.addAttribute("devices", deviceService.findAllMyDevices());
 		return "map/device-map";
 	}

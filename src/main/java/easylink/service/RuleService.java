@@ -3,6 +3,7 @@ package easylink.service;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import easylink.dto.RuleMetadata;
 import easylink.entity.Device;
 import easylink.entity.Rule;
 import easylink.entity.RuleDevice;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import easylink.repository.RuleRepository;
 import easylink.repository.DeviceRepository;
+import vn.vivas.core.util.JsonUtil;
 
 @Service
 @Transactional
@@ -98,17 +100,28 @@ public class RuleService {
 	// Check if rule apply to this device
 	// TODO: cache this
 	public boolean isApplied(Rule r, String deviceToken) {
-		if (r.getScope() == Rule.SCOPE_ALL_DEVICES)
-			return true;
-		// Find from rule_device and rule_group, then merge 2 list to find devices
+
+		// Find devices from rule_device, then check if device is applied
 		List<String> deviceTokens = repo.findDeviceTokenByRule(r.getId());
 		if (deviceTokens.contains(deviceToken))
 			return true;
 
-		// Find from rule_group, then check
-		deviceTokens = repo.findDeviceTokenByRuleFromGroup(r.getId());
-		if (deviceTokens.contains(deviceToken))
-			return true;
+		// Find devices from rule_group, then check
+		if (r.getScope() == Rule.SCOPE_RECURSIVE_GROUP)
+			deviceTokens = repo.findDeviceTokenByRuleFromGroup(r.getId());
+		else
+			deviceTokens = repo.findDeviceTokenByRuleFromGroupNoRecursive(r.getId());
+		if (deviceTokens.contains(deviceToken)) {
+			// Find deviceTypes and check if applied (all in these groups of this type is applied)
+			if (r.getMetadata() != null) {
+				RuleMetadata m = JsonUtil.parse(r.getMetadata(), RuleMetadata.class);
+				Device d = deviceService.findByToken(deviceToken);
+				if (m.getDeviceTypes().contains(d.getTypeId()))
+					return true;
+			} else { 	// no limit deviceTypes
+				return true;
+			}
+		}
 
 		return false;
 	}
@@ -128,7 +141,6 @@ public class RuleService {
 	}
 	public void saveRuleGroupLink(Rule r, Integer[] groupIds) {
 		// remove all old rule-device link
-		repo.deleteRuleGroupLink(r.getId());
 		repo.deleteRuleGroupLink(r.getId());
 
 		if (groupIds == null) return;

@@ -1,7 +1,10 @@
 package easylink.entity;
 
+import easylink.dto.RuleMetadata;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_rule")
@@ -10,15 +13,16 @@ public class Rule extends BaseEntity {
 	String condition;
 	String action;
 	String actionType;
-	
+	String metadata;
+
 	Integer status = STATUS_INACTIVE;
-	Integer scope = 0;
+	Integer scope = SCOPE_RECURSIVE_GROUP;
 	Integer minInterval = 60;	// min interval between 2 action trigger, in seconds
 	
 	public static final int STATUS_ACTIVE = 1;
 	public static final int STATUS_INACTIVE = 0;
-	public static final int SCOPE_ALL_DEVICES = 1;
-	public static final int SCOPE_PER_DEVICE = 0;
+	public static final int SCOPE_RECURSIVE_GROUP = 0;
+	public static final int SCOPE_NON_RECURSIVE_GROUP = 1;
 	
 	public String getName() {
 		return name;
@@ -63,7 +67,15 @@ public class Rule extends BaseEntity {
 	public void setMinInterval(Integer minInterval) {
 		this.minInterval = minInterval;
 	}
-	
+
+	public String getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(String metadata) {
+		this.metadata = metadata;
+	}
+
 	@Override
 	public String toString() {
 		return "Rule [" + (name != null ? "name=" + name + ", " : "")

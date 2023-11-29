@@ -34,7 +34,7 @@ public class DeviceTypeService {
         // check if any device is using this type
         Integer count = repo.countDeviceByType(d.getId());
         if (count > 0)
-            throw new RuntimeException("Không thể xóa vì có thiết bị thuộc loại này. Vui lòng chuyển hết thiết bị sang loại khác trước khi xóa");
+            throw new RuntimeException("Không thể xóa vì có trạm thuộc loại này. Vui lòng chuyển hết trạm sang loại khác trước khi xóa");
         // delete if allowed
         repo.delete(d);
     }
@@ -43,7 +43,7 @@ public class DeviceTypeService {
         // Check quyen. Khong cho xoa neu co thiet bi thuoc loai nay
         Integer count = repo.countDeviceByType(id);
         if (count > 0)
-            throw new RuntimeException("Không thể xóa vì có thiết bị thuộc loại này. Vui lòng chuyển hết thiết bị sang loại khác trước khi xóa");
+            throw new RuntimeException("Không thể xóa vì có trạm thuộc loại này. Vui lòng chuyển hết trạm sang loại khác trước khi xóa");
         repo.deleteById(id);
     }
 }

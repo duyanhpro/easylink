@@ -25,7 +25,7 @@ public class DeviceTypeController extends BaseController {
 	@NeedPermission("device:list")
 	@GetMapping("")
 	public String list(Model model) {
-		model.addAttribute("pageTitle", "Danh sách loại thiết bị");
+		model.addAttribute("pageTitle", "Danh sách loại trạm");
 		model.addAttribute("deviceTypes", deviceTypeService.findAll());
 		return "device-type/list";
 	}
@@ -37,13 +37,13 @@ public class DeviceTypeController extends BaseController {
 
 		if (id == 0) {
 			log.debug("Create new device type");
-			model.addAttribute("pageTitle", "Tạo mới loại thiết bị");
+			model.addAttribute("pageTitle", "Tạo mới loại trạm");
 
 			model.addAttribute("action", "create");
 			model.addAttribute("deviceType", new DeviceType());
 			model.addAttribute("devices", new ArrayList<Device>());
 		} else {
-			model.addAttribute("pageTitle", "Cập nhật loại thiết bị");
+			model.addAttribute("pageTitle", "Cập nhật loại trạm");
 			log.debug("Showing detail of deviceType id {}", id);
 			model.addAttribute("action", "update");
 			

@@ -335,7 +335,7 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="myModalLabel">Chi tiết trạng thái thiết bị</h5>
+				<h5 class="modal-title" id="myModalLabel">Chi tiết trạng thái trạm</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -403,7 +403,7 @@
 				<div class="nav flex-sm-column flex-row">
 
 					<ul  class="list-group">
-						<li class="list-group-item"><h3>Danh sách Thiết bị</h3></li>
+						<li class="list-group-item"><h3>Danh sách Trạm</h3></li>
 						<li th:each="device,iterationStatus  : ${devices}"
 							class="list-group-item" th:id="${device.id}"
 							th:text="${iterationStatus.count +'.  ' + device.name}"

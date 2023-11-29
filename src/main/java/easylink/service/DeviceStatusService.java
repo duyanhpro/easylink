@@ -108,7 +108,7 @@ public class DeviceStatusService {
                 mqttService.sendToMqtt(connectionTopic + "/" + deviceToken, "0");
 
                 // Create alarm
-                Alarm a = new Alarm(deviceToken,new Date(), "Thiết bị khôi phục kết nối","Connection",
+                Alarm a = new Alarm(deviceToken,new Date(), "Trạm khôi phục kết nối","Connection",
                         AlarmLevel.Info, 0);
                 alarmService.createAlarm(a);
             }
@@ -150,6 +150,7 @@ public class DeviceStatusService {
             return;
 
         // only need to check device with status = OK. Because NOK device will change to OK when new event comes
+        // TODO: event info when connection resumed?
         // TODO: cache this (not so important)
         List<String> activeTokens = statusRepo.findTokenByStatus(DeviceStatus.STATUS_OK);
 
@@ -165,7 +166,7 @@ public class DeviceStatusService {
             statusMap.put(token, DeviceStatus.STATUS_OK);
 
             // Create alarm
-            Alarm a = new Alarm(token,new Date(), "Thiết bị mất kết nối","Connection",
+            Alarm a = new Alarm(token,new Date(), "Trạm mất kết nối","Connection",
                     AlarmLevel.Error, 0);
             alarmService.createAlarm(a);
 

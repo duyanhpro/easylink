@@ -201,7 +201,7 @@ public class GroupService {
 		List<User> users = ugRepo.findAllUserByGroupIdNoInherit(id);
 		if (!users.isEmpty()) throw new RuntimeException("Không thể xóa. Có người dùng thuộc nhóm này!");
 		List<Integer> devices = dgRepo.findDeviceIdByGroup(id);
-		if (!devices.isEmpty()) throw new RuntimeException("Không thể xóa. Có thiết bị thuộc nhóm này!");
+		if (!devices.isEmpty()) throw new RuntimeException("Không thể xóa. Có trạm thuộc nhóm này!");
 
 		log.info("Delete a node and update all child nodes to point to grandfather");
 		Group g =  findById(id);

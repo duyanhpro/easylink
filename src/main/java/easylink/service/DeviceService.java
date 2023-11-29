@@ -118,7 +118,7 @@ public class DeviceService {
 			if (device.getId() == null) {    // new device
 				// Check license
 				if (!licenseService.checkLicenseAddDevice()) {
-					throw new ServiceException("Đã hết hạn mức license. Không thể thêm mới thiết bị");
+					throw new ServiceException("Đã hết hạn mức license. Không thể thêm mới trạm");
 				}
 
 				Device d = repo.save(device);

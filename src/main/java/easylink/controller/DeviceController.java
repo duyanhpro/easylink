@@ -31,7 +31,7 @@ public class DeviceController extends BaseController {
 	@NeedPermission("device:list")
 	@GetMapping("")
 	public String list(Model model) {
-		model.addAttribute("pageTitle", "Danh sách thiết bị");
+		model.addAttribute("pageTitle", "Danh sách Trạm");
 		//model.addAttribute("devices", deviceService.findAll());
 //		model.addAttribute("devices", deviceService.getDeviceList());
 		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup());
@@ -45,13 +45,13 @@ public class DeviceController extends BaseController {
 
 		if (id == 0) {
 			log.debug("Create new device");
-			model.addAttribute("pageTitle", "Tạo mới thiết bị");
+			model.addAttribute("pageTitle", "Tạo mới Trạm");
 			SecurityUtil.authorize("device", "create");
 			
 			model.addAttribute("action", "create");
 			model.addAttribute("device", new Device());
 		} else {
-			model.addAttribute("pageTitle", "Cập nhật thiết bị");
+			model.addAttribute("pageTitle", "Cập nhật Trạm");
 			log.debug("Showing detail of device id {}", id);
 			model.addAttribute("action", "update");
 			

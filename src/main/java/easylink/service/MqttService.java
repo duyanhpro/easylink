@@ -37,18 +37,6 @@ public class MqttService {
 	@Value("${mqtt.password}")
 	String mqttPassword;
 
-//	@Value("${mqtt.topic.telemetry}")
-//	String telemetryTopic;
-
-	@Value("${mqtt.topic.rpc.request}")
-	String rpcRequestTopic;
-
-	@Value("${mqtt.topic.rpc.response}")
-	String rpcResponseTopic;
-
-	@Value("${mqtt.rpc.response.timeout:30}")
-	int rpcReponseTimeout;
-
 	@Value("${mqtt.enable}")
 	Boolean mqttEnable;
 
@@ -74,8 +62,6 @@ public class MqttService {
 	@Autowired
 	StarrocksService ingestService;
 
-	private BlockingQueue<String> rpcResponseQueue = new LinkedBlockingQueue<>();
-	
 	static Logger log = LoggerFactory.getLogger(MqttService.class);
 
 	@EventListener
@@ -83,8 +69,7 @@ public class MqttService {
 		if (!mqttEnable) return;
 		log.info("Application context refreshed");
 		connectMqtt();
-		subscribeTelemetry();	// todo: subscribe all schema's topics
-		subscribeRpcResponse();
+		subscribeTelemetry();
 	}
 
 	@Bean(name = "asyncExecutor")
@@ -119,7 +104,7 @@ public class MqttService {
 		}
 	}
 
-	@Scheduled(fixedRate = 30000)	// check every 30s
+	@Scheduled(fixedRate = 30000)	// Keepalive. check MQTT connection every 30s
 	public void checkMqttConnection() {
 		if (!mqttEnable) return;
 		log.trace("Mqtt watchdog");
@@ -132,24 +117,26 @@ public class MqttService {
 		for (DeviceSchema d: ld) {
 			try {
 				log.info("Subscribe to MQTT topic: " + d.getTopic());
-				client.subscribe(d.getTopic(), (topic, msg) -> {
-					String body = new String(msg.getPayload());
-					processTelemetryEvent(topic, body);
+				client.subscribe(d.getTopic(), 1);
+				client.setCallback(new MqttCallback() {
+					@Override
+					public void connectionLost(final Throwable cause) {
+
+					}
+
+					@Override
+					public void messageArrived(final String topic, final MqttMessage message) throws Exception {
+						processTelemetryEvent(topic, new String(message.getPayload()));
+					}
+
+					@Override
+					public void deliveryComplete(final IMqttDeliveryToken token) {
+
+					}
 				});
 			} catch (MqttException e) {
 				log.error("MQTT subscribe telemetry exception ", e);
 			}
-		}
-	}
-
-	public void subscribeRpcResponse() {
-		try {
-			client.subscribe(rpcResponseTopic, (topic, msg) -> {
-				String body = new String(msg.getPayload());
-				processRpcResponse(topic, body);
-			});
-		} catch (MqttException e) {
-			log.error("MQTT subscribe RPC repsonse exception ",e);
 		}
 	}
 
@@ -200,11 +187,6 @@ public class MqttService {
 		return true;
 	}
 
-	public void processRpcResponse(String topic, String msg) {
-		log.info("Receive rpc response in topic {}: {}", topic, msg);
-		rpcResponseQueue.offer(msg);
-	}
-
 	public void sendToMqtt(String topic, String message) {
 		log.debug("Publish mqtt message {} to topic {}", message, topic);
 		try {
@@ -218,27 +200,10 @@ public class MqttService {
 			msg.setRetained(false);
 
 			client.getTopic(topic).publish(msg);
-			//client.publish(topic, msg);
-//		} catch (MqttException e) {
-//			log.error("Exception when sending MQTT message to topic {}: {}", topic, e);
 		} catch (Exception e) {
 			log.error("Exception when sending MQTT message to topic {}: {}", topic, e.getMessage());
 		}
 		return;
-	}
-
-	public void sendRpcRequest(String deviceToken, String message) {
-		sendToMqtt(rpcRequestTopic + deviceToken, message);
-	}
-
-	public String waitForRpcResponse(String deviceToken) {
-		String response = null;
-		try {
-			response = rpcResponseQueue.poll(60, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return response;
 	}
 
 }

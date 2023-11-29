@@ -49,7 +49,7 @@ public class LicenseController extends BaseController {
 					status = "Đã hết hạn";
 			}
 			if (deviceService.countDevice() >= l.getMaxDevice())
-				status = "Đã dùng hết số lượng thiết bị được phép";
+				status = "Đã dùng hết số lượng trạm được phép";
 		}
 		model.addAttribute("licenseStatus", status);
 

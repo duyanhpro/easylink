@@ -51,7 +51,7 @@ public class StarrocksService {
     int floatScale;
 
     @Autowired
-    DeviceSchemaService deviceTypeService;
+    DeviceSchemaService deviceSchemaService;
 
     public void insertData(Map<String, Object> data) {
         // TODO: find schema and redirect it to corresponding queue for each device type
@@ -280,7 +280,7 @@ public class StarrocksService {
         // Note: data already normalized
         // choose schema table from deviceToken
         String token = data.get(Constant.DEVICE_TOKEN).toString();
-        DeviceSchema dt = deviceTypeService.findFromDeviceToken(token);
+        DeviceSchema dt = deviceSchemaService.findFromDeviceToken(token);
         if (dt==null) {
             log.error("Device Type not found");
         }
@@ -370,7 +370,7 @@ public class StarrocksService {
     }
 
     private void insertBatchIntoDatabase(LinkedList<Map<String, Object>> batch) {
-        // TODO: assume this batch of same schema types!  (will separate queue for each device types
+        // TODO: assume this batch of same schema types!  (if different table then need to separate queue for each schemas)
         log.debug("Insert batch of " + batch.size());
         long start = System.currentTimeMillis();
         Map<String, Object> _data = batch.get(0);
@@ -378,7 +378,7 @@ public class StarrocksService {
         // Note: data already normalized
         // choose schema table from deviceToken
         String token = _data.get(Constant.DEVICE_TOKEN).toString();
-        DeviceSchema dt = deviceTypeService.findFromDeviceToken(token);
+        DeviceSchema dt = deviceSchemaService.findFromDeviceToken(token);
         if (dt==null) {
             log.error("Device Type not found");
         }
@@ -431,12 +431,12 @@ public class StarrocksService {
                         String typeReceived = value.getClass().getSimpleName();
                         //log.debug("Data field type: Received: {}, expected {}", typeReceived, typeInSchema);
                         try {
-                            if (!typeInSchema.equals(typeReceived)) {
-                                // Neu truong mis-match (thuong la loi "error" thi insert null
-                                log.trace("Field {}:{} have incorrect type. Received: {}, expected {} --> insert null", entry.getKey(), value, typeReceived, typeInSchema);
-                                preparedStatement.setObject(parameterIndex, null);  // already normalized
-                            }
-                            else if (typeInSchema.equals("Double") || typeInSchema.equals("Float")) {
+//                            if (!typeInSchema.equals(typeReceived)) {       // Bug:  Integer not saved if column is float although can parse!
+//                                // Neu truong mis-match (thuong la loi "error" thi insert null
+//                                log.trace("Field {}:{} have incorrect type. Received: {}, expected {} --> insert null", entry.getKey(), value, typeReceived, typeInSchema);
+//                                preparedStatement.setObject(parameterIndex, null);  // already normalized
+//                            }
+                             if (typeInSchema.equals("Double") || typeInSchema.equals("Float")) {
 
                                 //Double v = (Double)entry.getValue();
                                 BigDecimal decimalValue = new BigDecimal(value.toString());
@@ -457,7 +457,7 @@ public class StarrocksService {
                                     preparedStatement.setObject(parameterIndex, value);  // already normalized
                             }
                         } catch (Exception e) {
-                            log.trace("Loi khac:  Field {}:{} -> insert gia tri nulll", entry.getKey(), e);
+                            log.trace("Can not parse: Received: {}, expected {},   Field {}:{} -> insert gia tri nulll", typeReceived, typeInSchema, entry.getKey(), e);
                             preparedStatement.setObject(parameterIndex, null);
                         }
                         parameterIndex++;

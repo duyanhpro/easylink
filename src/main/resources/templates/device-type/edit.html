@@ -17,7 +17,7 @@
 <script type="text/javascript">
 	$(document).ready(function () {
 	    
-		$("#page-title").html("Quản lý loại thiết bị");
+		$("#page-title").html("Quản lý loại trạm");
 		$('#lstDevice').select2();
 	});
 </script>
@@ -35,7 +35,7 @@
 							<label class="col-sm-3 control-label col-form-label">Tên  *</label>
 							<div class="col-sm-5">
 								<input type="text" class="form-control" id="name"	name="name" th:value="${deviceType.name}"
-									   required data-parsley-error-message="Tên loại thiết bị không được bỏ trống">
+									   required data-parsley-error-message="Tên loại trạm không được bỏ trống">
 							</div>
 						</div>
 							<div class="form-group row">
@@ -47,7 +47,7 @@
 					</div>
 
 					<div class="form-group row" th:if="${action!='create'}">
-						<label for="lstDevice" class="col-sm-3 control-label col-form-label">Thiết bị thuộc loại này</label>
+						<label for="lstDevice" class="col-sm-3 control-label col-form-label">Trạm thuộc loại này</label>
 						<div class="col-sm-5">
 							<select disabled id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="" name="deviceIds" multiple>
 								<option th:each="device : ${devices}" th:value="${device.id}" selected>[[${device.name}]]</option>

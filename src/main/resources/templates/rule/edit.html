@@ -5,6 +5,8 @@
 		});
 		$('#lstGroup').select2({
 		});
+		$('#lstDeviceType').select2({
+		});
 
 		if ($("#allDevice").is(":checked")) {
  	        $('#lstDevice').prop('disabled', 'disabled');
@@ -144,15 +146,25 @@
 								</select>
 							</div>
 
-							<div class="col-sm-2 custom-control custom-checkbox" style="display: none;">
-								<input type="checkbox" class="custom-control-input" id="allDevice" name="allDevice" th:checked="${rule.scope==1}">
-								<label class="custom-control-label" for="allDevice">Áp dụng cả nhóm cấp dưới</label>
+							<div class="col-sm-2 custom-control custom-checkbox" >
+								<input type="checkbox" class="custom-control-input" id="includeChildren" name="includeChildren" th:checked="${rule.scope==1}">
+								<label class="custom-control-label" for="includeChildren">Áp dụng cả nhóm cấp dưới</label>
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="lstDevice" class="col-sm-3 col-form-label">Thiết bị được áp dụng</label>
+							<label for="lstDevice" class="col-sm-3 col-form-label">Loại trạm trong nhóm được áp dụng</label>
 							<div class="col-sm-5">
-							  <select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn thiết bị được áp dụng luật"
+								<select id="lstDeviceType" class="form-control select2" style="width: 100%;" data-placeholder="Chọn loại trạm (bỏ trống nếu áp dụng tất cả)"
+										name="deviceTypes" multiple>
+									<option th:each="s : ${allDeviceTypes}" th:value="${s.id}" th:selected="${metadata !=null && metadata.getDeviceTypes().contains(s.id)}">[[${s.name}]]</option>
+								</select>
+							</div>
+
+						</div>
+						<div class="form-group row">
+							<label for="lstDevice" class="col-sm-3 col-form-label">Trạm được áp dụng</label>
+							<div class="col-sm-5">
+							  <select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn trạm được áp dụng luật"
 							  	name="deviceIds" multiple>
 		                          <option th:each="s : ${allDevices}" th:value="${s.id}" th:selected="${devices !=null && devices.contains(s.id)}">[[${s.name}]]</option>
 		                      </select>
@@ -173,8 +185,8 @@
 						<div class="col-sm-3"></div>
 						<div class="col-sm-5 text-right">
 							<a th:href="@{/rule/}" class="btn btn-gradient-warning pull-left">[[#{back}]]</a>
-							<an th:if="${session.principal.hasRole('ADMIN')  && isRoot}"  class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${rule.id}','@{/rule/delete/}')|" href="#">[[#{delete}]]</an>
-							<button th:if="${session.principal.hasRole('ADMIN')  && isRoot}"  type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
+							<an th:if="${session.isAdmin && session.isRoot}"  class="btn btn-gradient-danger" th:attr="onclick=|confirmDelete('${rule.id}','@{/rule/delete/}')|" href="#">[[#{delete}]]</an>
+							<button th:if="${session.isAdmin && session.isRoot}"  type="submit" class="btn btn-gradient-primary" th:text="#{${action=='create'? 'save' : 'update'}}">Lưu</button>
 						</div>
 					</div>
 					
@@ -196,9 +208,9 @@
 				<p><strong>Cảnh báo sẽ được kích hoạt (theo cấu hình) khi biểu thức điều kiện đạt giá trị True.</strong></p>
 				<p>Trong công thức điều kiện này hỗ trợ các toán tử AND, OR và cho phép so sánh / tính toán trên các trường của dữ liệu đầu vào.</p>
 				<p>-&nbsp; C&aacute;c to&aacute;n tử so sánh:&nbsp; &nbsp;== (bằng nhau), != (khác), >=, <=</p>
-				<p>-&nbsp; C&aacute;c to&aacute;n tử logic:&nbsp; &nbsp;AND, OR</p>
+				<p>-&nbsp; C&aacute;c to&aacute;n tử logic:&nbsp; &nbsp;AND (hoặc &&), OR (hoặc ||) </p>
 				<p>- Phủ định:&nbsp; d&ugrave;ng dấu ! trước biểu thức cần phủ định</p>
-				<p>- Lấy trường từ dữ liệu của thiết bị gửi l&ecirc;n:&nbsp;&nbsp;d&ugrave;ng k&yacute; hiệu # trước t&ecirc;n trường cần lấy</p>
+				<p>- Lấy trường từ dữ liệu của trạm gửi l&ecirc;n:&nbsp;&nbsp;d&ugrave;ng k&yacute; hiệu # trước t&ecirc;n trường cần lấy</p>
 				<p>- So sánh chuỗi (kiểu String):  #my_var.equals("chuỗi cần so sánh")</p>
 				<p><strong>V&iacute; dụ 1 số biểu thức điều kiện:</strong></p>
 				<p>- K&iacute;ch hoạt cảnh b&aacute;o khi điện &aacute;p vol1 &gt; 230 v&agrave; d&ograve;ng điện amp1 &lt;= 10:&nbsp; &nbsp; #vol1 &gt; 203 AND #amp1 &lt;= 10</p>

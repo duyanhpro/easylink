@@ -97,6 +97,23 @@ PROPERTIES (
     "table" = "tbl_device_type"
 );
 
+CREATE TABLE `device_status` (
+                                 `device_token` varchar(255) NOT NULL,
+                                 `telemetry` varchar(1023) NOT NULL ,
+                                 `status` tinyint(3) ,
+                                 `event_time` datetime DEFAULT NULL COMMENT 'latest event time'
+
+) ENGINE=mysql
+PROPERTIES (
+    "host" = "mariadb",
+    "port" = "3306",
+    "user" = "root",
+    "password" = "S@dIOT-2k23!@#",
+    "database" = "easylink",
+    "table" = "tbl_device_status"
+);
+
+
 -- easylink.sensor_data definition
 
 CREATE TABLE `sensor_data`
