@@ -17,18 +17,15 @@ public interface RuleRepository extends JpaRepository<Rule, Integer> {
 
 	@Query("select v.groupId from RuleGroup v where v.ruleId = ?1")
 	List<Integer> findAppliedGroupIds(int ruleId);
-
-	@Query("select r from Rule r, RuleDevice rs where rs.deviceToken = ?1 and r.id = rs.ruleId")
-	List<Rule> findByDeviceToken(String deviceToken);
 	
-	@Query("select rs.deviceToken from RuleDevice rs where rs.ruleId = ?1")
-	List<String> findDeviceTokenByRule(int ruleId);		// todo:  change token need to update this table!
+	@Query("select d.deviceToken from RuleDevice rs, Device d where rs.ruleId = ?1 and rs.deviceId = d.id")
+	List<String> findDeviceTokenByRule(int ruleId);
 
 	@Query("select d.deviceToken from RuleGroup rg, DeviceGroup dg, Device d where rg.ruleId = ?1 and rg.groupId = dg.groupId and dg.deviceId = d.id")
-	List<String> findDeviceTokenByRuleFromGroup(int ruleId);		// todo:  change token need to update this table!
+	List<String> findDeviceTokenByRuleFromGroup(int ruleId);
 
 	@Query("select d.deviceToken from RuleGroup rg, DeviceGroup dg, Device d where rg.ruleId = ?1 and rg.groupId = dg.groupId and dg.inherit = false and dg.deviceId = d.id")
-	List<String> findDeviceTokenByRuleFromGroupNoRecursive(int ruleId);		// todo:  change token need to update this table!
+	List<String> findDeviceTokenByRuleFromGroupNoRecursive(int ruleId);
 
 	List<Rule> findByStatus(int statusActive);
 

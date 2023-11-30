@@ -52,7 +52,7 @@ public class RuleExecutionRunnable implements Runnable {
 					try {
 						Thread.currentThread().sleep(WAIT_TIME);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						//e.printStackTrace();
 					}
 					continue;
 				}

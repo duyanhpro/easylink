@@ -13,6 +13,9 @@ import easylink.repository.RuleGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.expression.Expression;
@@ -58,7 +61,7 @@ public class RuleService {
 		return repo.findAll(Sort.by(Direction.ASC, "modifiedDate"));
 	}
 
-	// TODO: cache this
+	@Cacheable("activeRules")
 	public List<Rule> findAllActive() {
 		return repo.findByStatus(Rule.STATUS_ACTIVE);
 	}
@@ -67,9 +70,11 @@ public class RuleService {
 		return repo.findAppliedDeviceIds(ruleId);
 	}
 	public List<Integer> findAppliedGroupIds(int ruleId) { return repo.findAppliedGroupIds(ruleId); }
-	
+
+	//@Caching(evict = {@CacheEvict("activeRules"), @CacheEvict(value="directory", key="#student.id") })
+	@CacheEvict(value = {"activeRules", "ruleDeviceToken"}, allEntries = true)
 	public Rule save(Rule r) {
-		log.debug("Saving new rule {}", r);
+		log.debug("Saving rule {}", r);
 		r = repo.save(r);
 		
 		// update rule execution thread
@@ -84,11 +89,6 @@ public class RuleService {
 	public Rule findById(int ruleId) {
 		return repo.findById(ruleId).get();
 	}
-
-	public List<Rule> findRuleByDeviceId(String deviceToken) {
-		// TODO:  also return rules that apply to all devices
-		return repo.findByDeviceToken(deviceToken);
-	}
 	
 	public void delete(int ruleId) {
 		repo.deleteById(ruleId);
@@ -98,7 +98,7 @@ public class RuleService {
 	}
 
 	// Check if rule apply to this device
-	// TODO: cache this
+	@Cacheable(value = "ruleDeviceToken", key =  "#r.id + '-' + #deviceToken")
 	public boolean isApplied(Rule r, String deviceToken) {
 
 		// Find devices from rule_device, then check if device is applied
@@ -133,8 +133,7 @@ public class RuleService {
 		if (deviceIds == null) return;
 		// save new rule-device link
 		for (int deviceId: deviceIds) {
-			String deviceToken = deviceRepo.findById(deviceId).get().getDeviceToken();
-			RuleDevice rs = new RuleDevice(r.getId(), deviceId, deviceToken);
+			RuleDevice rs = new RuleDevice(r.getId(), deviceId);
 			log.debug("Add relation {}", rs);
 			rsRepo.save(rs);
 		}

@@ -44,7 +44,8 @@ $(document).ready(function () {
 				<div class="form-group row">
 					<label class="col-sm-2 col-form-label text-left">Từ ngày</label>
 					<div class="col-sm-3">
-						<input class="form-control" type="date" name="startDate" id="startDate" th:value="${startDate}" autocomplete="off">
+						<input class="form-control" type="date" name="startDate" id="startDate"
+							   th:value="${#dates.format(startDate, 'HH:mm:ss dd/MM/yyyy')}}" autocomplete="off">
 					</div>
 					<label class="col-sm-2 col-form-label text-left">Đến ngày</label>
 					<div class="col-sm-3">

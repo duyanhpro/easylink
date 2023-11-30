@@ -24,16 +24,15 @@ public class DeviceSchemaService {
     @Autowired
     DeviceService deviceService;
 
-    @Cacheable("deviceType")
+    @Cacheable("deviceSchema")
     public DeviceSchema findById(int id) {
         return repo.findById(id).get(); // do not use getOne, it's lazy operation
     }
 
     public List<DeviceSchema> findAll() { return repo.findAll(); }
 
-    @Cacheable("deviceTypeByToken")
+    @Cacheable("deviceSchemaByToken")
     public DeviceSchema findFromDeviceToken(String deviceToken) {
-        // TODO: should get from cache for better performance
         Device d = deviceService.findByToken(deviceToken);
         //log.debug("Device d: " + d);
         if (d == null) return null;
@@ -41,7 +40,7 @@ public class DeviceSchemaService {
     }
 
     @CacheEvict(cacheNames = "deviceType", key = "#newObj.id")
-    public void updateDeviceType(DeviceSchema newObj) {
+    public void updateDeviceSchema(DeviceSchema newObj) {
         //TODO
     }
 //    public Map<String, String> getSchemaFromToken(String deviceToken) {

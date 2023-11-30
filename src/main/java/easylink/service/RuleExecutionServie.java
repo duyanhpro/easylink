@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import easylink.entity.Rule;
@@ -26,6 +27,7 @@ public class RuleExecutionServie {
 	// Map thread with rule Id. Each rule will have 1 thread to process messages (from its own queue)
 	static Map<Integer, Thread> ruleExecutionThreadMap = new HashMap<>();			 
 
+	static boolean someRuleIsUpdating = false;
 	/**
 	 * Execute rule check when receive MQTT event
 	 * @param deviceToken
@@ -39,6 +41,16 @@ public class RuleExecutionServie {
 			// Check if rule apply to this device
 			if (!ruleService.isApplied(r, deviceToken))
 				continue;
+
+			// Check if rule is updating then just wait 1 sec (ballpark number, just for prevention)
+			if (someRuleIsUpdating) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					//e.printStackTrace();
+				}
+			}
+
 			log.trace("Checking rule {} for event {}", r.getName(), telemetryData);
 			Queue<Map<String, Object>> q = msgQueueMap.get(r.getId());
 			if (q == null) {
@@ -57,6 +69,7 @@ public class RuleExecutionServie {
 	}
 	
 	// clean up thread when rule is not used
+	// todo:  make it distributed (update all nodes)
 	public void disableRule(int ruleId) {	
 		log.info("Stop rule execution thread for rule {}", ruleId);
 		Thread t = ruleExecutionThreadMap.get(ruleId);
@@ -67,7 +80,9 @@ public class RuleExecutionServie {
 	}
 
 	// update rule condition, etc... So we kill the thread and start with new parameters
-	public void updateRule(Rule r) {		
+	public void updateRule(Rule r) {
+		someRuleIsUpdating = true;
+
 		disableRule(r.getId());
 		Queue<Map<String, Object>> q = new ConcurrentLinkedQueue<>();
 		msgQueueMap.put(r.getId(), q);
@@ -75,5 +90,7 @@ public class RuleExecutionServie {
 		Thread t = new Thread(new RuleExecutionRunnable(r, q));
 		t.start();
 		ruleExecutionThreadMap.put(r.getId(), t);
+
+		someRuleIsUpdating = false;
 	}
 }

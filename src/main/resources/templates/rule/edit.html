@@ -138,7 +138,7 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="lstGroup" class="col-sm-3 col-form-label">Nhóm được áp dụng</label>
+							<label for="lstGroup" class="col-sm-3 col-form-label">Áp dụng theo cả nhóm trạm</label>
 							<div class="col-sm-5">
 								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm được áp dụng luật"
 										name="groupIds" multiple>
@@ -147,7 +147,7 @@
 							</div>
 
 							<div class="col-sm-2 custom-control custom-checkbox" >
-								<input type="checkbox" class="custom-control-input" id="includeChildren" name="includeChildren" th:checked="${rule.scope==1}">
+								<input type="checkbox" class="custom-control-input" id="includeChildren" name="includeChildren" th:checked="${rule.scope==0}">
 								<label class="custom-control-label" for="includeChildren">Áp dụng cả nhóm cấp dưới</label>
 							</div>
 						</div>
@@ -162,7 +162,7 @@
 
 						</div>
 						<div class="form-group row">
-							<label for="lstDevice" class="col-sm-3 col-form-label">Trạm được áp dụng</label>
+							<label for="lstDevice" class="col-sm-3 col-form-label">Áp dụng theo từng trạm lẻ</label>
 							<div class="col-sm-5">
 							  <select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn trạm được áp dụng luật"
 							  	name="deviceIds" multiple>

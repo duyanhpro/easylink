@@ -92,7 +92,7 @@ public class StarrocksService {
                         try {
                             Thread.sleep(QUEUE_POLL_TIME_MS);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            //e.printStackTrace();
                         }
                         continue;
                     } else {

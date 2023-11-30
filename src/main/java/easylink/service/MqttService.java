@@ -100,7 +100,7 @@ public class MqttService {
 			log.info("MQTT connected");
 
 		} catch (MqttException e) {
-			log.error("MQTT connect exception ",e);
+			log.error("MQTT connect exception ",e.getMessage());
 		}
 	}
 
@@ -135,7 +135,7 @@ public class MqttService {
 					}
 				});
 			} catch (MqttException e) {
-				log.error("MQTT subscribe telemetry exception ", e);
+				log.error("MQTT subscribe telemetry exception ", e.getMessage());
 			}
 		}
 	}
@@ -167,7 +167,7 @@ public class MqttService {
 				ruleExecutionService.executeRule(deviceTokenFromTopic, map);
 			
 		} catch (Exception e) {
-			log.error("Exception when processing event: {}", e);
+			log.error("Exception when processing event: {}", e.getMessage());
 		}
 	}
 

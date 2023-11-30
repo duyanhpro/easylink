@@ -14,6 +14,7 @@ import easylink.util.BeanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class DeviceService {
 	@Autowired
 	LicenseService licenseService;
 
+	@Autowired
+	private CacheManager cacheManager;
+
 	// Find all belong to this user
 	public List<DeviceGroupDto> findMyDeviceWithGroup() {
 		List<DeviceGroupDto> ldg = new ArrayList<>();
@@ -63,18 +67,12 @@ public class DeviceService {
 	 * @return
 	 */
 	public List<Device> findAllMyDevices() {
-//		List<Group> lg = groupService.findGroupByUserId(SecurityUtil.getUserDetail().getUserId());
-//		if (lg.isEmpty())
-//			return repo.findAll();
 		return repo.getDevicesForUser(SecurityUtil.getUserDetail().getUserId());
 	}
 
 	public List<Device> findAllDevicesByUserId(int userId) {		// mainly for debug
 		return repo.getDevicesForUser(userId);
 	}
-//	public List<DeviceListDto> getDeviceList() {
-//		return repo.findDeviceListDto();
-//	}
 
 	public List<Device> findAll() {
 		return repo.findAll();
@@ -87,8 +85,9 @@ public class DeviceService {
 		return repo.findById(id).orElse(null);
 	}
 
-	@Cacheable("device")
+	@Cacheable("deviceByToken")
 	public Device findByToken(String token) {
+		//System.out.println("Hit method: findByToken");
 		return repo.findByDeviceToken(token);
 	}
 
@@ -109,35 +108,36 @@ public class DeviceService {
 		return repo.findAllGroup();
 	}
 
-	@CacheEvict(cacheNames = "device",key = "#device.deviceToken")
+	@CacheEvict(cacheNames = "deviceByToken",key = "#device.deviceToken")
 	public Device createOrUpdate(Device device) {
 		log.debug("Saving device: {}", device);
 
-
-//		try {
-			if (device.getId() == null) {    // new device
-				// Check license
-				if (!licenseService.checkLicenseAddDevice()) {
-					throw new ServiceException("Đã hết hạn mức license. Không thể thêm mới trạm");
-				}
-
-				Device d = repo.save(device);
-				updateDeviceGroupRelationship(device);
-				return d;
-			} else {
-				Device c = repo.findById(device.getId()).orElseThrow(() -> new NotFoundException(""));
-				boolean needUpdateGroup = false;
-				if (c.getGroupId() != device.getGroupId())
-					needUpdateGroup = true;
-				BeanUtil.merge(c, device);
-				c = repo.save(c);
-				if (needUpdateGroup) updateDeviceGroupRelationship(c);
-				return c;
+		if (device.getId() == null) {    // new device
+			// Check license
+			if (!licenseService.checkLicenseAddDevice()) {
+				throw new ServiceException("Đã hết hạn mức license. Không thể thêm mới trạm");
 			}
-//		} catch (Exception e) {
-//			throw new Exception("Cập nhật không thành công: " , e);
-////			throw new ServiceException("Cập nhật không thành công: " + e.getMessage(), e);
-//		}
+
+			Device d = repo.save(device);
+			updateDeviceGroupRelationship(device);
+			return d;
+		} else {
+			Device c = repo.findById(device.getId()).orElseThrow(() -> new NotFoundException(""));
+
+			// if token change, evict all cache
+			if (!device.getDeviceToken().equals(c.getDeviceToken()))
+				cacheManager.getCache("deviceByToken").clear();
+
+			boolean needUpdateGroup = false;
+			if (c.getGroupId() != device.getGroupId())
+				needUpdateGroup = true;
+
+			BeanUtil.merge(c, device);
+			c = repo.save(c);
+			if (needUpdateGroup) updateDeviceGroupRelationship(c);
+			return c;
+		}
+
 	}
 	@Transactional
 	public void updateDeviceGroupRelationship(Device device) {

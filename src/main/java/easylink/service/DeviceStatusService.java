@@ -65,12 +65,9 @@ public class DeviceStatusService {
         Map<String, Object> map = new HashMap<String, Object>();
         try {
             map = mapper.readValue(ss.getTelemetry(), Map.class);
-        } catch (JsonMappingException e) {
-            // TODO Auto-generated catch block
-            //e.printStackTrace();
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            //e.printStackTrace();
+        } catch (Exception e) {
+
+            //  ignore, just return empty map
         }
 
         log.debug("Loaded status:  {}, status = {}", map, ss.getStatus());
@@ -87,7 +84,7 @@ public class DeviceStatusService {
      */
     public void updateDeviceStatus(String deviceToken, Map<String, Object> map, String msg) {
         // TODO: handle it in batch, in a queue
-        // TODO 2: use Redis to store it
+        // TODO 2: use Redis to store it --> not good because starrocks needs it for dashboard
         try {
             log.trace("Saving device status: {}", map);
 
@@ -137,6 +134,7 @@ public class DeviceStatusService {
     @Value("${mqtt.topic.connection}")
     String connectionTopic = "connection";
 
+    // mydebug: temporary disable
     @Scheduled(fixedDelayString = "${monitor.interval}")
     @Transactional
     public void monitorDeviceConnection() {
