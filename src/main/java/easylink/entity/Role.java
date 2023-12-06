@@ -7,6 +7,7 @@ import javax.persistence.Table;
 @Table(name = "tbl_role")
 public class Role extends BaseEntity {
 	String name;
+	String displayName;
 	String description;
 	Integer status = STATUS_ACTIVE;
 	Boolean editable = true;
@@ -31,7 +32,15 @@ public class Role extends BaseEntity {
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
-	
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
 	public Boolean getEditable() {
 		return editable;
 	}

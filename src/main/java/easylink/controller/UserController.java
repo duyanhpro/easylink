@@ -1,7 +1,5 @@
 package easylink.controller;
 
-import java.util.List;
-
 import easylink.entity.User;
 import easylink.security.NeedPermission;
 import easylink.security.SecurityUtil;
@@ -31,7 +29,7 @@ public class UserController extends BaseController {
 //			users = userService.findAllUserByType(User.TYPE_CUSTOMER);
 //		users = userService.findAllMyUser();
 		
-		model.addAttribute("users", userService.findAllMyUser());
+		model.addAttribute("users", userService.findAllMyUserDTO());
 		return "user/list";
 	}
 
@@ -107,6 +105,8 @@ public class UserController extends BaseController {
 				SecurityUtil.authorize("user", "create", user);
 				
 				userService.createNewUser(user);
+				isUserGroupChanged = true;
+				isUserRoleChanged = true;	// force save role, group when create new user
 				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("user.create.success"));
 			} else if (action.equals("profile")) {
 				User ori = SecurityUtil.getUserDetail().getUser();

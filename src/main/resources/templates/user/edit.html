@@ -14,7 +14,7 @@
 		});
 
         var isFormChanged = false;
-        var isConfirmed = false;
+
         $("form :input").change(function() {
             console.log($(this).attr('name') + " has changed");
             isFormChanged = true;
@@ -83,7 +83,7 @@
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="email" class="col-sm-2 col-form-label">Số điện thoại</label>
+				<label for="phone" class="col-sm-2 col-form-label">Số điện thoại</label>
 				<div class="col-sm-5">
 					<input type="text" class="form-control" id="phone" name="phone" th:value="${user.phone}">
 				</div>
@@ -127,7 +127,7 @@
 					<select id="lstUserRole" class="form-control select2" style="width: 100%;" data-placeholder="Chọn quyền" name="roleIds"
 						th:disabled="${user.id == session.user.id || action=='profile'}" >
 						<option th:value="${role.id}" th:each="role : ${allRoles}"
-							th:selected="${userRoleNames!=null && userRoleNames.contains(role.name)}">[[${role.name}]]</option>
+							th:selected="${userRoleNames!=null && userRoleNames.contains(role.displayName)}">[[${role.displayName}]]</option>
 					</select>
 				</div>
 			</div>

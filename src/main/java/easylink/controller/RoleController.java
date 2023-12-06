@@ -67,11 +67,12 @@ public class RoleController extends BaseController {
 		if (isFormChanged) {
 			
 			if (role.getStatus() == null) role.setStatus(Role.STATUS_INACTIVE);
-			if (role.getId()!=null && role.getId()!=0) {
+			if (role.getId()!=null && role.getId()!=0) {		// create
 				role = rpService.saveOrUpdateRole(role);
 				redirectAttrs.addFlashAttribute("infoMsg", "Role update successfully");
+				isParentRolesChanged = true;	// force update parents
 			}
-			else { 
+			else { 		// update
 				role = rpService.saveOrUpdateRole(role);
 				redirectAttrs.addFlashAttribute("infoMsg", "Role created successfully");
 			}

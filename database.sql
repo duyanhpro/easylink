@@ -50,7 +50,6 @@ CREATE TABLE `tbl_device_status` (
                                      UNIQUE KEY `device_id` (`device_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=COMPACT COMMENT='Lưu trang thái cập nhật latest của device. Update mỗi khi nhận được message từ device.\r\nỞ pha sau sẽ chuyển sang redis để tăng hiệu năng write\r\n\r\n';
 
-
 -- easylink.tbl_device_type definition
 
 CREATE TABLE `tbl_device_type` (
@@ -61,11 +60,12 @@ CREATE TABLE `tbl_device_type` (
                                    `created_date` datetime DEFAULT NULL,
                                    `modified_user` int(10) DEFAULT NULL,
                                    `modified_date` datetime DEFAULT NULL,
+                                   `sensors` varchar(1024) DEFAULT NULL,
+                                   `schema_id` int(10) DEFAULT 1 COMMENT 'Reserved fields',
                                    PRIMARY KEY (`id`),
                                    UNIQUE KEY `username` (`name`),
                                    KEY `USER_NAME` (`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='Device Type. Mang tính chất thông tin để hỗ trợ lọc trên báo cáo. Không ảnh hưởng tới hoạt động device';
-
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='Device Type. Mang tính chất thông tin để hỗ trợ lọc trên báo cáo. Không ảnh hưởng tới hoạt động device';
 
 -- easylink.tbl_group definition
 

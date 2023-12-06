@@ -3,6 +3,7 @@
 <script type="text/javascript">
 $(document).ready(function () {
    $("#page-title").html("Tra cứu cảnh báo");
+   $('#lstDevice').select2();
 });
 
 </script>
@@ -45,7 +46,7 @@ $(document).ready(function () {
 					<label class="col-sm-2 col-form-label text-left">Từ ngày</label>
 					<div class="col-sm-3">
 						<input class="form-control" type="date" name="startDate" id="startDate"
-							   th:value="${#dates.format(startDate, 'HH:mm:ss dd/MM/yyyy')}}" autocomplete="off">
+							   th:value="${startDate}" autocomplete="off">
 					</div>
 					<label class="col-sm-2 col-form-label text-left">Đến ngày</label>
 					<div class="col-sm-3">
@@ -81,7 +82,7 @@ $(document).ready(function () {
 				<tr th:each="v,iterationStatus  : ${mypage.content}">
 					<td th:text="${iterationStatus.count + mypage.number * mypage.size}">1</td>
 					<td th:text="${v.deviceToken}"></td>
-					<td th:text="${#dates.format(v.eventTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+					<td th:text="${#dates.format(v.eventTime, 'HH:mm:ss dd/MM/yyyy')}"></td>
 					<td th:text="${v.content}"></td>
 					<div th:switch="${v.level}">
 						<td th:case="'1'">Đã xác nhận</td>

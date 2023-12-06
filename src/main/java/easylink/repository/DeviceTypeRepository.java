@@ -16,4 +16,7 @@ public interface DeviceTypeRepository extends JpaRepository<DeviceType, Integer>
 
     @Query("select d from Device d where d.typeId = :id")
     List<Device> findDeviceByType(int id);
+
+    @Query("select dt.sensors from DeviceType dt, Device d where d.deviceToken = ?1 and d.typeId = dt.id")
+    String findUsedSensorsFromDeviceToken(String deviceToken);
 }

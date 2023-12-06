@@ -90,7 +90,7 @@ public class AlarmService {
 	 * @return
 	 */
 	public List<Alarm> getRecentAlarm(String deviceToken, int numberOfDay, int limit) {
-		log.debug("Get recent alarm in last {} days, limit {} records", numberOfDay, limit);
+		//log.debug("Get recent alarm of {} in last {} days, limit {} records", deviceToken, numberOfDay, limit);
 		// Get the current time in milliseconds
 		long currentTimeMillis = System.currentTimeMillis();
 

@@ -150,10 +150,10 @@ public class RuleController extends BaseController {
 				else 
 					r.setScope(Rule.SCOPE_NON_RECURSIVE_GROUP);
 				ruleService.save(r);
-				if (isDeviceChanged)
-					ruleService.saveRuleDeviceLink(r, deviceIds);
-				if (isGroupChanged)
-					ruleService.saveRuleGroupLink(r, groupIds);
+
+				ruleService.saveRuleDeviceLink(r, deviceIds);
+
+				ruleService.saveRuleGroupLink(r, groupIds);
 				id = r.getId();
 				redirectAttrs.addFlashAttribute("infoMsg", localeService.getMessage("create.success"));
 			}

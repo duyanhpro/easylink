@@ -41,7 +41,9 @@ public class LicenseService {
         if (licenseKey==null || licenseKey.isEmpty()) return false;
         try {
             String json = EncryptUtil.decryptTripleDES(ek, licenseKey);
+            log.info("Update license: ", json);
             LicenseInfo a = JsonUtil.parse(json, LicenseInfo.class);
+
             configService.updateConfig(LICENSE, licenseKey, String.class.getName());
             return true;
         } catch (Exception e) {

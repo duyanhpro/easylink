@@ -122,18 +122,19 @@ public class StarrocksService {
 
     public void insertAlarm(Alarm a) {
     // SQL query
-        String insertQuery = "INSERT INTO alarm (device_token, event_time, content, type, level, rule_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO alarm (device_token, event_time, content, type, level, rule_id, raw_event_time) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
             // Set parameters
                 preparedStatement.setString(1, a.getDeviceToken());
                 //preparedStatement.setDate(2, a.getEventTime());
-                preparedStatement.setTimestamp(2, new Timestamp(a.getEventTime().getTime()));
+                preparedStatement.setTimestamp(2, new Timestamp(a.getEventTime().getTime()));   // never null
                 preparedStatement.setString(3, a.getContent());
                 preparedStatement.setString(4, a.getType());
                 preparedStatement.setInt(5, a.getLevel().ordinal());
                 preparedStatement.setObject(6, a.getRuleId());  // Can be null
+                preparedStatement.setTimestamp(7, a.getRawEventTime() == null? null: new Timestamp(a.getRawEventTime().getTime()));
 
                 // Execute the insert query
                 int rowsAffected = preparedStatement.executeUpdate();
@@ -146,21 +147,22 @@ public class StarrocksService {
     public List<Alarm>  searchAlarm(String deviceToken, Date startDate, Date endDate, Integer level, String type,
                                     int pageNumber, int pageSize) {
         // SQL query with parameters
-        StringBuilder searchQuery = new StringBuilder("SELECT * FROM alarm WHERE 1=1 ");
+        StringBuilder searchQuery =
+                new StringBuilder("SELECT d.name as device_name,a.*  FROM alarm a, device d WHERE a.device_token = d.device_token ");
         if (deviceToken != null)
-            searchQuery.append(" AND device_token = ?");
+            searchQuery.append(" AND a.device_token = ?");
         if (startDate != null)
-            searchQuery.append(" AND event_time >= ?");
+            searchQuery.append(" AND a.event_time >= ?");
         if (endDate != null)
-            searchQuery.append(" AND event_time < ?");
+            searchQuery.append(" AND a.event_time < ?");
         if (level != null)
-            searchQuery.append(" AND level = ?");
+            searchQuery.append(" AND a.level = ?");
         if (type != null)
-            searchQuery.append(" AND type = ?");
-        searchQuery.append(" AND device_token in (select device_token from user_device_view where user_id = ?) ");
+            searchQuery.append(" AND a.type = ?");
+        searchQuery.append(" AND a.device_token in (select device_token from user_device_view where user_id = ?) ");
         // Add paging parameters
         int offset = (pageNumber - 1) * pageSize;
-        searchQuery.append(" order by event_time desc LIMIT ? OFFSET ? ");
+        searchQuery.append(" order by a.event_time desc LIMIT ? OFFSET ? ");
         log.debug("Alarm search query: {}", searchQuery.toString());
         List<Alarm> resultList = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
@@ -189,16 +191,19 @@ public class StarrocksService {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     // Retrieve and process the results
-                    String retrievedDeviceToken = resultSet.getString("device_token");
+                    //String retrievedDeviceToken = resultSet.getString("device_token");
+                    String retrievedDeviceToken = resultSet.getString("device_name");   // use name instead
                     Timestamp retrievedEventTime = resultSet.getTimestamp("event_time");
                     String retrievedContent = resultSet.getString("content");
                     String retrievedType = resultSet.getString("type");
                     int retrievedLevel = resultSet.getInt("level");
                     Integer retrievedRuleId = resultSet.getInt("rule_id");
+                    Timestamp retrievedRawEventTime = resultSet.getTimestamp("raw_event_time");
 
                     resultList.add(new Alarm(retrievedDeviceToken,
                             retrievedEventTime == null? null : new Date(retrievedEventTime.getTime()),
-                            retrievedContent, retrievedType, AlarmLevel.values()[retrievedLevel], retrievedRuleId));
+                            retrievedContent, retrievedType, AlarmLevel.values()[retrievedLevel], retrievedRuleId,
+                            retrievedRawEventTime == null? null: new Date(retrievedRawEventTime.getTime())));
                 }
             }
 

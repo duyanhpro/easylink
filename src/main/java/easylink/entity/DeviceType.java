@@ -14,6 +14,7 @@ public class DeviceType extends BaseEntity {
 
 	private String name;
 	String description;
+	String sensors;		// list of used/installed sensors,  separate by ,
 
 	public DeviceType() {
 	}
@@ -34,12 +35,21 @@ public class DeviceType extends BaseEntity {
 		this.description = description;
 	}
 
+	public String getSensors() {
+		return sensors;
+	}
+
+	public void setSensors(String sensors) {
+		this.sensors = sensors;
+	}
+
 	@Override
 	public String toString() {
 		return "DeviceType{" +
 				"id=" + id +
 				", name='" + name + '\'' +
 				", description='" + description + '\'' +
+				", sensors='" + sensors + '\'' +
 				'}';
 	}
 }

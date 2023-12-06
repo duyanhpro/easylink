@@ -59,7 +59,7 @@ public class LicenseController extends BaseController {
 	@NeedPermission("license:update")
 	@PostMapping("")
 	public String update(Model model, String licenseKey, RedirectAttributes redirectAttrs) {
-		log.info("Update license key: ", licenseKey);
+		log.info("Update license key ");
 		if (licenseService.updateLicenseKey(licenseKey))
 			redirectAttrs.addFlashAttribute("infoMsg", "Cập nhật license thành công");
 		else

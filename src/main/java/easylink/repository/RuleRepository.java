@@ -35,10 +35,10 @@ public interface RuleRepository extends JpaRepository<Rule, Integer> {
 	@Query("delete from RuleDevice rs where rs.ruleId = ?1")
 	@Transactional
 	@Modifying
-	void deleteRuleDeviceLink(Integer id);
+	void deleteRuleDeviceLink(Integer ruleId);
 
 	@Query("delete from RuleGroup rs where rs.ruleId = ?1")
 	@Transactional
 	@Modifying
-	void deleteRuleGroupLink(Integer id);
+	void deleteRuleGroupLink(Integer ruleId);
 }

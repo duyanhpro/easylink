@@ -13,6 +13,7 @@ import easylink.repository.RuleGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -49,7 +50,12 @@ public class RuleService {
 	RuleDeviceRepository rsRepo;
 	@Autowired
 	RuleGroupRepository rgRepo;
-	
+	@Autowired
+	MqttService mqttService;
+
+	@Value("${mqtt.topic.system}")
+	String systemTopic;
+
 	public List<Rule> fakeRule() {
 		List<Rule> lr = new ArrayList<Rule>();
 		lr.add(new Rule(1, "rule 1","temp > 1000", "nhiệt độ hơi cao;Warning","CreateAlarm",Rule.STATUS_ACTIVE, 0));
@@ -79,22 +85,35 @@ public class RuleService {
 		
 		// update rule execution thread
 		if (r.getStatus() == Rule.STATUS_INACTIVE)
-			executionService.disableRule(r.getId());
+			//executionService.disableRule(r.getId());
+			sendMqttRuleChange("disable", r.getId());
 		else 
-			executionService.updateRule(r);
+			//executionService.updateRule(r.getId());
+			sendMqttRuleChange("update", r.getId());
 		
 		return r;
 	}
-	
+	public void sendMqttRuleChange(String action, int ruleId) {
+		mqttService.sendToMqtt(systemTopic + "/rule", action + ":" + ruleId, 2);
+	}
+
 	public Rule findById(int ruleId) {
 		return repo.findById(ruleId).get();
 	}
 	
 	public void delete(int ruleId) {
+
+		// delete rule_device link
+		repo.deleteRuleDeviceLink(ruleId);
+
+		// delete rule_group link
+		repo.deleteRuleGroupLink(ruleId);
+
 		repo.deleteById(ruleId);
 		
 		// Cleanup rule execution thread
-		executionService.disableRule(ruleId);
+		//executionService.disableRule(ruleId);
+		sendMqttRuleChange("disable", ruleId);
 	}
 
 	// Check if rule apply to this device

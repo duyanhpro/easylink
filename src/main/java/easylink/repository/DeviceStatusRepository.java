@@ -20,7 +20,7 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Inte
 
 	@Query("select s.deviceToken from DeviceStatus s, Device d where s.deviceToken = d.deviceToken and " +
 			"s.status = :status and d.status = 1")
-	List<String> findTokenByStatus(int status);
+	List<String> findActiveDeviceTokenByDeviceStatus(int status);
 
 	@Modifying
 	@Query("update DeviceStatus s SET s.status = :status WHERE s.deviceToken = :token")
@@ -32,4 +32,8 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Inte
 
 	@Query(value = "CALL GetDeviceStatusForUser(:userId);", nativeQuery = true)
 	List<DeviceStatus> getDeviceStatusForUser(@Param("userId") Integer userId);	// get device statuses of groups of user (recursively)
+
+	@Modifying
+	@Query("delete from DeviceStatus s where s.deviceToken = ?1")
+	void deleteStatus(String token);
 }

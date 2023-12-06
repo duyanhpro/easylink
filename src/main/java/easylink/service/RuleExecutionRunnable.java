@@ -43,7 +43,7 @@ public class RuleExecutionRunnable implements Runnable {
 	// Loop:  take message from queue, then process
 	@Override
 	public void run() {
-		log.info("Start new execution thread for rule {}", r.getName());
+		log.info("Start new execution thread for rule {} {}", r.getId(), r.getName());
 
 		try {
 			while (true) {
@@ -99,7 +99,7 @@ public class RuleExecutionRunnable implements Runnable {
 		ActionCreateAlarm ac = JsonUtil.parse(rule.getAction(), ActionCreateAlarm.class);
 		if (rule.getActionType().equals("CreateAlarm")) {
 			Alarm a = new Alarm((String)message.get(Constant.DEVICE_TOKEN),new Date(), ac.getAlarmContent(),ac.getAlarmType(),
-					AlarmLevel.valueOf(ac.getAlarmLevel()), rule.getId());
+					AlarmLevel.valueOf(ac.getAlarmLevel()), rule.getId(), (Date) message.get("event_time"));
 			log.info("Create alarm {}", a);	
 			
 			AlarmService as = BeanUtil.getBean(AlarmService.class);

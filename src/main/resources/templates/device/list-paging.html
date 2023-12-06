@@ -1,0 +1,98 @@
+<script src="../static/js/quickj/vpager.js"  th:src="@{/js/quickj/vpager.js}"></script>
+<style>
+	.dataTables_filter {
+	   display: none;		// hide datatable default search box to use our search input
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready(
+			function() {
+				
+				$("#page-title").html("Quản lý trạm");
+			});
+
+</script>
+
+<section class="content">
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<div class="row">
+
+				<form th:action="@{/device}" method="get" id="searchForm">
+
+					<!-- Hidden input to support paging -->
+					<input type="hidden" name="page" id="page" th:value="${page}">
+					<input type="hidden" name="pageSize" id="pageSize" th:value="${pageSize}">
+				</form>
+				<div class="col-lg-2 cold-md-3 col-sm-3 col-xs-3">
+					<div class="">
+						<button type="submit" name="fsearch" value="search" class="btn btn-primary btn-rounded">Tìm kiếm</button>
+					</div>
+				</div>
+
+				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+					<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Tên/Mô tả/Địa điểm">
+				</div>
+				<div class="col-lg-6 cold-md-6 col-sm-8 col-xs-8">
+					<div class="">
+						<button id="search" type="button" class="btn btn-gradient-primary">[[#{search}]]</button>
+						<a th:if="${session.principal.hasRole('ADMIN')}" th:href="@{/device/edit/0}" class="btn btn-gradient-success">[[#{new}]]</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div >
+<!-- 			<table id="mainTable"  -->
+<!-- 			class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;" > -->
+<!-- 				<thead> -->
+			<div class="table-responsive">	
+			<table id="mainTable" class="table table-bordered dt-responsive" style="width: 100%;">
+				<thead>
+					<tr>
+						<th>STT</th>
+						<!-- 						<th style="width: 20px">ID</th> -->
+						<th>Tên</th>
+						<th>Mô tả</th>
+						<th>Thành phố</th>
+						<th>Nhóm</th>
+						<th>Thao tác</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="dg,iterationStatus  : ${mypage.content}">
+						<td th:text="${iterationStatus.count + mypage.number * mypage.size}">1</td>
+						<!-- 						<td th:text="${device.id}"></td> -->
+						<td><a th:href="@{'/device/edit/' + ${dg.device.id}}">[[${dg.device.name}]]</a></td>
+						<td th:text="${dg.device.description}">1</td>
+						<td th:text="${dg.device.city}">1</td>
+<!--						<td th:text="${device.location}">1</td>-->
+						<td th:text="${dg.group.name}">1</td>
+<!--						<td th:text="${device.city}">1</td>-->
+<!--						<td th:text="${device.district}">1</td>-->
+<!--						<td th:text="${device.street}">1</td>-->
+						<td><a class="btn btn-gradient-primary"
+							th:href="@{'/device/edit/' + ${dg.device.id}}">Chi tiết</a>
+							<a th:if="${session.principal.hasRole('ADMIN')}" class="btn btn-gradient-danger"
+							   th:attr="onclick=|confirmDelete('${dg.device.id}', '@{/device/delete/}')|"
+							   href="#">[[#{delete}]]</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+		</div>
+
+		<div class="pull-right">
+			<ul class="pagination">
+				<li th:class="${mypage.first} ? 'page-item disabled'"><a class="page-link" th:href="'javascript:jumpPage(\'searchForm\',\'' + 1 + '\');'">Trang đầu</a></li>
+				<li th:class="${mypage.first} ? 'page-item disabled'" >
+					<a class="page-link" th:href="'javascript:jumpPage(\'searchForm\',\'' + ${mypage.number} + '\');'">&larr; </a></li>
+				<li class="page-link disabled" th:text="${'Trang ' + (mypage.number+1) + '/' + (mypage.totalPages==0?1:mypage.totalPages) + ' - Tổng số: ' + mypage.totalElements}"></li>
+				<li th:class="${mypage.last} ? 'page-item disabled'"><a class="page-link"  th:href="'javascript:jumpPage(\'searchForm\',\'' + ${mypage.number+2} + '\');'">&rarr;</a></li>
+				<li th:class="${mypage.last} ? 'page-item disabled'"><a class="page-link"  th:href="'javascript:jumpPage(\'searchForm\',\'' +  ${mypage.totalPages} + '\');'">Trang cuối</a></li>
+
+			</ul>
+		</div>
+
+	</div>
+</section>

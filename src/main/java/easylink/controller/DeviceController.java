@@ -1,18 +1,25 @@
 package easylink.controller;
 
+import easylink.dto.DeviceGroupDto;
+import easylink.entity.Alarm;
 import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
 import easylink.exception.ServiceException;
 import easylink.security.NeedPermission;
 import easylink.security.SecurityUtil;
+import easylink.service.ConfigParamService;
 import easylink.service.DeviceService;
 import easylink.service.DeviceStatusService;
 import easylink.service.DeviceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/device")
@@ -26,15 +33,24 @@ public class DeviceController extends BaseController {
 
 	@Autowired
 	DeviceTypeService deviceTypeService;
+	@Autowired
+	ConfigParamService configParamService;
 
 	// List & Search device
 	@NeedPermission("device:list")
 	@GetMapping("")
-	public String list(Model model) {
+	public String list(Model model, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "30") Integer pageSize) {
 		model.addAttribute("pageTitle", "Danh sách Trạm");
 		//model.addAttribute("devices", deviceService.findAll());
 //		model.addAttribute("devices", deviceService.getDeviceList());
-		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup());
+
+//		List<DeviceGroupDto> l = deviceService.findMyDeviceWithGroup(page, pageSize);
+//		Long count = deviceService.countMyDevices();
+//		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup(page, pageSize));
+//		model.addAttribute("mypage", new PageImpl<DeviceGroupDto>(l, PageRequest.of(page-1, pageSize), count)); // start from page 0
+
+		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup3());
+
 		return "device/list";
 	}
 	
@@ -42,7 +58,7 @@ public class DeviceController extends BaseController {
 	@GetMapping("/edit/{id}")
 	@NeedPermission("device:view")
 	public String getDevice(Model model, @PathVariable int id) {
-
+		model.addAttribute("mapUrl", configParamService.getConfig("MAP_URL"));
 		if (id == 0) {
 			log.debug("Create new device");
 			model.addAttribute("pageTitle", "Tạo mới Trạm");

@@ -1,10 +1,10 @@
 package easylink.service;
 
-import ch.qos.logback.classic.util.LogbackMDCAdapter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import easylink.dto.AlarmLevel;
+import easylink.dto.ConnectionStatus;
 import easylink.entity.Alarm;
 import easylink.entity.DeviceStatus;
 import easylink.repository.DeviceRepository;
@@ -38,6 +38,10 @@ public class DeviceStatusService {
     AlarmService alarmService;
     @Autowired
     MqttService mqttService;
+    @Autowired
+    RedisService redisService;
+    @Autowired
+    ConfigParamService configParamService;
 
     Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -45,7 +49,20 @@ public class DeviceStatusService {
     List<String> deviceTokens;  // all active device tokens
     Map<String, Integer> statusMap = new ConcurrentHashMap<>();     // device token to last status
 
-    //Map<>
+//    @Value("${mqtt.device.timeout}")
+//    int timeOut = 10;  // in seconds
+
+    @Value("${mqtt.topic.connection}")
+    String connectionTopic = "connection";
+
+
+    public List<DeviceStatus> findAllStatus() {
+        return statusRepo.findAll();
+    }
+    public List<DeviceStatus> findStatusOfActiveDevices() {
+        return statusRepo.findActiveDevices();
+    }
+
     /**
      * Find status. Convert json to hashmap to display on screen
      * @param deviceToken
@@ -84,93 +101,98 @@ public class DeviceStatusService {
      */
     public void updateDeviceStatus(String deviceToken, Map<String, Object> map, String msg) {
         // TODO: handle it in batch, in a queue
-        // TODO 2: use Redis to store it --> not good because starrocks needs it for dashboard
         try {
             log.trace("Saving device status: {}", map);
 
             // Update time for monitor worker
             lastStatusUpdateTime.put(deviceToken, System.currentTimeMillis());
-
+            Date eventTime = new Date();
             DeviceStatus st = new DeviceStatus();
             st.setDeviceToken(deviceToken);
-            st.setEventTime(new Date());
+            st.setEventTime(eventTime);
             st.setTelemetry(msg);
             st.setStatus(DeviceStatus.STATUS_OK);   // status:  connection status from gateway to monitoring device
+
+            // Save to DB
             statusRepo.save(st);
 
-            // todo: check last status, if NOK to OK then create an Info alarm. To simplify: use a map, skip case when restart server
-            Integer lastStatus = statusMap.get(deviceToken);
-            if ((lastStatus != null) && (lastStatus == DeviceStatus.STATUS_NOK)) {
-                // notify that connection is now OK
-                mqttService.sendToMqtt(connectionTopic + "/" + deviceToken, "0");
+            // Check last status and notify if this is a connection recovery
+            ConnectionStatus lastStatus = (ConnectionStatus) redisService.get("connection-" + deviceToken);
+            if (lastStatus != null) {
+                if (lastStatus.getStatus() == ConnectionStatus.NOK) {   // change from NOK to OK
+                    // send alarm info about connection recovery
+                    // notify that connection is now OK
+                    mqttService.sendToMqtt(connectionTopic + "/" + deviceToken, "OK");
 
-                // Create alarm
-                Alarm a = new Alarm(deviceToken,new Date(), "Trạm khôi phục kết nối","Connection",
-                        AlarmLevel.Info, 0);
-                alarmService.createAlarm(a);
+                    // Create alarm
+                    Alarm a = new Alarm(deviceToken,new Date(), "Trạm khôi phục kết nối","Connection",
+                            AlarmLevel.Info, 0, eventTime);
+                    alarmService.createAlarm(a);
+                }
             }
-            statusMap.put(deviceToken, DeviceStatus.STATUS_OK);
+
+            // Save connection status to redis
+            ConnectionStatus status = new ConnectionStatus();
+            status.setStatus(ConnectionStatus.OK);
+            status.setLastEventTime(System.currentTimeMillis());
+            status.setSentLostConnectionAlarm(false);
+            redisService.put("connection-" + deviceToken, status);
 
         } catch (Exception e) {
             log.error("Exception when updateDeviceStatus: {}", e.getMessage());
         }
     }
 
-    public DeviceStatus updateStatus(DeviceStatus st) {
-        return statusRepo.save(st);
-    }
-
-    public List<DeviceStatus> findAllStatus() {
-        return statusRepo.findAll();
-    }
-    public List<DeviceStatus> findStatusOfActiveDevices() {
-        return statusRepo.findActiveDevices();
-    }
-
-    @Value("${mqtt.device.timeout}")
-    int timeOut = 10;  // in seconds
     long first = 0;
 
-    @Value("${mqtt.topic.connection}")
-    String connectionTopic = "connection";
-
-    // mydebug: temporary disable
-    @Scheduled(fixedDelayString = "${monitor.interval}")
+    @Scheduled(fixedDelayString = "${monitor.interval}", initialDelay = 30000)
     @Transactional
-    public void monitorDeviceConnection() {
-        log.trace("Check device connections");
-        // if just start app?  Wait X sec after 1st check ( = TIME_OUT)
-        if (first == 0) {
-            first = System.currentTimeMillis();
-            return;
-        }
-        if (System.currentTimeMillis() - first < timeOut * 1000)
-            return;
+    public void monitorDeviceConnectionRedis() {
 
-        // only need to check device with status = OK. Because NOK device will change to OK when new event comes
-        // TODO: event info when connection resumed?
-        // TODO: cache this (not so important)
-        List<String> activeTokens = statusRepo.findTokenByStatus(DeviceStatus.STATUS_OK);
+        // 1. Get all devices with status = OK and being active from DB (or redis doesn't matter)
+        // only need to check device with status = OK. Ignore device that never received any data.  NOK device will change to OK when new event comes
+        List<String> activeTokens = statusRepo.findActiveDeviceTokenByDeviceStatus(DeviceStatus.STATUS_OK);
+        log.trace("Check device connections. Device tokens with status = OK: {}", activeTokens);
+        Long timeOut = (Long)configParamService.getConfig("CONNECTION_TIMEOUT");
 
-        // iterate all tokens, check if (now - lastUpdate) >= TIME_OUT then update status = NOK in DB
+        // 2. Iterate each device token, create lock per device, check timeout, if yes set last checked time.  If can not get lock (ie other node processing it), just
+        // continue to next device token
         for (String token: activeTokens) {
-            Long lastTime = lastStatusUpdateTime.get(token);
+            String lockKey = "timeout-check-" + token;
+            Boolean getLock = redisService.acquireLock(lockKey);
+            //log.trace("get lock: " + getLock);
+            if (!getLock) continue;     // just continue to next device, let whichever process locking the key do their job
+            ConnectionStatus status = (ConnectionStatus) redisService.get("connection-" + token);
+            log.trace("Device {} connection status {}", token, status);
+            if (status == null) {
+                continue;   // this device has never received any data. Ignore it.
+            }
             Long now = System.currentTimeMillis();
-            if ((lastTime != null) && (now - lastTime < timeOut * 1000))
-                continue;
-            // else device timeout
-            log.info("No message from Device {} after timeout {}s -> Update status to NOK", token, timeOut);
-            statusRepo.updateStatus(token, DeviceStatus.STATUS_NOK);
-            statusMap.put(token, DeviceStatus.STATUS_OK);
 
-            // Create alarm
-            Alarm a = new Alarm(token,new Date(), "Trạm mất kết nối","Connection",
-                    AlarmLevel.Error, 0);
-            alarmService.createAlarm(a);
+            if (status.getStatus() == ConnectionStatus.OK) {
+                if (!status.isSentLostConnectionAlarm() && (now - status.getLastEventTime() > timeOut * 1000)) {      // neu timeout va chua gui alarm lan nao
+                    // timeout --> update DB, send mqtt & alarm
+                    log.info("No message from Device {} after timeout {}s -> Update status to NOK", token, timeOut);
+                    statusRepo.updateStatus(token, DeviceStatus.STATUS_NOK);
 
-            // Optional: send an event to mqtt connection monitor topic
-            mqttService.sendToMqtt(connectionTopic + "/" + token, "0");
+                    // Create alarm
+                    Alarm a = new Alarm(token, new Date(), "Trạm mất kết nối", "Connection",
+                            AlarmLevel.Error, 0, null);
+                    alarmService.createAlarm(a);
+
+                    // Optional: send an event to mqtt connection monitor topic
+                    mqttService.sendToMqtt(connectionTopic + "/" + token, "NOK");
+
+                    status.setStatus(ConnectionStatus.NOK);
+                    status.setSentLostConnectionAlarm(true);
+                    status.setLastAlarmTime(now);
+                    redisService.put("connection-" + token, status);
+                }
+
+                redisService.releaseLock(lockKey);
+            }
 
         }
     }
+
 }

@@ -28,182 +28,231 @@ import org.springframework.stereotype.Service;
 @Service
 public class MqttService {
 
-	@Value("${mqtt.serverUrl}")
-	String mqttServerUrl;
+    @Value("${mqtt.serverUrl}")
+    String mqttServerUrl;
 
-	@Value("${mqtt.username}")
-	String mqttUsername;
+    @Value("${mqtt.username}")
+    String mqttUsername;
 
-	@Value("${mqtt.password}")
-	String mqttPassword;
+    @Value("${mqtt.password}")
+    String mqttPassword;
 
-	@Value("${mqtt.enable}")
-	Boolean mqttEnable;
+    @Value("${mqtt.enable}")
+    Boolean mqttEnable;
 
-	@Value("${raw.insert.enable:true}")
-	Boolean enableInsert;
-	@Value("${raw.save-status.enable:true}")
-	Boolean enableSaveStatus;
-	@Value("${rule.enable:true}")
-	Boolean enableRule;
+    @Value("${mqtt.topic.system}")
+    String systemTopic;
 
-	@Autowired
+    @Value("${raw.insert.enable:true}")
+    Boolean enableInsert;
+    @Value("${raw.save-status.enable:true}")
+    Boolean enableSaveStatus;
+    @Value("${rule.enable:true}")
+    Boolean enableRule;
+
+    @Autowired
     DeviceService deviceService;
-	@Autowired
-	DeviceStatusService deviceStatusService;
-	@Autowired
-	DeviceSchemaService schemaService;
+    @Autowired
+    DeviceStatusService deviceStatusService;
+    @Autowired
+    DeviceSchemaService schemaService;
 
-	IMqttClient client;
+    IMqttClient client;
 
-	@Autowired
-	RuleExecutionServie ruleExecutionService;
+    @Autowired
+    RuleExecutionServie ruleExecutionService;
 
-	@Autowired
-	StarrocksService ingestService;
+    @Autowired
+    StarrocksService ingestService;
 
-	static Logger log = LoggerFactory.getLogger(MqttService.class);
+    static Logger log = LoggerFactory.getLogger(MqttService.class);
 
-	@EventListener
-	public void onApplicationEvent(ContextRefreshedEvent event) {
-		if (!mqttEnable) return;
-		log.info("Application context refreshed");
-		connectMqtt();
-		subscribeTelemetry();
-	}
+    @EventListener
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (!mqttEnable) return;
+        log.info("Application context refreshed");
+        connectMqtt();
+        subscribeTelemetry();
+        subscribeSystemMessage();
+        setMqttCallBack();
+    }
 
-	@Bean(name = "asyncExecutor")
-	public Executor asyncExecutor()
-	{
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(3);
-		executor.setMaxPoolSize(3);
-		executor.setQueueCapacity(100);
-		executor.setThreadNamePrefix("MqttAsync-");
-		executor.initialize();
-		return executor;
-	}
+    @Bean(name = "asyncExecutor")
+    public Executor asyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(3);
+        executor.setMaxPoolSize(3);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("MqttAsync-");
+        executor.initialize();
+        return executor;
+    }
 
-	public void connectMqtt() {
-		String clientId = UUID.randomUUID().toString();
-		try {
-			client = new MqttClient(mqttServerUrl,clientId, new MemoryPersistence());
-						// added new MemoryPersistence() to prevent FileLock warning
-			MqttConnectOptions options = new MqttConnectOptions();
-			options.setUserName(mqttUsername);
-			options.setPassword(mqttPassword.toCharArray());
-			options.setAutomaticReconnect(true);
-			options.setCleanSession(true);
-			options.setConnectionTimeout(10);
-			client.connect(options);
+    public void connectMqtt() {
+        String clientId = UUID.randomUUID().toString();
+        try {
+            client = new MqttClient(mqttServerUrl, clientId, new MemoryPersistence());
+            // added new MemoryPersistence() to prevent FileLock warning
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setUserName(mqttUsername);
+            options.setPassword(mqttPassword.toCharArray());
+            options.setAutomaticReconnect(true);
+            options.setCleanSession(true);
+            options.setConnectionTimeout(10);
+            client.connect(options);
 
-			log.info("MQTT connected");
+            log.info("MQTT connected");
 
-		} catch (MqttException e) {
-			log.error("MQTT connect exception ",e.getMessage());
-		}
-	}
+        } catch (MqttException e) {
+            log.error("MQTT connect exception ", e.getMessage());
+        }
+    }
 
-	@Scheduled(fixedRate = 30000)	// Keepalive. check MQTT connection every 30s
-	public void checkMqttConnection() {
-		if (!mqttEnable) return;
-		log.trace("Mqtt watchdog");
-		if (!client.isConnected())
-			connectMqtt();
-	}
+    @Scheduled(fixedRate = 30000, initialDelay = 30000)    // Keepalive. check MQTT connection every 30s
+    public void checkMqttConnection() {
+        if (!mqttEnable) return;
+        log.trace("Mqtt watchdog");
+        if (!client.isConnected()) {
+            connectMqtt();
 
-	public void subscribeTelemetry() {
-		List<DeviceSchema> ld = schemaService.findAll();
-		for (DeviceSchema d: ld) {
-			try {
-				log.info("Subscribe to MQTT topic: " + d.getTopic());
-				client.subscribe(d.getTopic(), 1);
-				client.setCallback(new MqttCallback() {
-					@Override
-					public void connectionLost(final Throwable cause) {
+            // re-subscribe topic
+            subscribeTelemetry();
+            subscribeSystemMessage();
+        }
+    }
 
-					}
+    public void subscribeTelemetry() {
+        List<DeviceSchema> ld = schemaService.findAll();
+        for (DeviceSchema d : ld) {
+            try {
+                log.info("Subscribe to MQTT topic: " + d.getTopic());
+                client.subscribe(d.getTopic(), 1);
 
-					@Override
-					public void messageArrived(final String topic, final MqttMessage message) throws Exception {
-						processTelemetryEvent(topic, new String(message.getPayload()));
-					}
+            } catch (MqttException e) {
+                log.error("MQTT subscribe telemetry exception ", e.getMessage());
+            }
+        }
+    }
 
-					@Override
-					public void deliveryComplete(final IMqttDeliveryToken token) {
+    private void subscribeSystemMessage() {
+        log.info("Subscribe to MQTT System topic: ");
+        try {
+            client.subscribe(systemTopic + "/#", 2);
 
-					}
-				});
-			} catch (MqttException e) {
-				log.error("MQTT subscribe telemetry exception ", e.getMessage());
-			}
-		}
-	}
+        } catch (MqttException e) {
+            log.error("MQTT subscribe telemetry exception ", e.getMessage());
+        }
+    }
 
-	public void processTelemetryEvent(String topic, String msg) {
-		log.trace("Receive mqtt message: " + msg);
-		// convert JSON string to Map
-		ObjectMapper mapper = new ObjectMapper();
+    private void setMqttCallBack() {
+        client.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(final Throwable cause) {
 
-		int lastSlashIndex = topic.lastIndexOf('/');
-		String deviceTokenFromTopic =  topic.substring(lastSlashIndex + 1);
+            }
 
-		// check if device is disabled then discard event
-		Device d = deviceService.findByToken(deviceTokenFromTopic);
-		if (d.getStatus() == Device.STATUS_INACTIVE)
-			return;
+            @Override
+            public void messageArrived(final String topic, final MqttMessage message) throws Exception {
+                if (topic.contains(systemTopic))
+                    processSystemMessage(topic, new String(message.getPayload()));
+                else
+                    processTelemetryEvent(topic, new String(message.getPayload()));
+            }
 
-		try {
-			Map<String, Object> map = mapper.readValue(msg, Map.class);
+            @Override
+            public void deliveryComplete(final IMqttDeliveryToken token) {
 
-			boolean r = normalizedData(deviceTokenFromTopic, map);
-			if (!r) return;		// skip this event
+            }
+        });
+    }
 
-			if (enableSaveStatus)
-				deviceStatusService.updateDeviceStatus(deviceTokenFromTopic, map, msg);
-			if (enableInsert)
-				ingestService.insertData(map);
-			if (enableRule)
-				ruleExecutionService.executeRule(deviceTokenFromTopic, map);
-			
-		} catch (Exception e) {
-			log.error("Exception when processing event: {}", e.getMessage());
-		}
-	}
+    private void processSystemMessage(String topic, String msg) {
+        log.info("Received MQTT system message: {} {}", topic, msg);
+        if (topic.contains("rule")) {
+            String[] a = msg.split(":");
+            int ruleId = Integer.parseInt(a[1]);
+            if (a[0].equals("disable"))
+                ruleExecutionService.disableRule(ruleId);
+            else if (a[0].equals("update"))
+                ruleExecutionService.updateRule(ruleId);
 
-	@Value("${event.max-delay-time}")
-	int maxDelayTime = 60;	// Max time in seconds to wait for event. Reject older events
-	public boolean normalizedData(String deviceToken, Map<String, Object> data) {
-		// Read timestamp from message, reject if message too old (for example 1 hour late)
-		Long t = (Long)data.get("event_time");
-		Long now = System.currentTimeMillis();
-		if ((t != null) && (now - t > maxDelayTime *1000))		// reject event
-			return false;
-		if (t == null)
-			data.put("event_time", new Date());	// use system time if message does not have "event_time"
-		if (!data.containsKey(Constant.DEVICE_TOKEN))
-			data.put(Constant.DEVICE_TOKEN, deviceToken);  // get device token from mqtt topic
+        }
+    }
 
-		return true;
-	}
+    public void processTelemetryEvent(String topic, String msg) {
+        log.trace("Receive mqtt message: " + msg);
+        // convert JSON string to Map
+        ObjectMapper mapper = new ObjectMapper();
 
-	public void sendToMqtt(String topic, String message) {
-		log.debug("Publish mqtt message {} to topic {}", message, topic);
-		try {
-			if (!client.isConnected()) {
-				connectMqtt();
-				if (!client.isConnected())
-					return;
-			}
-			MqttMessage msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
-			msg.setQos(2);
-			msg.setRetained(false);
+        int lastSlashIndex = topic.lastIndexOf('/');
+        String deviceTokenFromTopic = topic.substring(lastSlashIndex + 1);
 
-			client.getTopic(topic).publish(msg);
-		} catch (Exception e) {
-			log.error("Exception when sending MQTT message to topic {}: {}", topic, e.getMessage());
-		}
-		return;
-	}
+        // check if device is disabled then discard event
+        Device d = deviceService.findByToken(deviceTokenFromTopic);
+        if (d.getStatus() == Device.STATUS_INACTIVE)
+            return;
+
+        try {
+            Map<String, Object> map = mapper.readValue(msg, Map.class);
+
+            boolean r = normalizedData(deviceTokenFromTopic, map);
+            if (!r) return;        // skip this event
+
+            if (enableSaveStatus)
+                deviceStatusService.updateDeviceStatus(deviceTokenFromTopic, map, msg);
+            if (enableInsert)
+                ingestService.insertData(map);
+            if (enableRule) {
+                ruleExecutionService.executeRule(deviceTokenFromTopic, map);
+            }
+            ruleExecutionService.checkSystemRule(deviceTokenFromTopic, map);
+
+
+        } catch (Exception e) {
+            log.error("Exception when processing event: {}", e.getMessage());
+        }
+    }
+
+    @Value("${event.max-delay-time}")
+    int maxDelayTime = 60;    // Max time in seconds to wait for event. Reject older events
+
+    public boolean normalizedData(String deviceToken, Map<String, Object> data) {
+        // Read timestamp from message, reject if message too old (for example 1 hour late)
+        Long t = (Long) data.get(Constant.EVENT_TIME);
+        Long now = System.currentTimeMillis();
+        if ((t != null) && (now - t > maxDelayTime * 1000))        // reject event
+            return false;
+        if (t != null)
+            data.put(Constant.EVENT_TIME, new Date(t));
+        else
+            data.put(Constant.EVENT_TIME, new Date());    // use system time if message does not have "event_time", else overwrite Long with Date
+        if (!data.containsKey(Constant.DEVICE_TOKEN))
+            data.put(Constant.DEVICE_TOKEN, deviceToken);  // get device token from mqtt topic
+
+        return true;
+    }
+
+    public void sendToMqtt(String topic, String message) {
+        sendToMqtt(topic, message, 1);
+    }
+
+    public void sendToMqtt(String topic, String message, int qos) {
+        log.debug("Publish mqtt message {} to topic {}", message, topic);
+        try {
+            if (!client.isConnected()) {
+                connectMqtt();
+                if (!client.isConnected())
+                    return;
+            }
+            MqttMessage msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
+            msg.setQos(qos);
+            msg.setRetained(false);
+
+            client.getTopic(topic).publish(msg);
+        } catch (Exception e) {
+            log.error("Exception when sending MQTT message to topic {}: {}", topic, e.getMessage());
+        }
+        return;
+    }
 
 }

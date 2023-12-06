@@ -1,17 +1,18 @@
 package easylink.security;
 
+import java.io.Serializable;
 import java.util.*;
 
 import easylink.entity.Group;
 import easylink.entity.User;
 
-@SuppressWarnings("serial")
+
 /**
  * Represent authenticated user with all permissions and roles. Will be loaded from DB after user log in
  * @author Pham Duy Anh
  *
  */
-public class UserAuthorizationDetail {
+public class UserAuthorizationDetail implements Serializable {
 
 	private int userId;		// custom field to audit entity create/update
 	private String username;

@@ -1,16 +1,7 @@
-
- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-   crossorigin=""/>
- 
- <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-   crossorigin=""></script>
-   
 <style>
-#mapid {
-	position: relative;
-	height: 400px;
+
+.checkbox-group {
+	margin-bottom: 10px; /* Add margin between groups */
 }
 </style>
 
@@ -20,6 +11,35 @@
 		$("#page-title").html("Quản lý loại trạm");
 		$('#lstDevice').select2();
 	});
+	function toggleCheckboxes() {
+		var checkboxes = document.getElementsByClassName('my-checkbox');
+		for (var i = 0; i < checkboxes.length; i++) {
+			checkboxes[i].checked = !checkboxes[i].checked;
+		}
+	}
+	function toggleAllCheckboxes(masterCheckbox) {
+		var checkboxes = document.getElementsByClassName('my-checkbox');
+		for (var i = 0; i < checkboxes.length; i++) {
+			checkboxes[i].checked = masterCheckbox.checked;
+		}
+	}
+	function validateAndSubmit() {
+		var checkboxes = document.getElementsByClassName('my-checkbox');
+		var atLeastOneChecked = false;
+
+		for (var i = 0; i < checkboxes.length; i++) {
+			if (checkboxes[i].checked) {
+				atLeastOneChecked = true;
+				break;
+			}
+		}
+
+		if (atLeastOneChecked) {
+			document.getElementById('myForm').submit();
+		} else {
+			Swal.fire("Phải chọn ít nhất 1 cảm biến!");
+		}
+	}
 </script>
 
 <section class="content">
@@ -28,7 +48,7 @@
 			<div class="box box-info">
 
 				<!-- form start -->
-				<form class="form-horizontal form-parsley"  th:action="@{/dtype/save}" method="post">
+				<form id="myForm" class="form-horizontal form-parsley"  th:action="@{/dtype/save}" method="post">
 					<input type="hidden" id="id" name="id" th:value="${deviceType.id}">
 					<div class="box-body">
 						<div class="form-group row">
@@ -46,6 +66,25 @@
 						</div>
 					</div>
 
+					<div class="form-group row">
+						<label class="col-sm-3 control-label col-form-label">Cảm biến có sử dụng</label>
+						<div class="col-sm-5">
+<!--							<button type="button" class="btn btn-gradient-info" onclick="toggleCheckboxes()">Toggle Checkboxes</button>-->
+
+							<div class="checkbox">
+								<input id="masterCheckbox" onchange="toggleAllCheckboxes(this)" type="checkbox">
+								<label for="masterCheckbox">
+									Chọn/Bỏ chọn tất cả
+								</label>
+							</div>
+							<div class="checkbox checkbox-success form-check-inline" th:each="field : ${allFields}">
+								<input  class="form-check-input my-checkbox" type="checkbox" th:id="${field}" th:name="selectedFields" th:value="${field}"
+									   th:checked="${myFields!=null && myFields.contains(field)}"/>
+								<label class="form-check-label" th:for="${field}" th:text="${field}"></label>
+							</div>
+
+						</div>
+					</div>
 					<div class="form-group row" th:if="${action!='create'}">
 						<label for="lstDevice" class="col-sm-3 control-label col-form-label">Trạm thuộc loại này</label>
 						<div class="col-sm-5">
@@ -64,7 +103,8 @@
 							<a th:if="${action!='create' AND session.isAdmin AND session.isRoot}" href="#"
 							   class="btn btn-gradient-danger"
 							   th:attr="onclick=|confirmDelete('${deviceType.id}', '@{/dtype/delete/}')|">Xóa</a>
-							<button th:if="${session.isAdmin && session.isRoot}" type="submit" class="btn btn-gradient-primary">Lưu</button>
+							<button th:if="${session.isAdmin && session.isRoot}" type="button" onclick="validateAndSubmit()"
+									class="btn btn-gradient-primary">Lưu</button>
 						</div>
 					</div>
 					

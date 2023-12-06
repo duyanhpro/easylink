@@ -178,6 +178,7 @@ public class RolePermissionService {
 	public void deleteRole(int roleId) {
 		// Check if this role is not used by any Groups or Users before delete
 		// --> this is done by the DB. No need to code :)
+		// TODO:  DB not configured, but not yet needed for this project
 		roleRepo.deleteById(roleId);
 		
 		// Delete relation in roleTree where childId = roleId

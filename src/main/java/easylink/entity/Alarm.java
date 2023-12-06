@@ -16,6 +16,7 @@ public class Alarm {
 	private String content;
 	Date eventTime;
 	String type;
+	Date rawEventTime;
 	
 	@Enumerated(EnumType.ORDINAL)
     AlarmLevel level;
@@ -36,6 +37,17 @@ public class Alarm {
 		this.type = type;
 		this.level = level;
 		this.ruleId = ruleId;
+	}
+
+	public Alarm(String deviceToken, Date eventTime, String content, String type, AlarmLevel level, Integer ruleId, Date rawEventTime) {
+		super();
+		this.deviceToken = deviceToken;
+		this.eventTime = eventTime;
+		this.content = content;
+		this.type = type;
+		this.level = level;
+		this.ruleId = ruleId;
+		this.rawEventTime = rawEventTime;
 	}
 
 	public String getDeviceToken() {
@@ -86,6 +98,13 @@ public class Alarm {
 		this.ruleId = ruleId;
 	}
 
+	public Date getRawEventTime() {
+		return rawEventTime;
+	}
+
+	public void setRawEventTime(Date rawEventTime) {
+		this.rawEventTime = rawEventTime;
+	}
 
 	@Override
 	public String toString() {

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.Duration;
 
@@ -24,6 +25,14 @@ public class CacheConfig {
     public RedisCacheConfiguration getRedisConfig() {
         return RedisCacheConfiguration.defaultCacheConfig(Thread.currentThread().getContextClassLoader()) // need this to able to deserialize entity
                 .entryTtl(Duration.ofSeconds(redisTTL));
+    }
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        // Customize further if needed
+        return template;
     }
 //    @Bean
 //    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {

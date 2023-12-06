@@ -51,7 +51,7 @@
 		<div class="box-header with-border">
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-					<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Tên/Mô tả/Thành phố/Nhóm">
+					<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Tên/Mô tả/Địa điểm">
 				</div>
 				<div class="col-lg-6 cold-md-6 col-sm-8 col-xs-8">
 					<div class="">
@@ -69,7 +69,7 @@
 			<table id="mainTable" class="table table-bordered dt-responsive" style="width: 100%;">
 				<thead>
 					<tr>
-						<th >STT</th>
+						<th>STT</th>
 						<!-- 						<th style="width: 20px">ID</th> -->
 						<th>Tên</th>
 						<th>Mô tả</th>
@@ -84,19 +84,22 @@
 				<tbody>
 					<tr th:each="dg,iterationStatus  : ${deviceGroups}">
 						<td th:text="${iterationStatus.count}">1</td>
-						<td><a th:href="@{'/device/edit/' + ${dg.id}}">[[${dg.name}]]</a></td>
-						<td th:text="${dg.description}">1</td>
-						<td th:text="${dg.city}">1</td>
-						<td th:text="${dg.groupName}">1</td>
+						<!-- 						<td th:text="${device.id}"></td> -->
+						<td><a th:href="@{'/device/edit/' + ${dg.device.id}}">[[${dg.device.name}]]</a></td>
+						<td th:text="${dg.device.description}">1</td>
+						<td th:text="${dg.device.city}">1</td>
+<!--						<td th:text="${device.location}">1</td>-->
+						<td th:text="${dg.group.name}">1</td>
+<!--						<td th:text="${device.city}">1</td>-->
+<!--						<td th:text="${device.district}">1</td>-->
+<!--						<td th:text="${device.street}">1</td>-->
 						<td><a class="btn btn-gradient-primary"
-							th:href="@{'/device/edit/' + ${dg.id}}">Chi tiết</a>
+							th:href="@{'/device/edit/' + ${dg.device.id}}">Chi tiết</a>
 							<a th:if="${session.principal.hasRole('ADMIN')}" class="btn btn-gradient-danger"
-							   th:attr="onclick=|confirmDelete('${dg.id}', '@{/device/delete/}')|"
+							   th:attr="onclick=|confirmDelete('${dg.device.id}', '@{/device/delete/}')|"
 							   href="#">[[#{delete}]]</a>
 						</td>
 					</tr>
-
-
 				</tbody>
 			</table>
 			</div>

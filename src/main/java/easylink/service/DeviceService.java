@@ -3,11 +3,14 @@ package easylink.service;
 import java.util.*;
 
 import easylink.dto.DeviceGroupDto;
+import easylink.dto.DeviceGroupDto2;
+import easylink.dto.IDeviceWithGroupDto;
 import easylink.dto.Location;
 import easylink.entity.Device;
 import easylink.entity.DeviceGroup;
 import easylink.entity.Group;
 import easylink.repository.DeviceGroupRepository;
+import easylink.repository.DeviceStatusRepository;
 import easylink.repository.GroupRepository;
 import easylink.security.SecurityUtil;
 import easylink.util.BeanUtil;
@@ -40,14 +43,16 @@ public class DeviceService {
 	DeviceGroupRepository dgRepo;
 	@Autowired
 	LicenseService licenseService;
+	@Autowired
+	DeviceStatusRepository deviceStatusRepository;
 
 	@Autowired
 	private CacheManager cacheManager;
 
 	// Find all belong to this user
-	public List<DeviceGroupDto> findMyDeviceWithGroup() {
+	public List<DeviceGroupDto> findMyDeviceWithGroup(int page, int pageSize) {
 		List<DeviceGroupDto> ldg = new ArrayList<>();
-		List<Device> ld = findAllMyDevices();
+		List<Device> ld = findAllMyDevicesWithPaging(page, pageSize);
 		List<Group> lg = groupRepo.findAll();
 		Map<Integer, Group> mg = new HashMap<>();
 		for (Group g: lg) {
@@ -56,7 +61,30 @@ public class DeviceService {
 		for (Device d: ld) {
 			DeviceGroupDto dg = new DeviceGroupDto();
 			dg.setDevice(d);
-			dg.setGroup(mg.get(d.getGroupId())); // todo:  set to root group if group = null
+			dg.setGroup(mg.get(d.getGroupId()));
+			ldg.add(dg);
+		}
+		return ldg;
+	}
+	public List<IDeviceWithGroupDto> findMyDeviceWithGroup3() {
+		return repo.getDevicesForUserWithGroup(SecurityUtil.getUserDetail().getUserId());
+	}
+	// Find all belong to this user
+	public List<DeviceGroupDto2> findMyDeviceWithGroup2() {
+		List<DeviceGroupDto2> ldg = new ArrayList<>();
+		List<Device> ld = findAllMyDevices();
+		List<Group> lg = groupRepo.findAll();
+		Map<Integer, Group> mg = new HashMap<>();
+		for (Group g: lg) {
+			mg.put(g.getId(), g);
+		}
+		for (Device d: ld) {
+			DeviceGroupDto2 dg = new DeviceGroupDto2();
+			dg.setId(d.getId());
+			dg.setName(d.getName());
+			dg.setDescription(d.getDescription());
+			dg.setCity(d.getCity());
+			dg.setGroupName(mg.get(d.getGroupId()).getName());
 			ldg.add(dg);
 		}
 		return ldg;
@@ -69,7 +97,12 @@ public class DeviceService {
 	public List<Device> findAllMyDevices() {
 		return repo.getDevicesForUser(SecurityUtil.getUserDetail().getUserId());
 	}
-
+	public List<Device> findAllMyDevicesWithPaging(int page, int pageSize) {
+		return repo.getDevicesForUserWithPaging(SecurityUtil.getUserDetail().getUserId(), (page-1) * pageSize, pageSize);
+	}
+	public Long countMyDevices() {
+		return repo.countDevicesForUser(SecurityUtil.getUserDetail().getUserId());
+	}
 	public List<Device> findAllDevicesByUserId(int userId) {		// mainly for debug
 		return repo.getDevicesForUser(userId);
 	}
@@ -158,7 +191,22 @@ public class DeviceService {
 	}
 
 	public void deleteById(int id) {
+
+		Device d = findById(id);
+		// Clear cache
+		cacheManager.getCache("deviceByToken").evict(d.getDeviceToken());
+		// cleanup link in device_group
+		repo.deleteDeviceGroupByDeviceId(id);
+
+		// delete deviceStatus
+		deviceStatusRepository.deleteStatus(d.getDeviceToken());
+
+		// delete rule_device link
+		repo.deleteRuleDeviceLinkByDeviceId(id);
+
+		// Delete
 		repo.deleteById(id);
+
 	}
 
 	public Device updateLocation(int camId, Location location) {

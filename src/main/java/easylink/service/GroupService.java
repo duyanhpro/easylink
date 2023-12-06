@@ -186,11 +186,6 @@ public class GroupService {
 	}
 
 	@Transactional
-	public void deleteById(int id) {
-		repo.deleteById(id);
-	}
-
-	@Transactional
 	public void deleteAndUpdateTree(int id) {
 		if (id == 1)
 			throw new RuntimeException("Không thể xóa nhóm gốc!");

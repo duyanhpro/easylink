@@ -73,8 +73,8 @@
 				<tr th:each="role,iterationStatus  : ${roles}">
 					<td th:text="${iterationStatus.count}">1</td>
 <!--					<td th:text="${role.id}"></td>-->
-					<td th:text="${role.name}"></td>
-					<td th:text="${role.description}">duyanh@vivas.vn</td>
+					<td th:text="${role.displayName}"></td>
+					<td th:text="${role.description}"></td>
 <!--					<div th:switch="${role.status}">-->
 <!--						<td th:case="'1'">Kích hoạt</td>-->
 <!--						<td th:case="'0'">Khóa</td>-->

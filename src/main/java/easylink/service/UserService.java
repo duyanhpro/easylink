@@ -50,7 +50,7 @@ public class UserService {
 		return repo.findAllByOrderByUsernameAsc();
 		//return repo.findAll(new Sort(Sort.Direction.ASC, "username"));
 	}
-	public List<IUserDto> findAllMyUser() {
+	public List<IUserDto> findAllMyUserDTO() {
 		// Must find users of all children group (direct users)
 		//return repo.findAllMyUserOrderByUsernameAsc(SecurityUtil.getUserDetail().getUserId());
 		return repo.findAllMyUserWithGroupAndRole(SecurityUtil.getUserDetail().getUserId());
@@ -58,6 +58,12 @@ public class UserService {
 
 	@Transactional
 	public void deleteById(int id) {
+
+		// delete user_group link
+		repo.deleteUserGroupByUserId(id);
+		// delete user_role link
+		repo.deleteUserRoleByUserId(id);
+
 		repo.deleteById(id);
 	}
 

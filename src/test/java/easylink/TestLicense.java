@@ -11,7 +11,7 @@ public class TestLicense {
 //        LicenseInfo a = new LicenseInfo(true,"Cục kỹ thuật - Binh chủng Thông tin Liên lạc",
 //                3, DateUtil.newDate("20/11/2022", "dd/MM/yyyy"));
         LicenseInfo a = new LicenseInfo(true,"Cục kỹ thuật - Binh chủng Thông tin Liên lạc",
-                3, null);
+                100, null);
         String key = EncryptUtil.encryptTripleDES(LicenseService.ek, JsonUtil.object2string(a));
         System.out.println(key);
     }

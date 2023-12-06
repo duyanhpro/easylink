@@ -32,7 +32,7 @@
 
 	<logger name="easylink" level="trace" />
 	<logger name="easylink.security" level="info" />
-	<logger name="org.springframework.cache" level="trace" />
+<!--	<logger name="org.springframework.cache" level="trace" />-->
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />

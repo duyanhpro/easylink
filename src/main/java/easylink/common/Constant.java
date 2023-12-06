@@ -8,4 +8,5 @@ public class Constant {
 	public static final String SESSION_USER = "user";
 
 	public static final String DEVICE_TOKEN = "device_token";
+	public static final String EVENT_TIME = "event_time";
 }
