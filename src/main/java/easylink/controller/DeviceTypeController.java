@@ -8,6 +8,7 @@ import easylink.exception.ServiceException;
 import easylink.security.NeedPermission;
 import easylink.security.SecurityUtil;
 import easylink.service.DeviceSchemaService;
+import easylink.service.DeviceService;
 import easylink.service.DeviceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,8 @@ public class DeviceTypeController extends BaseController {
 	DeviceTypeService deviceTypeService;
 	@Autowired
 	DeviceSchemaService deviceSchemaService;
+	@Autowired
+	DeviceService deviceService;
 
 	// List & Search
 	@NeedPermission("device:list")
@@ -56,7 +59,7 @@ public class DeviceTypeController extends BaseController {
 			model.addAttribute("action", "update");
 			
 			DeviceType g = deviceTypeService.findById(id);
-			model.addAttribute("devices", deviceTypeService.findDeviceByType(id));
+			model.addAttribute("devices", deviceService.findAllMyDevices());
 			model.addAttribute("deviceType", g);
 
 			ObjectMapper objectMapper = new ObjectMapper();

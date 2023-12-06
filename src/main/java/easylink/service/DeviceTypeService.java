@@ -3,6 +3,7 @@ package easylink.service;
 import easylink.entity.Device;
 import easylink.entity.DeviceType;
 import easylink.repository.DeviceTypeRepository;
+import easylink.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class DeviceTypeService {
         return repo.findById(id).get();
     }
     public List<Device> findDeviceByType(int id) {
-        log.trace("Find device by type: " + repo.findDeviceByType(id));
+       // log.trace("Find device by type: " + repo.findDeviceByType(id));
         return repo.findDeviceByType(id);
     }
 

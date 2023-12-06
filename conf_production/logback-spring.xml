@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- How to set configuration file in command line:  java -Dlogback.configurationFile=/path/to/config.xml -->
+
+<configuration scan="true" scanPeriod="30 seconds" >
+	<property name="LOG_FILE" value="mylog" />
+	<!-- Property can also be set in JVM system properties -->
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %class{0}.%method:%L - %msg%n</pattern>
+		</encoder>
+    </appender>
+  
+	<appender name="ROLLIN"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/${LOG_FILE}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+			<!-- daily rollover -->
+			<fileNamePattern>logs/${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %class{0}.%method:%L - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+
+	<root level="info">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="ROLLIN" />
+	</root>
+
+	<logger name="org.springframework" level="INFO" />
+
+	<logger name="easylink" level="DEBUG" />
+	<logger name="easylink.security" level="INFO" />
+	
+</configuration>

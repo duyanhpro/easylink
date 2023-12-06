@@ -66,7 +66,7 @@
  						<th style="width: 30px">ID</th>
 						<th>Tên</th>
 						<th>Mô tả</th>
-						<th th:if="${session.isAdmin && session.isRoot}">Thao tác</th>
+						<th>Thao tác</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -75,8 +75,8 @@
 						<td th:text="${dg.id}"></td>
 						<td><a th:href="@{'/dtype/edit/' + ${dg.id}}">[[${dg.name}]]</a></td>
 						<td th:text="${dg.description}">1</td>
-						<td th:if="${session.isAdmin && session.isRoot}"><a class="btn btn-gradient-primary"
-							th:href="@{'/dtype/edit/' + ${dg.id}}">Sửa</a>
+						<td><a class="btn btn-gradient-primary"
+							th:href="@{'/dtype/edit/' + ${dg.id}}" th:text="${session.isAdmin && session.isRoot? 'Sửa': 'Xem'}">Sửa</a>
 							<a th:if="${session.isAdmin && session.isRoot}" class="btn btn-gradient-danger"
 							   th:attr="onclick=|confirmDelete('${dg.id}', '@{/dtype/delete/}')|"
 							   href="#">[[#{delete}]]</a>

@@ -67,7 +67,12 @@ public class StarrocksService {
         config.setPassword(password);
         config.setMaximumPoolSize(10);        // Set the maximum pool size (number of connections)
         config.setMinimumIdle(5);        // Set the minimum idle connections (optional)
-        dataSource = new HikariDataSource(config);
+        //try {
+            dataSource = new HikariDataSource(config);
+//        } catch (Exception e) {       // Application will stop if can not create hikari datasource (no connection)
+//            log.error("Creating Hikari Datasource for Starrorck error", e);
+//            return;
+//        }
 
         log.info("Create thread to wait for data from queue and insert");
         new Thread(new Runnable() {

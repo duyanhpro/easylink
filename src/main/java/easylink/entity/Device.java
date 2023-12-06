@@ -169,4 +169,20 @@ public class Device extends BaseEntity {
 				'}';
 	}
 
+	public Device(String name, String description, String location, String street, String district, String city, String deviceToken, String tags, Float lon, Float lat, Integer status, Integer schemaId, Integer groupId, Integer typeId) {
+		this.name = name;
+		this.description = description;
+		this.location = location;
+		this.street = street;
+		this.district = district;
+		this.city = city;
+		this.deviceToken = deviceToken;
+		this.tags = tags;
+		this.lon = lon;
+		this.lat = lat;
+		this.status = status;
+		this.schemaId = schemaId;
+		this.groupId = groupId;
+		this.typeId = typeId;
+	}
 }
