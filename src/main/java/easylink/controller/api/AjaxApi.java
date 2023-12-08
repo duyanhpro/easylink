@@ -3,6 +3,7 @@ package easylink.controller.api;
 import java.util.List;
 
 import easylink.dto.GroupNode;
+import easylink.dto.IDeviceWithGroupDto;
 import easylink.dto.Location;
 import easylink.entity.Alarm;
 import easylink.entity.Device;
@@ -54,6 +55,13 @@ public class AjaxApi {
 	@NeedPermission("device:list")
 	public List<Device> getListDevice() {
 		return deviceService.findAllMyDevices();
+	}
+
+	@GetMapping("/api/deviceTable")
+	@ResponseBody
+	@NeedPermission("device:list")
+	public List<IDeviceWithGroupDto> getListMyDeviceDtoForListDevicePage() {
+		return deviceService.findMyDeviceWithGroup2();
 	}
 	
 	@PostMapping("/api/devices/{id}/location")

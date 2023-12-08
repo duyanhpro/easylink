@@ -5,12 +5,12 @@ public interface IDeviceWithGroupDto {
 
     public String getName();
 
-    public String getDescription();
+    public String getLocation();
 
     public String getCity();
 
     public String getGroupName();
 
-
+    public String getDeviceTypeName();
 
 }

@@ -1,7 +1,5 @@
 package easylink.controller;
 
-import easylink.dto.DeviceGroupDto;
-import easylink.entity.Alarm;
 import easylink.entity.Device;
 import easylink.entity.DeviceStatus;
 import easylink.exception.ServiceException;
@@ -12,14 +10,10 @@ import easylink.service.DeviceService;
 import easylink.service.DeviceStatusService;
 import easylink.service.DeviceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/device")
@@ -48,8 +42,9 @@ public class DeviceController extends BaseController {
 //		Long count = deviceService.countMyDevices();
 //		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup(page, pageSize));
 //		model.addAttribute("mypage", new PageImpl<DeviceGroupDto>(l, PageRequest.of(page-1, pageSize), count)); // start from page 0
-
-		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup3());
+		Long start = System.currentTimeMillis();
+		model.addAttribute("deviceGroups", deviceService.findMyDeviceWithGroup2());
+		System.out.println("Query devices in " + (System.currentTimeMillis() - start));
 
 		return "device/list";
 	}

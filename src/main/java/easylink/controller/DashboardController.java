@@ -26,23 +26,14 @@ public class DashboardController extends BaseController {
 	@Autowired
 	UserGroupService ugService;
 
-	@GetMapping("/main")
-	@NeedPermission("mainDashboard")
-	public String homeDashboard(Model model) {
-		model.addAttribute("pageTitle", "Dashboard tổng hợp");
-		model.addAttribute("homeDashboard", configService.getHomeDashboardUrl()
-				+ "&var-user_id=" + SecurityUtil.getUserDetail().getUserId());
-		return "dashboard/dashboard";
-	}
-	
-	@GetMapping("/device")
-	@NeedPermission("dashboard:device")
-	public String deviceDashboard(Model model) {
-		model.addAttribute("pageTitle", "Giám sát Trạm");
-		model.addAttribute("deviceDashboard", configService.getDeviceDashboardUrl()
-				+ "&var-user_id=" + SecurityUtil.getUserDetail().getUserId());
-		return "dashboard/device";
-	}
+//	@GetMapping("/main")
+//	@NeedPermission("mainDashboard")
+//	public String homeDashboard(Model model) {
+//		model.addAttribute("pageTitle", "Dashboard tổng hợp");
+//		model.addAttribute("homeDashboard", configService.getHomeDashboardUrl()
+//				+ "&var-user_id=" + SecurityUtil.getUserDetail().getUserId());
+//		return "dashboard/dashboard";
+//	}
 
 	@GetMapping("/list")
 	@NeedPermission("dashboard:list")
@@ -76,13 +67,14 @@ public class DashboardController extends BaseController {
 	public String getDashboard(Model model, @PathVariable int id) {
 
 		Dashboard d = dashboardService.findById(id);
-		model.addAttribute("pageTitle", d.getName()); //"Chi tiết Dashboard");
+		//model.addAttribute("pageTitle", d.getName()); //"Chi tiết Dashboard");
+		model.addAttribute("disablePageTitle", true);
 		String url = d.getUrl();
 		if (!url.contains("user_id")) {
 			if (!url.contains("?"))
-				url += "?force=1&standalone=2&user_id=" + SecurityUtil.getUserDetail().getUserId();
+				url += "?user_id=" + SecurityUtil.getUserDetail().getUserId() + "&" + configService.getConfig("DASHBOARD_PARAM");
 			else
-				url+="&force=1&standalone=2&user_id=" + SecurityUtil.getUserDetail().getUserId();
+				url+="&user_id=" + SecurityUtil.getUserDetail().getUserId() + "&" + configService.getConfig("DASHBOARD_PARAM");
 		}
 		model.addAttribute("dashboardUrl", url);
 		return "dashboard/view";

@@ -1,6 +1,8 @@
 package easylink.dto;
 
-public class ActionCreateAlarm {
+import java.io.Serializable;
+
+public class ActionCreateAlarm implements Serializable {
 	String alarmType;
 	String alarmContent;
 	String alarmLevel;

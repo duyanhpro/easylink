@@ -79,7 +79,7 @@
 					<div class="box-body">
 						<div class="form-group row">
 							<label for="name" class="col-sm-3 col-form-label">Tên luật *</label>
-							<div class="col-sm-5">
+							<div class="col-sm-7">
 								<input type="text" class="form-control" id="name" name="name" th:value="${rule.name}" required data-parsley-error-message="Tên luật không được bỏ trống">
 							</div>
 						</div>
@@ -95,10 +95,10 @@
 						</div>
 						<div class="form-group row">
 							<label for="condition" class="col-sm-3 col-form-label">Điều kiện *</label>
-							<div class="col-sm-5">
+							<div class="col-sm-7">
 								<textarea class="form-control" id="condition" rows="3"	name="condition" required data-parsley-error-message="Điều kiện thực thi không được bỏ trống">[[${rule.condition}]]</textarea>
 							</div>
-							<div class="col-sm-1">
+							<div class="col-sm-2">
 <!--								<button type="button" class="btn btn-info btn-round" data-toggle="modal" data-target="#helpModal">-->
 									<i class="dripicons-question" data-toggle="modal" data-target="#helpModal" style="font-size: 1.5em;"></i>
 <!--								</button>-->
@@ -115,13 +115,13 @@
 						</div>
 						<div class="form-group row">
 							<label for="alarmContent" class="col-sm-3 col-form-label">Nội dung cảnh báo *</label>
-							<div class="col-sm-3">
+							<div class="col-sm-7">
 								<input type="text" class="form-control" id="alarmContent" name="alarmContent" th:value="${alarm.alarmContent}" required data-parsley-error-message="Nội dung cảnh báo không được bỏ trống">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-3 col-form-label">Mức độ</label>
-							<div class="col-sm-3">
+							<div class="col-sm-5">
 								<select class="form-control select2" style="width: 100%;" name="alarmLevel">
 								<option th:each="l : ${T(easylink.dto.AlarmLevel).values()}"
                 					th:selected="${alarm.alarmLevel == l.name()}" th:value="${l}" th:text="${l}"></option>
@@ -133,13 +133,13 @@
 						</div>
 						<div class="form-group row">
 							<label for="alarmType" class="col-sm-3 col-form-label">Loại cảnh báo (Tag)</label>
-							<div class="col-sm-3">
+							<div class="col-sm-5">
 								<input type="text" class="form-control" id="alarmType" name="alarmType" th:value="${alarm.alarmType}">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label for="lstGroup" class="col-sm-3 col-form-label">Áp dụng theo cả nhóm trạm</label>
-							<div class="col-sm-5">
+							<div class="col-sm-7">
 								<select id="lstGroup" class="form-control select2" style="width: 100%;" data-placeholder="Chọn nhóm được áp dụng luật"
 										name="groupIds" multiple>
 									<option th:each="s : ${allGroups}" th:value="${s.id}" th:selected="${groups !=null && groups.contains(s.id)}">[[${s.name}]]</option>
@@ -153,7 +153,7 @@
 						</div>
 						<div class="form-group row">
 							<label for="lstDevice" class="col-sm-3 col-form-label">Loại trạm trong nhóm được áp dụng</label>
-							<div class="col-sm-5">
+							<div class="col-sm-7">
 								<select id="lstDeviceType" class="form-control select2" style="width: 100%;" data-placeholder="Chọn loại trạm (bỏ trống nếu áp dụng tất cả)"
 										name="deviceTypes" multiple>
 									<option th:each="s : ${allDeviceTypes}" th:value="${s.id}" th:selected="${metadata !=null && metadata.getDeviceTypes().contains(s.id)}">[[${s.name}]]</option>
@@ -163,7 +163,7 @@
 						</div>
 						<div class="form-group row">
 							<label for="lstDevice" class="col-sm-3 col-form-label">Áp dụng theo từng trạm lẻ</label>
-							<div class="col-sm-5">
+							<div class="col-sm-7">
 							  <select id="lstDevice" class="form-control select2" style="width: 100%;" data-placeholder="Chọn trạm được áp dụng luật"
 							  	name="deviceIds" multiple>
 		                          <option th:each="s : ${allDevices}" th:value="${s.id}" th:selected="${devices !=null && devices.contains(s.id)}">[[${s.name}]]</option>
@@ -174,7 +174,7 @@
 
 						<div class="form-group row">
 							<label for="interval" class="col-sm-3 col-form-label">Thời gian tối thiểu giữa các lần kích hoạt (giây)</label>
-							<div class="col-sm-5">
+							<div class="col-sm-2">
 								<input type="number" class="form-control" id="interval" name="interval" th:value="${rule.minInterval}" min="0">
 							</div>
 						</div>

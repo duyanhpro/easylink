@@ -2,6 +2,10 @@
 	.dataTables_filter {
 	   display: none;		// hide datatable default search box to use our search input
 	}
+	/* Custom class to prevent wrapping for specific columns */
+	.nwr {
+		white-space: nowrap;
+	}
 </style>
 <script type="text/javascript">
 	$(document).ready(
@@ -13,8 +17,9 @@
 					"bInfo" : false,
 					"bLengthChange" : false,
 					"searching" : true,
+					"deferRender": true,
 					"columnDefs" : [ {
-						"targets" : [ 5 ], // Column Action can not be ordered
+						"targets" : [ 6 ], // Column Action can not be ordered
 						"orderable" : false
 					}, {
 						"targets" : [ 5 ], // Column Action, Status can not be searched
@@ -51,7 +56,7 @@
 		<div class="box-header with-border">
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-					<input type="text" name="searchbox" id="searchbox" class="form-control" placeholder="Tên/Mô tả/Thành phố/Nhóm">
+					<input class="form-control" id="searchbox" name="searchbox" placeholder="Tên/Địa điểm/Thành phố/Nhóm/Loại" type="text">
 				</div>
 				<div class="col-lg-6 cold-md-6 col-sm-8 col-xs-8">
 					<div class="">
@@ -72,30 +77,28 @@
 						<th >STT</th>
 						<!-- 						<th style="width: 20px">ID</th> -->
 						<th>Tên</th>
-						<th>Mô tả</th>
+						<th>Địa điểm</th>
 						<th>Thành phố</th>
-<!-- 						<th>Địa điểm</th>-->
+						<th>Loại trạm</th>
 						<th>Nhóm</th>
-<!--						<th>Quận/Huyện</th>-->
-<!--						<th>Đường/Phố</th>-->
-						<th >Thao tác</th>
+						<th class="nwr">Thao tác</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr th:each="dg,iterationStatus  : ${deviceGroups}">
 						<td th:text="${iterationStatus.count}">1</td>
 						<td><a th:href="@{'/device/edit/' + ${dg.id}}">[[${dg.name}]]</a></td>
-						<td th:text="${dg.description}">1</td>
+						<td th:text="${dg.location}">1</td>
 						<td th:text="${dg.city}">1</td>
+						<td th:text="${dg.deviceTypeName}">1</td>
 						<td th:text="${dg.groupName}">1</td>
-						<td><a class="btn btn-gradient-primary"
+						<td class="nwr"><a class="btn btn-gradient-primary"
 							th:href="@{'/device/edit/' + ${dg.id}}">Chi tiết</a>
 							<a th:if="${session.principal.hasRole('ADMIN')}" class="btn btn-gradient-danger"
 							   th:attr="onclick=|confirmDelete('${dg.id}', '@{/device/delete/}')|"
 							   href="#">[[#{delete}]]</a>
 						</td>
 					</tr>
-
 
 				</tbody>
 			</table>

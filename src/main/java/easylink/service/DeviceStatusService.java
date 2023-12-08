@@ -3,6 +3,7 @@ package easylink.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import easylink.dto.ActionCreateAlarm;
 import easylink.dto.AlarmLevel;
 import easylink.dto.ConnectionStatus;
 import easylink.entity.Alarm;
@@ -125,8 +126,15 @@ public class DeviceStatusService {
                     mqttService.sendToMqtt(connectionTopic + "/" + deviceToken, "OK");
 
                     // Create alarm
-                    Alarm a = new Alarm(deviceToken,new Date(), "Trạm khôi phục kết nối","Connection",
-                            AlarmLevel.Info, 0, eventTime);
+                    ActionCreateAlarm ac = configParamService.getAlarmConfig("ALARM_CONNECTION_RECOVER");
+                    Alarm a;
+                    if (ac == null)
+                        a = new Alarm(deviceToken,new Date(), "Trạm khôi phục kết nối","Kết nối",
+                                AlarmLevel.Info, 0, eventTime);
+                    else
+                        a = new Alarm(deviceToken, new Date(), ac.getAlarmContent(), ac.getAlarmType(),
+                                AlarmLevel.valueOf(ac.getAlarmLevel()), 0, null);
+
                     alarmService.createAlarm(a);
                 }
             }
@@ -176,8 +184,15 @@ public class DeviceStatusService {
                     statusRepo.updateStatus(token, DeviceStatus.STATUS_NOK);
 
                     // Create alarm
-                    Alarm a = new Alarm(token, new Date(), "Trạm mất kết nối", "Connection",
-                            AlarmLevel.Error, 0, null);
+                    ActionCreateAlarm ac = configParamService.getAlarmConfig("ALARM_CONNECTION_ERROR");
+                    Alarm a;
+                    if (ac == null)
+                        a = new Alarm(token, new Date(), "Trạm mất kết nối", "Kết nối",
+                                AlarmLevel.Error, 0, null);
+                    else
+                        a = new Alarm(token, new Date(), ac.getAlarmContent(), ac.getAlarmType(),
+                                AlarmLevel.valueOf(ac.getAlarmLevel()), 0, null);
+
                     alarmService.createAlarm(a);
 
                     // Optional: send an event to mqtt connection monitor topic

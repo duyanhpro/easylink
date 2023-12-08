@@ -46,8 +46,8 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
 			"(select group_id from tbl_user_group where user_id = ?1)) order by id asc")
 	List<Device> getDevicesForUser(@Param("userId") Integer userId);	// get devices of groups of user (recursively)
 
-	@Query(nativeQuery = true, value = "select d.id, d.name, d.description, d.city, g.name as groupName from tbl_device d, tbl_group g where " +
-			"d.group_id = g.id and d.id in (select device_id from tbl_device_group where group_id in " +
+	@Query(nativeQuery = true, value = "select d.id, d.name, d.location, d.city, g.name as groupName, dt.name as deviceTypeName from tbl_device d, tbl_group g, tbl_device_type dt where " +
+			"d.group_id = g.id and d.type_id = dt.id and d.id in (select device_id from tbl_device_group where group_id in " +
 			"(select group_id from tbl_user_group where user_id = ?1)) order by id asc")
 	List<IDeviceWithGroupDto> getDevicesForUserWithGroup(@Param("userId") Integer userId);
 

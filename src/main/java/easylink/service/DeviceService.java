@@ -66,28 +66,13 @@ public class DeviceService {
 		}
 		return ldg;
 	}
-	public List<IDeviceWithGroupDto> findMyDeviceWithGroup3() {
+
+	/** Find using query, without paging
+	 *
+	 * @return
+	 */
+	public List<IDeviceWithGroupDto> findMyDeviceWithGroup2() {
 		return repo.getDevicesForUserWithGroup(SecurityUtil.getUserDetail().getUserId());
-	}
-	// Find all belong to this user
-	public List<DeviceGroupDto2> findMyDeviceWithGroup2() {
-		List<DeviceGroupDto2> ldg = new ArrayList<>();
-		List<Device> ld = findAllMyDevices();
-		List<Group> lg = groupRepo.findAll();
-		Map<Integer, Group> mg = new HashMap<>();
-		for (Group g: lg) {
-			mg.put(g.getId(), g);
-		}
-		for (Device d: ld) {
-			DeviceGroupDto2 dg = new DeviceGroupDto2();
-			dg.setId(d.getId());
-			dg.setName(d.getName());
-			dg.setDescription(d.getDescription());
-			dg.setCity(d.getCity());
-			dg.setGroupName(mg.get(d.getGroupId()).getName());
-			ldg.add(dg);
-		}
-		return ldg;
 	}
 
 	/**

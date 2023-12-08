@@ -64,7 +64,7 @@ public class RuleService {
 	}
 
 	public List<Rule> findAll() {
-		return repo.findAll(Sort.by(Direction.ASC, "modifiedDate"));
+		return repo.findAll(Sort.by(Direction.DESC, "createdDate"));
 	}
 
 	@Cacheable("activeRules")

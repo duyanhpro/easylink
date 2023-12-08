@@ -24,9 +24,9 @@ public class Test2 {
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void doSomethingAfterStartup() {
-		System.out.println(configService.findLastSyncDate());
-		configService.updatePricePerHour(234l);
-		System.out.println(configService.findPricePerHour());
+//		System.out.println(configService.findLastSyncDate());
+//		configService.updatePricePerHour(234l);
+//		System.out.println(configService.findPricePerHour());
 	}
 
 

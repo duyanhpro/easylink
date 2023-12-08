@@ -8,6 +8,7 @@ import easylink.entity.ConfigParam;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class ConfigParamRepository  {
 	
 	static final String DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
@@ -39,7 +40,17 @@ public class ConfigParamRepository  {
 			return null;
 		}
 	}
-	
+
+	public String getValue(String parameterName) {
+		String jql = "select u.value from ConfigParam u where u.name = '" + parameterName + "'";
+		try {
+			String cp = (String) em.createQuery(jql).getSingleResult();
+			return cp;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	@Transactional
 	public void saveOrUpdateParameter(String parameterName, String value, String type) {
 		String jql = "select u from ConfigParam u where u.name = '" + parameterName + "'";

@@ -2,6 +2,10 @@
 	.dataTables_filter {
 	   display: none;		// hide datatable default search box to use our search input
 	}
+	/* Custom class to prevent wrapping for specific columns */
+	.no-wrap {
+		white-space: nowrap;
+	}
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -57,7 +61,7 @@
 		</div>
 		<div class="box-body">
 			<div class="table-responsive">	
-			<table id="mainTable" class="table table-bordered dt-responsive nowrap" style="width: 100%;" >
+			<table class="table table-bordered dt-responsive" id="mainTable" style="width: 100%;" >
 			<thead>
 				<tr>
 					<th style="width: 20px" align="center">STT</th>
@@ -65,7 +69,7 @@
 					<th>Điều kiện</th>
 					<th>Nội dung cảnh báo</th>
 					<th>Trạng thái</th>
-					<th>Thao tác</th>
+					<th class="no-wrap">Thao tác</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -79,7 +83,7 @@
 						<td th:case="'0'">Khóa</td>
 						<td th:case="*">Unknown status</td>
 					</div>
-					<td>
+					<td class="no-wrap">
 						<a class="btn btn-gradient-primary" th:href="@{'/rule/view/' + ${r.rule.id}}">Chi tiết</a>
 						<a  th:if="${session.principal.hasRole('ADMIN') && isRoot}" class="btn btn-gradient-danger"
 							th:attr="onclick=|confirmDelete('${r.rule.id}','@{/rule/delete/}')|" href="#" >[[#{delete}]]</a>

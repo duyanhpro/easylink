@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import easylink.dto.ActionCreateAlarm;
 import easylink.dto.AlarmLevel;
 import easylink.entity.Alarm;
 import easylink.entity.Rule;
@@ -25,6 +26,8 @@ public class RuleExecutionServie {
 	AlarmService alarmService;
 	@Autowired
 	RedisService redisService;
+	@Autowired
+	ConfigParamService configParamService;
 
 	// map ruleId with message queue.  Each rule will have one queue to process messages
 	static Map<Integer, Queue<Map<String,Object>>> msgQueueMap = new HashMap<>();	
@@ -136,6 +139,16 @@ public class RuleExecutionServie {
 //		}
 //	}
 
+	public static String replaceFirst(String originalString, String whatToReplace, String replaceBy) {
+		StringBuilder sb = new StringBuilder(originalString);
+		int index = sb.indexOf(whatToReplace);
+		if (index != -1) {
+			return sb.replace(index, index + whatToReplace.length(), replaceBy).toString();
+		} else {
+			return originalString;
+		}
+	}
+
 	/**
 	 * Connection rule & sensor error rule
 	 * @param deviceToken
@@ -157,12 +170,18 @@ public class RuleExecutionServie {
 			if (o == null || o.equals("error")) {		// sensor error
 				// Check if not yet alarm
 				if (!errorSensors.contains(s)) {
-						log.warn("Field {} error", s);
-						errorSensors.add(s);
-						// Create alarm
-						Alarm a = new Alarm(deviceToken, new Date(), "Cảm biến " + s + " bị lỗi", "Sensor",
-								AlarmLevel.Error, 0, null);
-						alarmService.createAlarm(a);
+					log.warn("Field {} error", s);
+					errorSensors.add(s);
+					// Create alarm
+					ActionCreateAlarm ac = configParamService.getAlarmConfig("ALARM_SENSOR_ERROR");
+					Alarm a;
+					if (ac == null)
+						a = new Alarm(deviceToken, new Date(), "Cảm biến " + s + " bị lỗi", "Trạng thái cảm biến",
+							AlarmLevel.Error, 0, null);
+					else
+						a = new Alarm(deviceToken, new Date(), replaceFirst(ac.getAlarmContent(),"[sensor]", s),ac.getAlarmType(),
+							AlarmLevel.valueOf(ac.getAlarmLevel()), 0, null);
+					alarmService.createAlarm(a);
 
 				}
 			} else {			// sensor normal
@@ -170,8 +189,14 @@ public class RuleExecutionServie {
 				if (errorSensors.contains(s)) {
 					errorSensors.remove(s);
 					// Create alarm
-					Alarm a = new Alarm(deviceToken, new Date(), "Cảm biến " + s + " hoạt động lại", "Sensor",
+					ActionCreateAlarm ac = configParamService.getAlarmConfig("ALARM_SENSOR_RECOVER");
+					Alarm a;
+					if (ac == null)
+						a = new Alarm(deviceToken, new Date(), "Cảm biến " + s + " hoạt động lại", "Trạng thái cảm biến",
 							AlarmLevel.Info, 0, null);
+					else
+						a = new Alarm(deviceToken, new Date(), replaceFirst(ac.getAlarmContent(),"[sensor]", s),ac.getAlarmType(),
+								AlarmLevel.valueOf(ac.getAlarmLevel()), 0, null);
 					alarmService.createAlarm(a);
 				}
 			}
