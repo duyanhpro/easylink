@@ -14,7 +14,7 @@
 
             <!-- LOGO -->
             <div class="topbar-left" >
-                <a href="../dashboard/crm-index.html" class="logo">
+                <a class="logo" th:href="@{/dashboard/list}">
                     <span>
                         <img style="height:38px" th:src="@{/img/easylink-logo.png}" alt="logo-small" class="logo-sm">
                     </span>
@@ -28,7 +28,9 @@
             <!-- Navbar -->
 
             <nav class="navbar-custom">
-
+                <div class="overlay"  id="full-screen" style="display: none;">
+                    <i class="mdi mdi-fullscreen page-title" style="font-size: 50px;"></i>
+                </div>
                 <ul class="list-unstyled topbar-nav float-right mb-0">
 
                     <li class="dropdown">
@@ -46,19 +48,21 @@
                     </li>
                 </ul><!--end topbar-nav-->
     
-                <ul class="list-unstyled topbar-nav mb-0">                        
+                <ul class="list-unstyled topbar-nav mb-0">
                     <li>
                         <button class="nav-link button-menu-mobile waves-effect waves-light">
                             <i class="ti-menu nav-icon"></i>
                         </button>
                     </li>
-<!--                     <li class="hide-phone app-search"> -->
-<!--                         <form role="search" class=""> -->
-<!--                             <input type="text" id="AllCompo" placeholder="Search..." class="form-control"> -->
-<!--                             <a href=""><i class="fas fa-search"></i></a> -->
-<!--                         </form> -->
-<!--                     </li> -->
                 </ul>
+                <ul class="myfullscreen list-unstyled topbar-nav float-right mb-0" style="display: none;">
+                    <li class="dropdown">
+                        <a aria-expanded="false" aria-haspopup="false" class="nav-link dropdown-toggle waves-effect waves-light nav-user" href="#"
+                           onclick="toggleFullScreen();" role="button">
+                            <i class="mdi mdi-fullscreen page-title" style="font-size: 50px;"></i>
+                        </a>
+                    </li>
+                </ul><!--end topbar-nav-->
 
             </nav>
             <!-- end navbar-->

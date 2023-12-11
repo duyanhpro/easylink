@@ -1,18 +1,18 @@
 <style>
-	.no-margin-top {
-		margin-top: 0px;
-	}
-	.overlay {
-		position: absolute;
-		top: -5px;
-		right: 70px;
-		border-radius: 5px;
-		cursor: pointer;
-	}
-	.overlay a {
-		color: #fff;
-		text-decoration: none;
-	}
+	/*.no-margin-top {*/
+	/*	margin-top: 0px;*/
+	/*}*/
+	/*.overlay {*/
+	/*	position: absolute;*/
+	/*	top: 0px;*/
+	/*	right: 120px;*/
+	/*	border-radius: 5px;*/
+	/*	cursor: pointer;*/
+	/*}*/
+	/*.overlay a {*/
+	/*	color: #fff;*/
+	/*	text-decoration: none;*/
+	/*}*/
 </style>
 <script type="text/javascript">
 
@@ -42,10 +42,11 @@
 	}
 	
 	$(document).ready(function() {
-		$("#full-screen").show();
-		$("#full-screen").click(function() {
-			toggleFullScreen();
-		});
+		// $("#full-screen").show();
+		// $("#full-screen").click(function() {
+		// 	toggleFullScreen();
+		// });
+		$(".myfullscreen").show();
 	});
 
 	// setInterval(function() {
@@ -61,9 +62,7 @@
       
       <div class="embed-responsive embed-responsive-16by9">
   			<iframe id="myIframe" th:src="${dashboardUrl}" ></iframe>
-			  <div class="overlay"  id="full-screen">
-				  <i class="mdi mdi-fullscreen page-title" style="font-size: 50px;"></i>
-			  </div>
+
 		</div>
       <!-- /.row -->
       
