@@ -50,7 +50,7 @@ body{
                                     </div> <!--end auth-logo-text-->  
     
                                     
-                                    <form class="form-horizontal auth-form my-4" action="login" method="post">
+                                    <form action="login" autocomplete="off" class="form-horizontal auth-form my-4" method="post">
             
                                         <div class="form-group">
                                             <label for="username">Tài khoản</label>
@@ -63,31 +63,19 @@ body{
                                         </div><!--end form-group--> 
             
                                         <div class="form-group">
-                                            <label for="userpassword">Mật khẩu</label>                                            
+                                            <label for="password">Mật khẩu</label>
                                             <div class="input-group mb-3"> 
                                                 <span class="auth-form-icon">
                                                     <i class="dripicons-lock"></i> 
                                                 </span>                                                       
-                                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+                                                <input autocomplete="off" class="form-control" id="password" name="password" placeholder="Enter password" type="password">
                                             </div>                               
                                         </div><!--end form-group--> 
             							
 										<div class="text-center">
 											<p style="color:red;" th:if="${param.errorMsg}">[[${param.errorMsg}]]</p>
 										</div>
-            							
-<!--                                         <div class="form-group row mt-4"> -->
-<!--                                             <div class="col-sm-6"> -->
-<!--                                                 <div class="custom-control custom-switch switch-success"> -->
-<!--                                                     <input type="checkbox" class="custom-control-input" id="customSwitchSuccess"> -->
-<!--                                                     <label class="custom-control-label text-muted" for="customSwitchSuccess">Remember me</label> -->
-<!--                                                 </div> -->
-<!--                                             </div>end col  -->
-<!--                                             <div class="col-sm-6 text-right"> -->
-<!--                                                 <a href="auth-recover-pw.html" class="text-muted font-13"><i class="dripicons-lock"></i> Forgot password?</a>                                     -->
-<!--                                             </div>end col  -->
-<!--                                         </div>end form-group  -->
-            
+
                                         <div class="form-group mb-0 row">
                                             <div class="col-12 mt-2">
                                                 <button class="btn btn-gradient-primary btn-round btn-block waves-effect waves-light" type="submit">Đăng nhập <i class="fas fa-sign-in-alt ml-1"></i></button>

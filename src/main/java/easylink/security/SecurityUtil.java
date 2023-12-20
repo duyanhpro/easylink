@@ -51,7 +51,14 @@ public class SecurityUtil {
 
 	}
 	public static void setUserDetail(UserAuthorizationDetail userDetail) {
-		RequestContextHolder.getRequestAttributes().setAttribute(PRINCIPAL, userDetail, RequestAttributes.SCOPE_REQUEST);
+		ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+		HttpSession s = attr.getRequest().getSession(false);
+		UserAuthorizationDetail uad;
+		if (s != null) {
+			s.setAttribute(PRINCIPAL, userDetail);
+		}
+		attr.setAttribute(PRINCIPAL, userDetail, RequestAttributes.SCOPE_REQUEST);
+		attr.setAttribute(PRINCIPAL, userDetail, RequestAttributes.SCOPE_SESSION);
 	}
 	
 	public static boolean isAuthenticated() {

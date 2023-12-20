@@ -168,8 +168,8 @@ public class UserController extends BaseController {
 		return "user/changePassword";
 	}
 	
-	@PostMapping("/changePassword")
-	public String changePasswordUser(Model model, RedirectAttributes redirectAttrs, String oldPassword, String newPassword) {
+	@PostMapping("/updatePassword")
+	public String updatePasswordUser(Model model, RedirectAttributes redirectAttrs, String oldPassword, String newPassword) {
 		log.debug("Change password for user id {}", SecurityUtil.getUserDetail().getUsername());
 		userService.changePassword(oldPassword, newPassword);
 		

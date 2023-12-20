@@ -31,7 +31,7 @@
 <!--	<logger name="org.springframework.security" level="ERROR" />-->
 
 	<logger name="easylink" level="trace" />
-	<logger name="easylink.security" level="info" />
+<!--	<logger name="easylink.security" level="info" />-->
 <!--	<logger name="org.springframework.cache" level="trace" />-->
 
 	<root level="INFO">

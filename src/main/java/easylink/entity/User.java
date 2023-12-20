@@ -125,8 +125,8 @@ public class User extends BaseEntity {
 			builder.append("email=").append(email).append(", ");
 		if (phone != null)
 			builder.append("phone=").append(phone).append(", ");
-//		if (password != null)
-//			builder.append("password=").append(password).append(", ");
+		if (password != null)
+			builder.append("password=").append(password).append(", ");
 		if (status != null)
 			builder.append("status=").append(status).append(", ");
 		if (type != null)

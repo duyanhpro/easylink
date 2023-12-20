@@ -163,14 +163,17 @@ public class UserService {
 	@Transactional
 	public User changePassword(String oldPassword, String newPassword) {
 		User u = SecurityUtil.getUserDetail().getUser();
-		
+		log.debug("Old user: " + u);//System.out.println("Saved password: " + u.getPassword());
 		boolean oldPassMatch = passwordEncoder.matches(oldPassword, u.getPassword());
 		if (oldPassMatch)  {
 			u.setPassword(passwordEncoder.encode(newPassword));
 			repo.save(u);
+			SecurityUtil.getUserDetail().setUser(u);	// re-update user in session
+			SecurityUtil.setUserDetail(SecurityUtil.getUserDetail());	// re-update to save it to distributed Spring session
+			log.debug("Updated user: " + SecurityUtil.getUserDetail().getUser());
 			return u;
 		} else {
-			throw new RuntimeException("Current password does not match");
+			throw new RuntimeException("Mật khẩu hiện tại không đúng");
 		}
 	}
 
