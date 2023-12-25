@@ -66,7 +66,9 @@ public class GroupController extends BaseController {
 		model.addAttribute("group", g);
 		model.addAttribute("usernames", ugService.findUserNameByGroupId(id));	// list usernames in group
 		model.addAttribute("allUsers", userService.findAllMyUserDTO());						// list all users (used to add user into group)
-		model.addAttribute("allGroups", groupService.findAllMyGroups());	// list all groups (used to select parent)
+		//model.addAttribute("allGroups", groupService.findAllMyGroups());	// list all groups (used to select parent)
+		model.addAttribute("allGroups", groupService.findAllGroupAllowedToBeParent(id));
+
 		model.addAttribute("allDevices", deviceService.findAllMyDevices());
 		return "group/edit";
 	}

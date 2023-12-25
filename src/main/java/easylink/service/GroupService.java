@@ -43,7 +43,19 @@ public class GroupService {
 		return findGroupAndChilrenGroup(SecurityUtil.getUserDetail().getUserId());
 		//return repo.findAllByOrderByNameAsc();
 	}
-	
+
+	// Group that this user allowed to view, and remove groups that are children/grandchildren of currently selected group
+	public Set<Group> findAllGroupAllowedToBeParent(int groupId) {
+		Set<Group> allMyGroups = findGroupAndChilrenGroup(SecurityUtil.getUserDetail().getUserId());
+		Set<Integer> myChildren = findChildrenAndGrandChildren(groupId);
+		Set<Group> result = new HashSet<>();
+		for (Group g: allMyGroups) {
+			if (!myChildren.contains(g.getId()))
+				result.add(g);
+		}
+		return result;
+	}
+
 	public List<Group> findGroupByUserId(int userId) {
 		return repo.findAllByUserIdSortbyName(userId);
 	}
@@ -57,6 +69,13 @@ public class GroupService {
 		}
 		return a;
 	}
+
+	public Set<Integer> findChildrenAndGrandChildren(int groupId) {
+		Set<Integer> a = new HashSet<>();
+		findGroupIdAndChildren(groupId, a);
+		return a;
+	}
+
 	private void findGroupIdAndChildren(int groupId, Set<Integer> s) {	// recursively
 			List<Integer> li = repo.findChildrenIds(groupId);
 			s.addAll(li);
@@ -106,10 +125,12 @@ public class GroupService {
 		// Check permission
 		Set<Integer> myGroup = findGroupIdAndChildrenByUser(SecurityUtil.getUserDetail().getUserId());
 		if (!myGroup.contains(groupId))
-			throw new AccessDeniedException("Can not update this group");
+			throw new AccessDeniedException("Không có quyền cập nhật nhóm này");
 
 		Group g = repo.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
 		if (g.getParentId() != group.getParentId()) {
+			if (!validateParentId(groupId, group.getParentId()))
+				throw new RuntimeException("Nhóm cha không được phép trong danh sách cấp dưới của nhóm hiện tại.");
 			// Update group structure relationship
 			updateGroupTree(groupId, g.getParentId(), group.getParentId());
 		}
@@ -179,9 +200,21 @@ public class GroupService {
 //
 //	}
 
+	// Check if new parent ID is valid
+	public boolean validateParentId(int groupId, int newParentId) {
+		// check to prevent parent loop.  newParentId can not be one of children of current group
+		Set<Integer> tem = findAllParentIds(newParentId);
+		if (tem.contains(groupId))
+			//throw new RuntimeException("Nhóm cha không được phép trong danh sách cấp dưới của nhóm hiện tại.");
+			return false;
+		return true;
+	}
+
 	public void updateGroupTree(int groupId, Integer oldParentId, Integer newParentId) {
-		// lam kieu tho thien nhat
+		// lam kieu tho thien nhat, rebuild lai tat ca quan he
 		ugService.rebuildUserGroupRelationship();
+		// :( Chay rat lau khi so luong device lon
+		// todo: chi rebuild lai cac device can thiet
 		deviceService.rebuildAllDeviceGroupRelationship();
 	}
 
